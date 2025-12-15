@@ -103,8 +103,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // TODO: replace these two with your real values
-    const SUPABASE_URL = 'https://YOUR-PROJECT-ID.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'YOUR-PUBLISHABLE-KEY';
+    const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
 
     const client = window.supabase.createClient(
       SUPABASE_URL,
@@ -159,7 +159,7 @@
 
       try {
         const { data, error } = await client
-          .from('Candidates')           // Supabase table name
+          .from('Candidates')           // Supabase table name (change to 'candidates' if that’s how it’s spelled)
           .select('*')
           .eq('magic_token', token)
           .eq('last_four', last4);
@@ -168,7 +168,8 @@
 
         if (error) {
           statusEl.className = 'notice notice-error';
-          statusEl.textContent = 'Error talking to the status system. Please try again later.';
+          statusEl.textContent =
+            'Supabase error: ' + (error.message || JSON.stringify(error));
           console.error(error);
           return;
         }
@@ -187,7 +188,6 @@
         const stageUpdated = formatFriendlyDate(c.stage_updated);
         const nextInterview = formatFriendlyDate(c.next_interview);
 
-        // These assume you have columns: recruiter, hiring_manager in Supabase
         const recruiter = c.recruiter || 'N/A';
         const hiringManager = c.hiring_manager || 'N/A';
 
