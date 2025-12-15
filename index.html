@@ -222,14 +222,13 @@
         const recruiterName = c.recruiter_name || 'Not listed';
 
         resultEl.innerHTML = `
-          <h2>Hello ${c.name || 'there'}</h2>
-          <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
-          <p><strong>Current stage:</strong> ${c.current_stage || 'N/A'}</p>
-          <p><strong>Hiring manager:</strong> ${hiringManager}</p>
-          <p><strong>Recruiter:</strong> ${c.recruiter || 'N/A'}</p>
-          <p><strong>Next interview:</strong> ${nextInterview}</p>
-          <p class="meta"><strong>Last updated:</strong> ${stageUpdated}</p>
-        `;
+  <h2>Hello ${c.name || 'there'}</h2>
+  <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
+  <p><strong>Current stage:</strong> ${c.current_stage || 'N/A'}</p>
+  <p><strong>Recruiter:</strong> ${c.recruiter || 'N/A'}</p>
+  <p><strong>Last updated:</strong> ${stageUpdated}</p>
+  <p><strong>Next interview:</strong> ${nextInterview}</p>
+`;
         resultEl.style.display = 'block';
       } catch (e) {
         console.error('Unexpected error:', e);
