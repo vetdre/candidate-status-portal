@@ -2,122 +2,342 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Candidate Status Check</title>
+  <title>Application Status Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 0;
-      padding: 1.5rem;
-      background: #f4f5f7;
-      color: #222;
+    :root {
+      /* Swap these to match your msCONSULTANTS branding */
+      --brand-primary: #004f7c;
+      --brand-accent: #00a4e4;
+      --brand-bg: #f3f4f6;
+      --brand-text: #111827;
     }
 
-    h1 {
-      margin-top: 0;
-      font-size: 1.6rem;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #e5f0fb 0, #f9fafb 45%, #f3f4f6 100%);
+      color: var(--brand-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+      padding: 24px 22px 26px;
+    }
+
+    @media (min-width: 640px) {
+      .card {
+        padding: 28px 32px 32px;
+      }
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: var(--brand-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.03em;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--brand-primary);
+    }
+
+    .title-block p {
+      margin: 2px 0 0;
+      font-size: 0.86rem;
+      color: #6b7280;
+    }
+
+    .intro {
+      margin: 12px 0 18px;
+      font-size: 0.9rem;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    .status-bar {
+      margin-bottom: 12px;
+      min-height: 22px;
+      font-size: 0.85rem;
+    }
+
+    .status-message {
+      padding: 6px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: #4b5563;
+    }
+
+    .status-info {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .status-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .input-group {
+      flex: 1 1 160px;
+      min-width: 0;
     }
 
     label {
       display: block;
-      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
       font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 4px;
     }
 
-    input {
-      padding: 0.4rem 0.6rem;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      width: 6rem;
-      margin-right: 0.5rem;
+    input[type="text"] {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 1px rgba(0, 164, 228, 0.25);
     }
 
     button {
-      padding: 0.45rem 0.9rem;
-      font-size: 0.95rem;
-      border-radius: 4px;
+      white-space: nowrap;
+      border-radius: 999px;
       border: none;
-      background: #0057d8;
-      color: #fff;
+      padding: 9px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      background: var(--brand-primary);
+      color: #ffffff;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
 
     button:hover {
-      background: #0040a6;
+      background: #003a5c;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.35);
     }
 
-    .notice {
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      margin: 0.75rem 0;
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
     }
 
-    .notice-info {
-      background: #e6f0ff;
-      color: #003366;
+    .result-card {
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 14px 14px 16px;
+      background: #f9fafb;
     }
 
-    .notice-error {
-      background: #ffe6e6;
-      color: #7a0000;
+    @media (min-width: 640px) {
+      .result-card {
+        padding: 16px 18px 18px;
+      }
     }
 
-    #result {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 6px;
-      background: #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 6px;
     }
 
-    #result h2 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
+    .result-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0;
+      color: #111827;
     }
 
-    #result p {
-      margin: 0.25rem 0;
+    .status-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill-default {
+      background: #e5f0fb;
+      color: var(--brand-primary);
+    }
+
+    .status-pill-hired {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-pill-inactive {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .result-body p {
+      margin: 3px 0;
+      font-size: 0.88rem;
+      color: #374151;
+    }
+
+    .note {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-align: right;
     }
   </style>
 </head>
 <body>
-  <h1>Check Your Application Status</h1>
+  <div class="shell">
+    <div class="card">
+      <div class="header">
+        <!-- Replace “ms” with your initials or drop in an <img> logo -->
+        <div class="logo-circle">ms</div>
+        <div class="title-block">
+          <h1>Application Status Portal</h1>
+          <p>Secure, one-time link + phone verification.</p>
+        </div>
+      </div>
 
-  <p>
-    Enter the last 4 digits of your phone number. This page only works when opened
-    from your personalized link.
-  </p>
+      <p class="intro">
+        Use the link sent to you by our recruiting team and enter the last 4 digits of the phone
+        number used on your application to view your current status.
+      </p>
 
-  <div style="margin: 1rem 0;">
-    <label for="last4">Last 4 digits of your phone:</label>
-    <input id="last4" type="text" maxlength="4" />
-    <button onclick="checkStatus()">Check status</button>
+      <div class="status-bar">
+        <div id="status" class="status-message"></div>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label for="last4">Last 4 digits of your phone</label>
+          <input id="last4" type="text" maxlength="4" inputmode="numeric" autocomplete="off" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button type="button" onclick="checkStatus()">
+            Check status
+          </button>
+        </div>
+      </div>
+
+      <div id="result"></div>
+
+      <div class="footer">
+        If you have trouble accessing your status, please contact our recruiting team.
+      </div>
+    </div>
   </div>
-
-  <div id="status" class="notice notice-info"></div>
-  <div id="result"></div>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // TODO: replace these two with your real values
+    
     const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
 
-    const client = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Helper to format timestamps in local 12-hour time
-    function formatFriendlyDate(value) {
-      if (!value) return 'N/A';
-      const dt = new Date(value);
-      if (Number.isNaN(dt.getTime())) return 'N/A';
+    function setStatus(text, type) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = text || '';
+      const base = 'status-message';
+      if (!type) {
+        statusEl.className = base;
+      } else {
+        statusEl.className = base + ' status-' + type;
+      }
+    }
 
-      return dt.toLocaleString('en-US', {
+    function formatDateToLocal(dateString) {
+      if (!dateString) return 'N/A';
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return 'N/A';
+
+      return d.toLocaleString('en-US', {
+        timeZone: 'America/New_York', // adjust if needed
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -127,87 +347,128 @@
       });
     }
 
-    async function checkStatus() {
-      const statusEl = document.getElementById('status');
-      const resultEl = document.getElementById('result');
+    function classifyStatus(stageRaw) {
+      const stage = (stageRaw || '').toLowerCase();
 
-      // Reset UI
-      statusEl.className = 'notice notice-info';
-      statusEl.textContent = '';
+      // Rough mapping – adjust if you have specific stage names:
+      const isHired = stage.includes('hire') || stage.includes('hired');
+      const isRejected =
+        stage.includes('reject') ||
+        stage.includes('declined') ||
+        stage.includes('archiv');
+
+      if (isHired) {
+        return {
+          pillClass: 'status-pill-hired',
+          pillText: 'Hired',
+          message: 'Please log in to UKG Pro for employment details.',
+          showStageLine: false
+        };
+      }
+
+      if (isRejected) {
+        return {
+          pillClass: 'status-pill-inactive',
+          pillText: 'Pending Update',
+          message:
+            'Your application is no longer active in our system. Our team will finalize updates shortly.',
+          showStageLine: false
+        };
+      }
+
+      return {
+        pillClass: 'status-pill-default',
+        pillText: 'In Review',
+        message: '',
+        showStageLine: true
+      };
+    }
+
+    async function checkStatus() {
+      const resultEl = document.getElementById('result');
       resultEl.innerHTML = '';
 
-      // Get token from URL (?token=...)
       const params = new URLSearchParams(window.location.search);
       const token = params.get('token');
       const last4 = document.getElementById('last4').value.trim();
 
       if (!token) {
-        statusEl.className = 'notice notice-error';
-        statusEl.textContent =
-          'No token found in the link. Please open this page from the personalized link we sent you.';
+        setStatus(
+          'This link is missing a security token. Please use the status link sent to you, or contact our recruiting team.',
+          'error'
+        );
         return;
       }
 
       if (!last4) {
-        statusEl.className = 'notice notice-error';
-        statusEl.textContent = 'Enter the last 4 digits of your phone.';
+        setStatus('Enter the last 4 digits of your phone number.', 'warning');
         return;
       }
 
-      statusEl.className = 'notice notice-info';
-      statusEl.textContent = 'Checking your status...';
+      setStatus('Checking your status…', 'info');
 
       try {
         const { data, error } = await client
-          .from('Candidates')           // Supabase table name (change to 'candidates' if that’s how it’s spelled)
+          .from('Candidates') // table name
           .select('*')
           .eq('magic_token', token)
           .eq('last_four', last4);
 
-        console.log('Supabase response:', { data, error });
-
         if (error) {
-          statusEl.className = 'notice notice-error';
-          statusEl.textContent =
-            'Supabase error: ' + (error.message || JSON.stringify(error));
-          console.error(error);
+          console.error('Supabase error:', error);
+          setStatus('There was a problem talking to the status system. Please try again later.', 'error');
           return;
         }
 
         if (!data || data.length === 0) {
-          statusEl.className = 'notice notice-error';
-          statusEl.textContent = 'No matching candidate found. Check your link and last 4 digits.';
+          setStatus('No matching record found. Please check your phone digits and try again.', 'warning');
           return;
         }
 
         const c = data[0];
+        setStatus('Match found.', 'success');
 
-        statusEl.className = 'notice notice-info';
-        statusEl.textContent = 'Match found.';
+        const stageUpdated = formatDateToLocal(c.stage_updated);
+        const nextInterview = c.next_interview
+          ? formatDateToLocal(c.next_interview)
+          : 'Not scheduled';
 
-        const stageUpdated = formatFriendlyDate(c.stage_updated);
-        const nextInterview = formatFriendlyDate(c.next_interview);
-
-        const recruiter = c.recruiter || 'N/A';
-        const hiringManager = c.hiring_manager || 'N/A';
+        const statusMeta = classifyStatus(c.current_stage);
 
         resultEl.innerHTML = `
-          <h2>Hello ${c.name || 'there'}</h2>
-          <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
-          <p><strong>Current stage:</strong> ${c.current_stage || 'N/A'}</p>
-          <p><strong>Recruiter:</strong> ${recruiter}</p>
-          <p><strong>Hiring manager:</strong> ${hiringManager}</p>
-          <p><strong>Last updated:</strong> ${stageUpdated}</p>
-          <p><strong>Next interview:</strong> ${nextInterview}</p>
+          <div class="result-card">
+            <div class="result-header">
+              <h2 class="result-title">Hello ${c.name || 'there'}</h2>
+              <span class="status-pill ${statusMeta.pillClass}">
+                ${statusMeta.pillText}
+              </span>
+            </div>
+            <div class="result-body">
+              <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
+              ${
+                statusMeta.showStageLine
+                  ? `<p><strong>Current stage:</strong> ${c.current_stage || 'In review'}</p>`
+                  : ''
+              }
+              <p><strong>Last updated:</strong> ${stageUpdated}</p>
+              <p><strong>Next interview:</strong> ${nextInterview}</p>
+              <p><strong>Recruiter:</strong> ${c.recruiter || 'N/A'}</p>
+              <p><strong>Hiring manager:</strong> ${c.hiring_manager || 'N/A'}</p>
+              ${
+                statusMeta.message
+                  ? `<p class="note">${statusMeta.message}</p>`
+                  : ''
+              }
+            </div>
+          </div>
         `;
       } catch (e) {
-        statusEl.className = 'notice notice-error';
-        statusEl.textContent = 'Unexpected error. Please try again later.';
-        console.error(e);
+        console.error('Unexpected error:', e);
+        setStatus('Unexpected error. Please try again later.', 'error');
       }
     }
 
-    // Expose for inline onclick
+    // expose for inline onclick
     window.checkStatus = checkStatus;
   </script>
 </body>
