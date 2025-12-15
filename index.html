@@ -138,13 +138,6 @@
       line-height: 1.5;
     }
 
-    .token-info {
-      font-size: 0.78rem;
-      color: #9ca3af;
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
-
     .form-row {
       display: flex;
       flex-wrap: wrap;
@@ -361,6 +354,10 @@
       text-align: right;
     }
 
+    .footer-hint p {
+      margin: 0.1rem 0;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 1.5rem 1rem;
@@ -409,11 +406,6 @@
           </p>
         </div>
 
-        <p class="token-info">
-          This page only works when opened from your personal status link. If you reached it
-          another way, please use the link provided by our recruiting team.
-        </p>
-
         <div class="form-row">
           <div class="field-group">
             <label for="last4">Last 4 digits of your phone</label>
@@ -432,7 +424,13 @@
         <div id="result"></div>
 
         <div class="footer-hint">
-          If you have trouble accessing your status, please contact our recruiting team.
+          <p>
+            This page only works when opened from your personal status link. If you
+            reached it another way, please use the link provided by our recruiting team.
+          </p>
+          <p>
+            If you have trouble accessing your status, please contact our recruiting team.
+          </p>
         </div>
       </div>
     </div>
