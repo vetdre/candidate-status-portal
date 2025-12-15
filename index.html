@@ -2,83 +2,213 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Candidate Status Check</title>
+  <title>Check Your Application Status</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 3rem auto;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1.6rem;
+    }
+
+    p {
+      margin-top: 0.25rem;
+      margin-bottom: 1rem;
+      color: #444;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      padding: 0.5rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 180px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      margin-top: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-message.error {
+      color: #b91c1c;
+    }
+
+    .status-message.success {
+      color: #166534;
+    }
+
+    .card {
+      margin-top: 1.25rem;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+    }
+
+    .card p {
+      margin: 0.35rem 0;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 0.75rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>Check Your Application Status</h1>
+  <div class="container">
+    <h1>Check Your Application Status</h1>
 
-  <p>
-    This is just a test page. To simulate the real flow, open this file with a
-    <code>?token=...</code> in the URL, then enter the last 4 digits of your phone.
-  </p>
+    <p id="intro">
+      Enter the last 4 digits of the phone number you used on your application to view your status.
+    </p>
 
-  <div style="margin: 1rem 0;">
-    <label for="last4">Last 4 digits of your phone:</label>
-    <input id="last4" type="text" maxlength="4" />
-    <button onclick="checkStatus()">Check status</button>
+    <div>
+      <label for="last4">Last 4 digits of your phone</label>
+      <input id="last4" type="text" maxlength="4" inputmode="numeric" />
+      <button id="checkButton" onclick="checkStatus()">Check status</button>
+    </div>
+
+    <div id="status" class="status-message"></div>
+    <div id="result" class="card" style="display:none;"></div>
   </div>
-
-  <div id="status" style="margin: 0.5rem 0; font-weight: bold;"></div>
-  <div id="result" style="margin-top: 1rem;"></div>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    
+    // === Supabase setup (unchanged, using your values) ===
     const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uYXV2eXVibGNsZmVxaXpwYXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMDg0MzEsImV4cCI6MjA4MDc4NDQzMX0.11nvQ5ubFh-nZYgkZ53Pwo0z3eZx6-WreL1We63M-wY';
-    
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Grab DOM elements once
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+    const introEl = document.getElementById('intro');
+    const last4Input = document.getElementById('last4');
+    const checkButton = document.getElementById('checkButton');
+
+    // Read token from URL once on load
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (!token) {
+      // No token in URL → tell user this link isn't valid for checking
+      introEl.textContent = 'This page only works from your personal application link.';
+      statusEl.textContent = 'The link you used is missing a security token.';
+      statusEl.classList.add('error');
+      checkButton.disabled = true;
+      last4Input.disabled = true;
+    } else {
+      // Token present → standard instructions
+      introEl.textContent = 'Enter the last 4 digits of the phone number you used on your application to view your status.';
+      last4Input.focus();
+    }
+
     async function checkStatus() {
-      const statusEl = document.getElementById('status');
-      const resultEl = document.getElementById('result');
+      // Clear previous messages/UI
       statusEl.textContent = '';
-      resultEl.textContent = '';
-
-      // Get token from URL (?token=...)
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('token');
-
-      const last4 = document.getElementById('last4').value.trim();
+      statusEl.className = 'status-message';
+      resultEl.style.display = 'none';
+      resultEl.innerHTML = '';
 
       if (!token) {
-        statusEl.textContent = 'No token found in URL (?token=...).';
+        // Shouldn't happen with the disabled button, but just in case
+        statusEl.textContent = 'This page can only be accessed from your personal application link.';
+        statusEl.classList.add('error');
         return;
       }
+
+      const last4 = last4Input.value.trim();
 
       if (!last4) {
-        statusEl.textContent = 'Enter the last 4 digits of your phone.';
+        statusEl.textContent = 'Please enter the last 4 digits of your phone number.';
+        statusEl.classList.add('error');
         return;
       }
 
-      statusEl.textContent = 'Checking Supabase...';
+      if (!/^[0-9]{4}$/.test(last4)) {
+        statusEl.textContent = 'Please enter exactly 4 numbers.';
+        statusEl.classList.add('error');
+        return;
+      }
+
+      statusEl.textContent = 'Checking your application...';
 
       try {
         const { data, error } = await client
-          .from('Candidates')              // table name in Supabase
+          .from('Candidates')          // Supabase table
           .select('*')
           .eq('magic_token', token)
-          .eq('last_four', last4);
-
-        console.log('Supabase response:', { data, error });
+          .eq('last_four', last4)
+          .maybeSingle();             // expect at most one match
 
         if (error) {
-          statusEl.textContent = 'Error talking to Supabase. See console.';
-          console.error(error);
+          console.error('Supabase error:', error);
+          statusEl.textContent = 'There was a problem looking up your application. Please try again later.';
+          statusEl.classList.add('error');
           return;
         }
 
-        if (!data || data.length === 0) {
-          statusEl.textContent = 'No matching candidate found.';
+        if (!data) {
+          statusEl.textContent = 'We couldn\'t find an application matching that link and phone number.';
+          statusEl.classList.add('error');
           return;
         }
 
-        const c = data[0];
+        const c = data;
 
-        statusEl.textContent = 'Match found.';
+        statusEl.textContent = 'Application found.';
+        statusEl.classList.add('success');
 
         const stageUpdated = c.stage_updated
           ? new Date(c.stage_updated).toLocaleString()
@@ -86,18 +216,25 @@
 
         const nextInterview = c.next_interview
           ? new Date(c.next_interview).toLocaleString()
-          : 'Not scheduled';
+          : 'Not yet scheduled';
+
+        const hiringManager = c.hiring_manager || 'Not yet assigned';
+        const recruiterName = c.recruiter_name || 'Not listed';
 
         resultEl.innerHTML = `
           <h2>Hello ${c.name || 'there'}</h2>
           <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
           <p><strong>Current stage:</strong> ${c.current_stage || 'N/A'}</p>
-          <p><strong>Last updated:</strong> ${stageUpdated}</p>
+          <p><strong>Hiring manager:</strong> ${hiringManager}</p>
+          <p><strong>Recruiter:</strong> ${recruiterName}</p>
           <p><strong>Next interview:</strong> ${nextInterview}</p>
+          <p class="meta"><strong>Last updated:</strong> ${stageUpdated}</p>
         `;
+        resultEl.style.display = 'block';
       } catch (e) {
-        statusEl.textContent = 'Unexpected error. See console.';
-        console.error(e);
+        console.error('Unexpected error:', e);
+        statusEl.textContent = 'Unexpected error. Please try again later.';
+        statusEl.classList.add('error');
       }
     }
 
