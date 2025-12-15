@@ -2,15 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Application Status Portal</title>
+  <title>Application Status | ms consultants</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      /* Swap these to match your msCONSULTANTS branding */
-      --brand-primary: #004f7c;
-      --brand-accent: #00a4e4;
-      --brand-bg: #f3f4f6;
-      --brand-text: #111827;
+      --bg: #0f172a;
+      --card-bg: #0b1120;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.4);
+      --error: #f97373;
+      --success: #4ade80;
+      --warning: #facc15;
+      --inactive: #9ca3af;
+      --hired: #22c55e;
     }
 
     * {
@@ -22,291 +29,433 @@
       min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      background: radial-gradient(circle at top, #e5f0fb 0, #f9fafb 45%, #f3f4f6 100%);
-      color: var(--brand-text);
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px 16px;
+      padding: 1.5rem;
     }
 
-    .shell {
+    .page-shell {
       width: 100%;
       max-width: 720px;
     }
 
-    .card {
-      background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
-      padding: 24px 22px 26px;
-    }
-
-    @media (min-width: 640px) {
-      .card {
-        padding: 28px 32px 32px;
-      }
-    }
-
-    .header {
+    .brand-lockup {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
-    .logo-circle {
-      width: 40px;
-      height: 40px;
+    .brand-logo {
+      width: 28px;
+      height: 28px;
       border-radius: 999px;
-      background: var(--brand-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 18px;
-      letter-spacing: 0.03em;
+      background: radial-gradient(
+        circle at 30% 20%,
+        var(--accent) 0,
+        #0ea5e9 40%,
+        #0369a1 75%
+      );
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9),
+                  0 10px 30px rgba(8, 47, 73, 0.7);
     }
 
-    .title-block h1 {
+    .card {
+      background: radial-gradient(circle at top left, #0b1120 0, #020617 80%);
+      border-radius: 1.25rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow:
+        0 30px 80px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      padding: 1.75rem 1.75rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.08), transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(129, 140, 248, 0.12), transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(34, 197, 94, 0.06), transparent 55%);
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    h1 {
       margin: 0;
       font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      color: var(--brand-primary);
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
-    .title-block p {
-      margin: 2px 0 0;
-      font-size: 0.86rem;
-      color: #6b7280;
-    }
-
-    .intro {
-      margin: 12px 0 18px;
-      font-size: 0.9rem;
-      color: #4b5563;
-      line-height: 1.4;
-    }
-
-    .status-bar {
-      margin-bottom: 12px;
-      min-height: 22px;
-      font-size: 0.85rem;
-    }
-
-    .status-message {
-      padding: 6px 10px;
+    .badge {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.25rem 0.55rem;
       border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: transparent;
-      color: #4b5563;
+      gap: 0.3rem;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(18px);
     }
 
-    .status-info {
-      background: #e0f2fe;
-      color: #075985;
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
     }
 
-    .status-success {
-      background: #dcfce7;
-      color: #166534;
+    .subtitle {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
     }
 
-    .status-warning {
-      background: #fef3c7;
-      color: #92400e;
+    .token-info {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
     }
 
-    .status-error {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .input-row {
+    .form-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 0.75rem;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 0.75rem;
     }
 
-    .input-group {
-      flex: 1 1 160px;
+    .field-group {
+      flex: 1 1 140px;
       min-width: 0;
     }
 
     label {
       display: block;
       font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 4px;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 9px 10px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
       font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
 
     input[type="text"]:focus {
-      border-color: var(--brand-accent);
-      box-shadow: 0 0 0 1px rgba(0, 164, 228, 0.25);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+      background: rgba(15, 23, 42, 0.95);
     }
 
     button {
-      white-space: nowrap;
+      padding: 0.55rem 1.25rem;
       border-radius: 999px;
       border: none;
-      padding: 9px 18px;
       font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      background: var(--brand-primary);
-      color: #ffffff;
       cursor: pointer;
+      background: radial-gradient(circle at 0% 0%, #38bdf8, #0ea5e9 45%, #2563eb 100%);
+      color: #0b1120;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      gap: 0.4rem;
+      box-shadow:
+        0 14px 35px rgba(15, 23, 42, 0.95),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+      white-space: nowrap;
     }
 
     button:hover {
-      background: #003a5c;
       transform: translateY(-1px);
-      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.35);
+      filter: brightness(1.05);
+      box-shadow:
+        0 16px 40px rgba(15, 23, 42, 0.98),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
     }
 
     button:active {
       transform: translateY(0);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+      filter: brightness(0.98);
+      box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.95),
+        0 0 0 1px rgba(15, 23, 42, 0.95);
+    }
+
+    .btn-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.5);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    #status {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      min-height: 1.1em;
+    }
+
+    .status-message {
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(14px);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+    }
+
+    .status-info .status-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
+    }
+
+    .status-success .status-dot {
+      background: var(--success);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.28);
+    }
+
+    .status-error .status-dot {
+      background: var(--error);
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.26);
+    }
+
+    .status-warning .status-dot {
+      background: var(--warning);
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25);
+    }
+
+    .status-message span {
+      color: var(--text-main);
+    }
+
+    #result {
+      margin-top: 1.25rem;
     }
 
     .result-card {
-      margin-top: 10px;
-      border-radius: 14px;
-      border: 1px solid #e5e7eb;
-      padding: 14px 14px 16px;
-      background: #f9fafb;
-    }
-
-    @media (min-width: 640px) {
-      .result-card {
-        padding: 16px 18px 18px;
-      }
+      border-radius: 1.1rem;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: radial-gradient(circle at top right, rgba(15, 118, 110, 0.2), transparent 50%),
+                  rgba(15, 23, 42, 0.96);
+      padding: 1.1rem 1.15rem;
+      box-shadow:
+        0 18px 48px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.85);
     }
 
     .result-header {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 6px;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
     }
 
     .result-title {
-      font-size: 1.05rem;
-      font-weight: 600;
       margin: 0;
-      color: #111827;
+      font-size: 1.1rem;
+      letter-spacing: 0.01em;
     }
 
     .status-pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
+      font-size: 0.75rem;
       text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
       white-space: nowrap;
     }
 
+    .status-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
     .status-pill-default {
-      background: #e5f0fb;
-      color: var(--brand-primary);
+      color: var(--accent);
+      border-color: rgba(56, 189, 248, 0.7);
+      background: rgba(8, 47, 73, 0.6);
     }
 
     .status-pill-hired {
-      background: #dcfce7;
-      color: #166534;
+      color: var(--hired);
+      border-color: rgba(34, 197, 94, 0.7);
+      background: rgba(5, 46, 22, 0.7);
+    }
+
+    .status-pill-hired::before {
+      background: var(--hired);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
     }
 
     .status-pill-inactive {
-      background: #fef3c7;
-      color: #92400e;
+      color: var(--inactive);
+      border-color: rgba(148, 163, 184, 0.8);
+      background: rgba(30, 41, 59, 0.7);
+    }
+
+    .status-pill-inactive::before {
+      background: var(--inactive);
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.25);
     }
 
     .result-body p {
-      margin: 3px 0;
+      margin: 0.2rem 0;
       font-size: 0.88rem;
-      color: #374151;
+      color: var(--text-main);
+    }
+
+    .result-body p strong {
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
     .note {
-      margin-top: 8px;
+      margin-top: 0.6rem;
       font-size: 0.8rem;
-      color: #6b7280;
+      color: var(--text-muted);
     }
 
-    .footer {
-      margin-top: 14px;
+    .footer-hint {
+      margin-top: 0.8rem;
       font-size: 0.75rem;
-      color: #9ca3af;
+      color: var(--text-muted);
       text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 1.4rem 1.25rem 1.3rem;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+      }
+
+      .result-card {
+        padding: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
+  <div class="page-shell">
+    <div class="brand-lockup">
+      <div class="brand-logo"></div>
+      <div>ms consultants · Candidate Portal</div>
+    </div>
+
     <div class="card">
-      <div class="header">
-        <!-- Replace “ms” with your initials or drop in an <img> logo -->
-        <div class="logo-circle">ms</div>
-        <div class="title-block">
-          <h1>Application Status Portal</h1>
-          <p>Secure, one-time link + phone verification.</p>
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-title-row">
+            <h1>Check your application status</h1>
+            <div class="badge">
+              <span class="badge-dot"></span>
+              <span>Secure status link</span>
+            </div>
+          </div>
+          <p class="subtitle">
+            Use the secure link from your email and the last four digits of your phone number to view the most recent information
+            on your application.
+          </p>
         </div>
-      </div>
 
-      <p class="intro">
-        Use the link sent to you by our recruiting team and enter the last 4 digits of the phone
-        number used on your application to view your current status.
-      </p>
+        <p class="token-info">
+          This page only works when opened from your personal status link. If you reached it another way, please use the link
+          provided by our recruiting team.
+        </p>
 
-      <div class="status-bar">
-        <div id="status" class="status-message"></div>
-      </div>
-
-      <div class="input-row">
-        <div class="input-group">
-          <label for="last4">Last 4 digits of your phone</label>
-          <input id="last4" type="text" maxlength="4" inputmode="numeric" autocomplete="off" />
-        </div>
-        <div>
-          <label>&nbsp;</label>
+        <div class="form-row">
+          <div class="field-group">
+            <label for="last4">Last 4 digits of your phone</label>
+            <input id="last4" type="text" maxlength="4" inputmode="numeric" />
+            <div class="helper-text">Must match the phone number on your application.</div>
+          </div>
           <button type="button" onclick="checkStatus()">
-            Check status
+            <span class="btn-icon">→</span>
+            <span>Check status</span>
           </button>
         </div>
-      </div>
 
-      <div id="result"></div>
+        <div id="status"></div>
+        <div id="result"></div>
 
-      <div class="footer">
-        If you have trouble accessing your status, please contact our recruiting team.
+        <div class="footer-hint">
+          If anything looks incorrect, please contact our recruiting team directly.
+        </div>
       </div>
     </div>
   </div>
@@ -314,21 +463,44 @@
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // 🔧 Supabase config – these are the same values you had working before
+    // Supabase config – same values you used before
     const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
+    const SUPABASE_KEY =
+      'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function setStatus(text, type) {
       const statusEl = document.getElementById('status');
-      statusEl.textContent = text || '';
-      const base = 'status-message';
-      if (!type) {
-        statusEl.className = base;
-      } else {
-        statusEl.className = base + ' status-' + type;
+      if (!statusEl) return;
+
+      const baseClass = 'status-message';
+      if (!text) {
+        statusEl.textContent = '';
+        statusEl.className = '';
+        return;
       }
+
+      let typeClass = '';
+      switch (type) {
+        case 'success':
+          typeClass = 'status-success';
+          break;
+        case 'error':
+          typeClass = 'status-error';
+          break;
+        case 'warning':
+          typeClass = 'status-warning';
+          break;
+        default:
+          typeClass = 'status-info';
+      }
+
+      statusEl.className = `${baseClass} ${typeClass}`;
+      statusEl.innerHTML = `
+        <span class="status-dot"></span>
+        <span>${text}</span>
+      `;
     }
 
     function formatDateToLocal(dateString) {
@@ -368,7 +540,7 @@
       if (isRejected) {
         return {
           pillClass: 'status-pill-inactive',
-          pillText: 'Pending Update',
+          pillText: 'Pending update',
           message:
             'Your application is no longer active in our system. Our team will finalize updates shortly.',
           showStageLine: false
@@ -377,7 +549,7 @@
 
       return {
         pillClass: 'status-pill-default',
-        pillText: 'In Review',
+        pillText: 'In review',
         message: '',
         showStageLine: true
       };
@@ -385,6 +557,12 @@
 
     async function checkStatus() {
       const resultEl = document.getElementById('result');
+      if (!resultEl) {
+        console.error('Missing #result element in DOM');
+        setStatus('Unexpected error: missing result container.', 'error');
+        return;
+      }
+
       resultEl.innerHTML = '';
 
       const params = new URLSearchParams(window.location.search);
@@ -408,10 +586,12 @@
 
       try {
         const { data, error } = await client
-          .from('Candidates') // table name
+          .from('Candidates')
           .select('*')
           .eq('magic_token', token)
           .eq('last_four', last4);
+
+        console.log('Supabase response:', { data, error });
 
         if (error) {
           console.error('Supabase error:', error);
@@ -440,7 +620,7 @@
 
         const statusMeta = classifyStatus(c.current_stage);
 
-        document.getElementById('result').innerHTML = `
+        resultEl.innerHTML = `
           <div class="result-card">
             <div class="result-header">
               <h2 class="result-title">Hello ${c.name || 'there'}</h2>
@@ -469,10 +649,12 @@
         `;
       } catch (e) {
         console.error('Unexpected error:', e);
-        setStatus('Unexpected error. Please try again later.', 'error');
+        const msg = e && e.message ? e.message : String(e || 'Unknown error');
+        setStatus('Unexpected error: ' + msg, 'error');
       }
     }
 
     window.checkStatus = checkStatus;
   </script>
+</body>
 </html>
