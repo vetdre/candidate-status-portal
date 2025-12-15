@@ -10,13 +10,13 @@
       --card-bg: #0b1120;
       --accent: #38bdf8;
       --accent-soft: rgba(56, 189, 248, 0.15);
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-      --border-subtle: rgba(148, 163, 184, 0.4);
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-subtle: #e5e7eb;
       --error: #f97373;
-      --success: #4ade80;
-      --warning: #facc15;
-      --inactive: #9ca3af;
+      --success: #16a34a;
+      --warning: #eab308;
+      --inactive: #6b7280;
       --hired: #22c55e;
     }
 
@@ -29,7 +29,7 @@
       min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      background: #f3f4f6;
       color: var(--text-main);
       display: flex;
       align-items: center;
@@ -53,43 +53,36 @@
       text-transform: uppercase;
     }
 
+    /* Header logo bubble */
     .brand-logo {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 999px;
-      background: radial-gradient(
-        circle at 30% 20%,
-        var(--accent) 0,
-        #0ea5e9 40%,
-        #0369a1 75%
-      );
-      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9),
-                  0 10px 30px rgba(8, 47, 73, 0.7);
+      background: #ffffff;              /* white bubble behind icon */
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;                 /* keep the image clipped to circle */
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     .card {
-      background: radial-gradient(circle at top left, #0b1120 0, #020617 80%);
+      background: #ffffff;
       border-radius: 1.25rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid #e5e7eb;
       box-shadow:
-        0 30px 80px rgba(15, 23, 42, 0.9),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
+        0 18px 45px rgba(15, 23, 42, 0.1),
+        0 0 0 1px rgba(15, 23, 42, 0.02);
       padding: 1.75rem 1.75rem 1.5rem;
       position: relative;
       overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.08), transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(129, 140, 248, 0.12), transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(34, 197, 94, 0.06), transparent 55%);
-      opacity: 0.85;
-      pointer-events: none;
-      z-index: 0;
     }
 
     .card-inner {
@@ -126,13 +119,12 @@
       letter-spacing: 0.12em;
       padding: 0.25rem 0.55rem;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
+      border: 1px solid #e5e7eb;
       color: var(--text-muted);
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(18px);
+      background: #f9fafb;
     }
 
     .badge-dot {
@@ -140,7 +132,6 @@
       height: 6px;
       border-radius: 999px;
       background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
     }
 
     .subtitle {
@@ -170,70 +161,76 @@
 
     label {
       display: block;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 0.5rem 0.75rem;
+      padding: 0.6rem 0.85rem;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #d1d5db;
+      background: #ffffff;
       color: var(--text-main);
       font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease,
+        background 0.15s ease;
     }
 
     input[type="text"]:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
-      background: rgba(15, 23, 42, 0.95);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+      background: #ffffff;
     }
 
     button {
-      padding: 0.55rem 1.25rem;
+      padding: 0.7rem 1.4rem;
       border-radius: 999px;
       border: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      background: radial-gradient(circle at 0% 0%, #38bdf8, #0ea5e9 45%, #2563eb 100%);
-      color: #0b1120;
+      background: #0f172a;
+      color: #ffffff;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
       box-shadow:
-        0 14px 35px rgba(15, 23, 42, 0.95),
+        0 12px 30px rgba(15, 23, 42, 0.25),
         0 0 0 1px rgba(15, 23, 42, 0.9);
-      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+      transition: transform 0.1s ease, box-shadow 0.1s ease,
+        filter 0.1s ease;
       white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     button:hover {
       transform: translateY(-1px);
-      filter: brightness(1.05);
+      filter: brightness(1.03);
       box-shadow:
-        0 16px 40px rgba(15, 23, 42, 0.98),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
+        0 14px 34px rgba(15, 23, 42, 0.28),
+        0 0 0 1px rgba(15, 23, 42, 0.95);
     }
 
     button:active {
       transform: translateY(0);
       filter: brightness(0.98);
       box-shadow:
-        0 8px 25px rgba(15, 23, 42, 0.95),
-        0 0 0 1px rgba(15, 23, 42, 0.95);
+        0 8px 22px rgba(15, 23, 42, 0.22),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
     }
 
     .btn-icon {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border-radius: 999px;
-      border: 1px solid rgba(15, 23, 42, 0.7);
-      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(248, 250, 252, 0.5);
+      background: rgba(15, 23, 42, 0.35);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -258,9 +255,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(14px);
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
     }
 
     .status-dot {
@@ -271,22 +267,18 @@
 
     .status-info .status-dot {
       background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
     }
 
     .status-success .status-dot {
       background: var(--success);
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.28);
     }
 
     .status-error .status-dot {
       background: var(--error);
-      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.26);
     }
 
     .status-warning .status-dot {
       background: var(--warning);
-      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25);
     }
 
     .status-message span {
@@ -299,13 +291,9 @@
 
     .result-card {
       border-radius: 1.1rem;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: radial-gradient(circle at top right, rgba(15, 118, 110, 0.2), transparent 50%),
-                  rgba(15, 23, 42, 0.96);
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
       padding: 1.1rem 1.15rem;
-      box-shadow:
-        0 18px 48px rgba(15, 23, 42, 0.9),
-        0 0 0 1px rgba(15, 23, 42, 0.85);
     }
 
     .result-header {
@@ -326,49 +314,27 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      padding: 0.2rem 0.6rem;
+      padding: 0.25rem 0.7rem;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
+      border: 1px solid #bfdbfe;
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.4rem;
       white-space: nowrap;
-    }
-
-    .status-pill::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .status-pill-default {
-      color: var(--accent);
-      border-color: rgba(56, 189, 248, 0.7);
-      background: rgba(8, 47, 73, 0.6);
+      background: #eff6ff;
+      color: #1d4ed8;
     }
 
     .status-pill-hired {
       color: var(--hired);
-      border-color: rgba(34, 197, 94, 0.7);
-      background: rgba(5, 46, 22, 0.7);
-    }
-
-    .status-pill-hired::before {
-      background: var(--hired);
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+      border-color: #bbf7d0;
+      background: #ecfdf3;
     }
 
     .status-pill-inactive {
       color: var(--inactive);
-      border-color: rgba(148, 163, 184, 0.8);
-      background: rgba(30, 41, 59, 0.7);
-    }
-
-    .status-pill-inactive::before {
-      background: var(--inactive);
-      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.25);
+      border-color: #e5e7eb;
+      background: #f3f4f6;
     }
 
     .result-body p {
@@ -379,7 +345,7 @@
 
     .result-body p strong {
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .note {
@@ -413,36 +379,45 @@
 <body>
   <div class="page-shell">
     <div class="brand-lockup">
-      <div class="brand-logo"></div>
-      <div>ms consultants · Candidate Portal</div>
+      <div class="brand-logo">
+        <!-- your uploaded logo; path is relative to index.html -->
+        <img
+          src="ms-logo-Color-Solid-square-transparent_no-text.webp"
+          alt="ms consultants logo"
+        />
+      </div>
+      <div>Application Status Portal</div>
     </div>
 
     <div class="card">
       <div class="card-inner">
         <div class="card-header">
           <div class="card-title-row">
-            <h1>Check your application status</h1>
+            <h1>Application Status Portal</h1>
             <div class="badge">
               <span class="badge-dot"></span>
-              <span>Secure status link</span>
+              <span>Secure, one-time link + phone verification.</span>
             </div>
           </div>
           <p class="subtitle">
-            Use the secure link from your email and the last four digits of your phone number to view the most recent information
-            on your application.
+            Use the link sent to you by our recruiting team and enter the last
+            four digits of the phone number used on your application to view
+            your current status.
           </p>
         </div>
 
         <p class="token-info">
-          This page only works when opened from your personal status link. If you reached it another way, please use the link
-          provided by our recruiting team.
+          This page only works when opened from your personal status link. If you reached it
+          another way, please use the link provided by our recruiting team.
         </p>
 
         <div class="form-row">
           <div class="field-group">
             <label for="last4">Last 4 digits of your phone</label>
             <input id="last4" type="text" maxlength="4" inputmode="numeric" />
-            <div class="helper-text">Must match the phone number on your application.</div>
+            <div class="helper-text">
+              Must match the phone number on your application.
+            </div>
           </div>
           <button type="button" onclick="checkStatus()">
             <span class="btn-icon">→</span>
@@ -454,19 +429,18 @@
         <div id="result"></div>
 
         <div class="footer-hint">
-          If anything looks incorrect, please contact our recruiting team directly.
+          If you have trouble accessing your status, please contact our recruiting team.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Supabase config – same values you used before
+    // Supabase config
     const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
     const SUPABASE_KEY =
-      'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uYXV2eXVibGNsZmVxaXpwYXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMDg0MzEsImV4cCI6MjA4MDc4NDQzMX0.11nvQ5ubFh-nZYgkZ53Pwo0z3eZx6-WreL1We63M-wY';
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -548,7 +522,7 @@
       }
 
       return {
-        pillClass: 'status-pill-default',
+        pillClass: '', // default blue pill styles
         pillText: 'In review',
         message: '',
         showStageLine: true
@@ -625,20 +599,24 @@
             <div class="result-header">
               <h2 class="result-title">Hello ${c.name || 'there'}</h2>
               <span class="status-pill ${statusMeta.pillClass}">
-                ${statusMeta.pillText}
+                <span>${statusMeta.pillText}</span>
               </span>
             </div>
             <div class="result-body">
               <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
               ${
                 statusMeta.showStageLine
-                  ? `<p><strong>Current stage:</strong> ${c.current_stage || 'In review'}</p>`
+                  ? `<p><strong>Current stage:</strong> ${
+                      c.current_stage || 'In review'
+                    }</p>`
                   : ''
               }
               <p><strong>Last updated:</strong> ${stageUpdated}</p>
               <p><strong>Next interview:</strong> ${nextInterview}</p>
               <p><strong>Recruiter:</strong> ${c.recruiter || 'N/A'}</p>
-              <p><strong>Hiring manager:</strong> ${c.hiring_manager || 'N/A'}</p>
+              <p><strong>Hiring manager:</strong> ${
+                c.hiring_manager || 'N/A'
+              }</p>
               ${
                 statusMeta.message
                   ? `<p class="note">${statusMeta.message}</p>`
