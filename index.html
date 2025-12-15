@@ -4,13 +4,90 @@
   <meta charset="UTF-8" />
   <title>Candidate Status Check</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1.5rem;
+      background: #f4f5f7;
+      color: #222;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.6rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 0.4rem 0.6rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 6rem;
+      margin-right: 0.5rem;
+    }
+
+    button {
+      padding: 0.45rem 0.9rem;
+      font-size: 0.95rem;
+      border-radius: 4px;
+      border: none;
+      background: #0057d8;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0040a6;
+    }
+
+    .notice {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin: 0.75rem 0;
+    }
+
+    .notice-info {
+      background: #e6f0ff;
+      color: #003366;
+    }
+
+    .notice-error {
+      background: #ffe6e6;
+      color: #7a0000;
+    }
+
+    #result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    #result h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    #result p {
+      margin: 0.25rem 0;
+    }
+  </style>
 </head>
 <body>
   <h1>Check Your Application Status</h1>
 
   <p>
-    This is just a test page. To simulate the real flow, open this page with a
-    <code>?token=...</code> in the URL, then enter the last 4 digits of your phone.
+    Enter the last 4 digits of your phone number. This page only works when opened
+    from your personalized link.
   </p>
 
   <div style="margin: 1rem 0;">
@@ -19,62 +96,70 @@
     <button onclick="checkStatus()">Check status</button>
   </div>
 
-  <div id="status" style="margin: 0.5rem 0; font-weight: bold;"></div>
-  <div id="result" style="margin-top: 1rem;"></div>
+  <div id="status" class="notice notice-info"></div>
+  <div id="result"></div>
 
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // 🔴 IMPORTANT:
-    // Replace these two values with the ones you already have working.
-    const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_PUBLISHABLE_KEY_HERE';
+    // TODO: replace these two with your real values
+    const SUPABASE_URL = 'https://YOUR-PROJECT-ID.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'YOUR-PUBLISHABLE-KEY';
 
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
 
-    // Helper to format timestamps as 12-hour Eastern time
-    function formatDateTime(isoString) {
-      if (!isoString) return 'N/A';
+    // Helper to format timestamps in local 12-hour time
+    function formatFriendlyDate(value) {
+      if (!value) return 'N/A';
+      const dt = new Date(value);
+      if (Number.isNaN(dt.getTime())) return 'N/A';
 
-      const dt = new Date(isoString);
       return dt.toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: '2-digit',
+        day: 'numeric',
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true,                // 12-hour clock with AM/PM
-        timeZone: 'America/New_York' // force Eastern time display
+        hour12: true
       });
     }
 
     async function checkStatus() {
       const statusEl = document.getElementById('status');
       const resultEl = document.getElementById('result');
+
+      // Reset UI
+      statusEl.className = 'notice notice-info';
       statusEl.textContent = '';
       resultEl.innerHTML = '';
 
-      // Get magic token from URL (?token=...)
+      // Get token from URL (?token=...)
       const params = new URLSearchParams(window.location.search);
       const token = params.get('token');
-
       const last4 = document.getElementById('last4').value.trim();
 
       if (!token) {
-        statusEl.textContent = 'No token found in URL (?token=...).';
+        statusEl.className = 'notice notice-error';
+        statusEl.textContent =
+          'No token found in the link. Please open this page from the personalized link we sent you.';
         return;
       }
 
       if (!last4) {
+        statusEl.className = 'notice notice-error';
         statusEl.textContent = 'Enter the last 4 digits of your phone.';
         return;
       }
 
-      statusEl.textContent = 'Checking status...';
+      statusEl.className = 'notice notice-info';
+      statusEl.textContent = 'Checking your status...';
 
       try {
         const { data, error } = await client
-          .from('Candidates')          // Supabase table name
+          .from('Candidates')           // Supabase table name
           .select('*')
           .eq('magic_token', token)
           .eq('last_four', last4);
@@ -82,43 +167,47 @@
         console.log('Supabase response:', { data, error });
 
         if (error) {
-          statusEl.textContent = 'Error talking to Supabase. See console.';
+          statusEl.className = 'notice notice-error';
+          statusEl.textContent = 'Error talking to the status system. Please try again later.';
           console.error(error);
           return;
         }
 
         if (!data || data.length === 0) {
-          statusEl.textContent = 'No matching candidate found.';
+          statusEl.className = 'notice notice-error';
+          statusEl.textContent = 'No matching candidate found. Check your link and last 4 digits.';
           return;
         }
 
         const c = data[0];
+
+        statusEl.className = 'notice notice-info';
         statusEl.textContent = 'Match found.';
 
-        const stageUpdated  = formatDateTime(c.stage_updated);
-        const nextInterview = c.next_interview
-          ? formatDateTime(c.next_interview)
-          : 'Not scheduled';
+        const stageUpdated = formatFriendlyDate(c.stage_updated);
+        const nextInterview = formatFriendlyDate(c.next_interview);
 
-        const recruiterName = c.recruiter || 'N/A';
+        // These assume you have columns: recruiter, hiring_manager in Supabase
+        const recruiter = c.recruiter || 'N/A';
         const hiringManager = c.hiring_manager || 'N/A';
 
         resultEl.innerHTML = `
           <h2>Hello ${c.name || 'there'}</h2>
           <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
           <p><strong>Current stage:</strong> ${c.current_stage || 'N/A'}</p>
+          <p><strong>Recruiter:</strong> ${recruiter}</p>
+          <p><strong>Hiring manager:</strong> ${hiringManager}</p>
           <p><strong>Last updated:</strong> ${stageUpdated}</p>
           <p><strong>Next interview:</strong> ${nextInterview}</p>
-          <p><strong>Recruiter:</strong> ${recruiterName}</p>
-          <p><strong>Hiring manager:</strong> ${hiringManager}</p>
         `;
       } catch (e) {
-        statusEl.textContent = 'Unexpected error. See console.';
+        statusEl.className = 'notice notice-error';
+        statusEl.textContent = 'Unexpected error. Please try again later.';
         console.error(e);
       }
     }
 
-    // make checkStatus available to the button's onclick
+    // Expose for inline onclick
     window.checkStatus = checkStatus;
   </script>
 </body>
