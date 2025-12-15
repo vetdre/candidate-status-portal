@@ -348,14 +348,15 @@
     }
 
     .footer-hint {
-      margin-top: 1rem;
+      margin-top: 1.4rem;
       font-size: 0.78rem;
       color: var(--text-muted);
-      text-align: right;
+      text-align: center;
+      line-height: 1.5;
     }
 
     .footer-hint p {
-      margin: 0.1rem 0;
+      margin: 0;
     }
 
     @media (max-width: 600px) {
@@ -425,11 +426,7 @@
 
         <div class="footer-hint">
           <p>
-            This page only works when opened from your personal status link. If you
-            reached it another way, please use the link provided by our recruiting team.
-          </p>
-          <p>
-            If you have trouble accessing your status, please contact our recruiting team.
+            This page only works when opened from your personal status link. If you reached it another way, please use the link provided by our recruiting team. If you have trouble accessing your status, please contact our recruiting team.
           </p>
         </div>
       </div>
@@ -440,7 +437,7 @@
   <script>
     const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
     const SUPABASE_KEY =
-      'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uYXV2eXVibGNsZmVxaXpwYXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMDg0MzEsImV4cCI6MjA4MDc4NDQzMX0.11nvQ5ubFh-nZYgkZ53Pwo0z3eZx6-WreL1We63M-wY';
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
