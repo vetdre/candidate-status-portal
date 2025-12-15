@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Candidate Status Check</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h1>Check Your Application Status</h1>
+
+  <p>
+    This is just a test page. To simulate the real flow, open this file with a
+    <code>?token=...</code> in the URL, then enter the last 4 digits of your phone.
+  </p>
+
+  <div style="margin: 1rem 0;">
+    <label for="last4">Last 4 digits of your phone:</label>
+    <input id="last4" type="text" maxlength="4" />
+    <button onclick="checkStatus()">Check status</button>
+  </div>
+
+  <div id="status" style="margin: 0.5rem 0; font-weight: bold;"></div>
+  <div id="result" style="margin-top: 1rem;"></div>
+
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    
+    const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uYXV2eXVibGNsZmVxaXpwYXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMDg0MzEsImV4cCI6MjA4MDc4NDQzMX0.11nvQ5ubFh-nZYgkZ53Pwo0z3eZx6-WreL1We63M-wY';
+    
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function checkStatus() {
+      const statusEl = document.getElementById('status');
+      const resultEl = document.getElementById('result');
+      statusEl.textContent = '';
+      resultEl.textContent = '';
+
+      // Get token from URL (?token=...)
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+
+      const last4 = document.getElementById('last4').value.trim();
+
+      if (!token) {
+        statusEl.textContent = 'No token found in URL (?token=...).';
+        return;
+      }
+
+      if (!last4) {
+        statusEl.textContent = 'Enter the last 4 digits of your phone.';
+        return;
+      }
+
+      statusEl.textContent = 'Checking Supabase...';
+
+      try {
+        const { data, error } = await client
+          .from('Candidates')              // table name in Supabase
+          .select('*')
+          .eq('magic_token', token)
+          .eq('last_four', last4);
+
+        console.log('Supabase response:', { data, error });
+
+        if (error) {
+          statusEl.textContent = 'Error talking to Supabase. See console.';
+          console.error(error);
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          statusEl.textContent = 'No matching candidate found.';
+          return;
+        }
+
+        const c = data[0];
+
+        statusEl.textContent = 'Match found.';
+
+        const stageUpdated = c.stage_updated
+          ? new Date(c.stage_updated).toLocaleString()
+          : 'N/A';
+
+        const nextInterview = c.next_interview
+          ? new Date(c.next_interview).toLocaleString()
+          : 'Not scheduled';
+
+        resultEl.innerHTML = `
+          <h2>Hello ${c.name || 'there'}</h2>
+          <p><strong>Position:</strong> ${c.position || 'N/A'}</p>
+          <p><strong>Current stage:</strong> ${c.current_stage || 'N/A'}</p>
+          <p><strong>Last updated:</strong> ${stageUpdated}</p>
+          <p><strong>Next interview:</strong> ${nextInterview}</p>
+        `;
+      } catch (e) {
+        statusEl.textContent = 'Unexpected error. See console.';
+        console.error(e);
+      }
+    }
+
+    // Expose for inline onclick
+    window.checkStatus = checkStatus;
+  </script>
+</body>
+</html>
