@@ -314,9 +314,9 @@
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    
+    // 🔧 Supabase config – these are the same values you had working before
     const SUPABASE_URL = 'https://nnauvyublclfeqizpawr.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
+    const SUPABASE_KEY = 'sb_publishable_briAVfs7DANtqLprEYsEyw_1OIliJM4';
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -337,7 +337,7 @@
       if (isNaN(d.getTime())) return 'N/A';
 
       return d.toLocaleString('en-US', {
-        timeZone: 'America/New_York', // adjust if needed
+        timeZone: 'America/New_York',
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -350,7 +350,6 @@
     function classifyStatus(stageRaw) {
       const stage = (stageRaw || '').toLowerCase();
 
-      // Rough mapping – adjust if you have specific stage names:
       const isHired = stage.includes('hire') || stage.includes('hired');
       const isRejected =
         stage.includes('reject') ||
@@ -416,12 +415,18 @@
 
         if (error) {
           console.error('Supabase error:', error);
-          setStatus('There was a problem talking to the status system. Please try again later.', 'error');
+          setStatus(
+            'There was a problem talking to the status system. Please try again later.',
+            'error'
+          );
           return;
         }
 
         if (!data || data.length === 0) {
-          setStatus('No matching record found. Please check your phone digits and try again.', 'warning');
+          setStatus(
+            'No matching record found. Please check your phone digits and try again.',
+            'warning'
+          );
           return;
         }
 
@@ -435,7 +440,7 @@
 
         const statusMeta = classifyStatus(c.current_stage);
 
-        resultEl.innerHTML = `
+        document.getElementById('result').innerHTML = `
           <div class="result-card">
             <div class="result-header">
               <h2 class="result-title">Hello ${c.name || 'there'}</h2>
@@ -468,8 +473,6 @@
       }
     }
 
-    // expose for inline onclick
     window.checkStatus = checkStatus;
   </script>
-</body>
 </html>
