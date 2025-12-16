@@ -7,10 +7,6 @@
   <meta name="description" content="Check your job application status with MS Consultants" />
   <meta name="robots" content="noindex, nofollow" />
 
-  <!-- Preconnect to external resources -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://nnauvyublclfeqizpawr.supabase.co">
-
   <style>
     :root {
       --accent: #2563eb;
@@ -51,7 +47,6 @@
       --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       :root {
         --text-main: #f9fafb;
@@ -66,10 +61,7 @@
         --warning-bg: #713f12;
         --info-bg: #1e3a8a;
       }
-
-      body {
-        background: #0f172a;
-      }
+      body { background: #0f172a; }
     }
 
     * { box-sizing: border-box; }
@@ -85,7 +77,6 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Header bar */
     .header-bar {
       background: var(--header-bg);
       padding: 1rem 1.5rem;
@@ -151,7 +142,6 @@
       border-radius: var(--radius-full);
     }
 
-    /* Main content */
     .main-content {
       padding: 3rem 1.5rem;
       display: flex;
@@ -193,10 +183,7 @@
       line-height: 1.6;
     }
 
-    /* Form styles */
     .form-container { margin-bottom: 1.5rem; }
-    .form-inline { width: 100%; }
-    .field-group-inline { width: 100%; }
 
     label {
       display: block;
@@ -221,7 +208,6 @@
       min-width: 0;
     }
 
-    input[type="text"],
     input[type="tel"] {
       width: 100%;
       height: 52px;
@@ -235,13 +221,11 @@
       transition: all var(--transition-fast);
     }
 
-    input[type="text"]:focus,
     input[type="tel"]:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
-    input[type="text"]:disabled,
     input[type="tel"]:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -251,10 +235,6 @@
     input.error {
       border-color: var(--error);
       background: var(--error-bg);
-    }
-
-    input.error:focus {
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
 
     .input-icon {
@@ -287,38 +267,13 @@
       text-transform: uppercase;
       letter-spacing: 0.025em;
       min-width: 160px;
-      position: relative;
-      overflow: hidden;
       white-space: nowrap;
       flex-shrink: 0;
-    }
-
-    button::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
     }
 
     button:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
-    }
-
-    button:active:not(:disabled) {
-      transform: translateY(0);
-      box-shadow: var(--shadow-md);
-    }
-
-    button:active::before {
-      width: 300px;
-      height: 300px;
     }
 
     button:disabled {
@@ -346,8 +301,10 @@
 
     .helper-text.error { color: var(--error); }
 
-    /* Status and results */
-    #status { margin-top: 1.25rem; min-height: 2rem; }
+    #status {
+      margin-top: 1.25rem;
+      min-height: 2rem;
+    }
 
     .status-message {
       padding: 0.75rem 1rem;
@@ -461,7 +418,10 @@
       background: var(--bg-card);
     }
 
-    .result-body { display: grid; gap: 0.625rem; }
+    .result-body {
+      display: grid;
+      gap: 0.625rem;
+    }
 
     .result-row {
       display: flex;
@@ -518,7 +478,6 @@
 
     .footer-hint p { margin: 0; }
 
-    /* Accessibility */
     .sr-only {
       position: absolute;
       width: 1px;
@@ -536,7 +495,6 @@
       outline-offset: 2px;
     }
 
-    /* Mobile */
     @media (max-width: 640px) {
       .header-bar { padding: 0.75rem 1rem; }
       .header-content { flex-direction: column; gap: 0.75rem; }
@@ -550,8 +508,8 @@
     }
   </style>
 </head>
+
 <body>
-  <!-- Distinct header bar -->
   <header class="header-bar">
     <div class="header-content">
       <div class="header-brand">
@@ -589,46 +547,46 @@
         </div>
 
         <form id="status-form" class="form-container" novalidate>
-          <div class="form-inline">
-            <div class="field-group-inline">
-              <label for="last4">
-                Last 4 digits of your phone number
-                <span class="sr-only">(Required)</span>
-              </label>
-              <div class="input-button-row">
-                <div class="input-wrapper">
-                  <span class="input-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                  </span>
-                  <input
-                    id="last4"
-                    type="tel"
-                    maxlength="4"
-                    pattern="[0-9]{4}"
-                    inputmode="numeric"
-                    placeholder="0000"
-                    aria-label="Last 4 digits of phone number"
-                    aria-required="true"
-                    aria-describedby="phone-helper"
-                    autocomplete="off"
-                    required
-                  />
-                </div>
-                <button type="submit" id="submit-btn">
-                  <span class="btn-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </span>
-                  <span>Check Status</span>
-                </button>
-              </div>
-              <div class="helper-text" id="phone-helper">
-                Must match the phone number on your application
-              </div>
+          <label for="last4">
+            Last 4 digits of your phone number
+            <span class="sr-only">(Required)</span>
+          </label>
+
+          <div class="input-button-row">
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </span>
+
+              <input
+                id="last4"
+                type="tel"
+                maxlength="4"
+                pattern="[0-9]{4}"
+                inputmode="numeric"
+                placeholder="0000"
+                aria-label="Last 4 digits of phone number"
+                aria-required="true"
+                aria-describedby="phone-helper"
+                autocomplete="off"
+                required
+              />
             </div>
+
+            <button type="submit" id="submit-btn">
+              <span class="btn-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <span>Check Status</span>
+            </button>
+          </div>
+
+          <div class="helper-text" id="phone-helper">
+            Must match the phone number on your application
           </div>
         </form>
 
@@ -647,54 +605,31 @@
   </div>
 
   <script>
-    // =========================
-    // CONFIG (NO SUPABASE KEYS IN BROWSER)
-    // =========================
     const CONFIG = {
-      FUNCTION_URL: 'https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status',
-
-      MAX_ATTEMPTS: 3,
-      RATE_LIMIT_WINDOW: 60000, // 1 minute
-
+      EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
+      MAX_ATTEMPTS: 10,
+      RATE_LIMIT_WINDOW: 15 * 60 * 1000, // 15 minutes (client-side)
       PHONE_REGEX: /^\d{4}$/,
-
-      // Power Automate guid() format: 8-4-4-4-12 hex
-      TOKEN_REGEX: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+      TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/ // GUID-ish
     };
 
-    // Rate limiting (client-side only; real enforcement should be in the Edge Function later)
     const rateLimiter = {
       attempts: [],
-
       canAttempt() {
         const now = Date.now();
-        this.attempts = this.attempts.filter(time => now - time < CONFIG.RATE_LIMIT_WINDOW);
-
+        this.attempts = this.attempts.filter(t => now - t < CONFIG.RATE_LIMIT_WINDOW);
         if (this.attempts.length >= CONFIG.MAX_ATTEMPTS) {
-          const oldestAttempt = this.attempts[0];
-          const timeRemaining = Math.ceil((CONFIG.RATE_LIMIT_WINDOW - (now - oldestAttempt)) / 1000);
+          const oldest = this.attempts[0];
+          const timeRemaining = Math.ceil((CONFIG.RATE_LIMIT_WINDOW - (now - oldest)) / 1000);
           return { allowed: false, timeRemaining };
         }
-
         this.attempts.push(now);
         return { allowed: true };
       },
-
-      reset() {
-        this.attempts = [];
-      }
+      reset() { this.attempts = []; }
     };
 
-    // DOM elements cache
-    const elements = {
-      form: null,
-      last4Input: null,
-      submitBtn: null,
-      statusEl: null,
-      resultEl: null,
-      phoneHelper: null
-    };
-
+    const elements = {};
     function initializeElements() {
       elements.form = document.getElementById('status-form');
       elements.last4Input = document.getElementById('last4');
@@ -704,21 +639,9 @@
       elements.phoneHelper = document.getElementById('phone-helper');
     }
 
-    // Input validation
-    function validatePhoneDigits(value) {
-      if (!value) {
-        return { valid: false, message: 'Please enter the last 4 digits of your phone number.' };
-      }
-      if (!CONFIG.PHONE_REGEX.test(value)) {
-        return { valid: false, message: 'Please enter exactly 4 numeric digits.' };
-      }
-      return { valid: true };
-    }
-
-    // Sanitize input to prevent XSS in displayed fields (keep it simple & safe)
     function sanitizeInput(input) {
       if (typeof input !== 'string') return '';
-      return input.replace(/[^\w\s@.\-]/g, '').trim();
+      return input.replace(/[^\w\s@.-]/gi, '').trim();
     }
 
     function setStatus(text, type = 'info') {
@@ -747,14 +670,18 @@
       `;
     }
 
+    function validatePhoneDigits(value) {
+      if (!value) return { valid: false, message: 'Please enter the last 4 digits of your phone number.' };
+      if (!CONFIG.PHONE_REGEX.test(value)) return { valid: false, message: 'Please enter exactly 4 numeric digits.' };
+      return { valid: true };
+    }
+
     function formatDateToLocal(dateString) {
       if (!dateString) return 'Not available';
-
       try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Invalid date';
-
-        const options = {
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return 'Invalid date';
+        return new Intl.DateTimeFormat('en-US', {
           timeZone: 'America/New_York',
           year: 'numeric',
           month: 'short',
@@ -762,11 +689,8 @@
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
-        };
-
-        return new Intl.DateTimeFormat('en-US', options).format(date);
-      } catch (error) {
-        console.error('Date formatting error:', error);
+        }).format(d);
+      } catch {
         return 'Date unavailable';
       }
     }
@@ -774,7 +698,7 @@
     function classifyStatus(stageRaw) {
       const stage = (stageRaw || '').toLowerCase();
 
-      const statusPatterns = {
+      const patterns = {
         hired: {
           keywords: ['hire', 'hired', 'onboard', 'start'],
           result: {
@@ -807,9 +731,9 @@
         }
       };
 
-      for (const config of Object.values(statusPatterns)) {
-        if (config.keywords.some(keyword => stage.includes(keyword))) {
-          return config.result;
+      for (const k of Object.keys(patterns)) {
+        if (patterns[k].keywords.some(word => stage.includes(word))) {
+          return patterns[k].result;
         }
       }
 
@@ -826,10 +750,6 @@
       if (!elements.resultEl || !candidate) return;
 
       const statusInfo = classifyStatus(candidate.current_stage);
-      const lastUpdated = formatDateToLocal(candidate.stage_updated);
-      const nextInterview = candidate.next_interview
-        ? formatDateToLocal(candidate.next_interview)
-        : 'To be scheduled';
 
       const safeValues = {
         name: sanitizeInput(candidate.name || 'Applicant'),
@@ -839,6 +759,10 @@
         hiringManager: sanitizeInput(candidate.hiring_manager || 'Not assigned')
       };
 
+      const nextInterviewFormatted = candidate.next_interview
+        ? formatDateToLocal(candidate.next_interview)
+        : null;
+
       elements.resultEl.innerHTML = `
         <div class="result-card">
           <div class="result-header">
@@ -847,34 +771,38 @@
               ${statusInfo.pillText}
             </span>
           </div>
+
           <div class="result-body">
             <div class="result-row">
               <span class="result-label">Position:</span>
               <span class="result-value">${safeValues.position}</span>
             </div>
+
             ${statusInfo.showStage ? `
               <div class="result-row">
                 <span class="result-label">Current Stage:</span>
                 <span class="result-value">${safeValues.stage}</span>
               </div>
             ` : ''}
-            <div class="result-row">
-              <span class="result-label">Last Updated:</span>
-              <span class="result-value">${lastUpdated}</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label">Next Interview:</span>
-              <span class="result-value">${nextInterview}</span>
-            </div>
+
+            ${candidate.next_interview ? `
+              <div class="result-row">
+                <span class="result-label">Next Interview:</span>
+                <span class="result-value">${nextInterviewFormatted}</span>
+              </div>
+            ` : ''}
+
             <div class="result-row">
               <span class="result-label">Recruiter:</span>
               <span class="result-value">${safeValues.recruiter}</span>
             </div>
+
             <div class="result-row">
               <span class="result-label">Hiring Manager:</span>
               <span class="result-value">${safeValues.hiringManager}</span>
             </div>
           </div>
+
           ${statusInfo.message ? `
             <div class="note ${statusInfo.noteClass}">
               ${statusInfo.message}
@@ -882,27 +810,6 @@
           ` : ''}
         </div>
       `;
-    }
-
-    // =========================
-    // EDGE FUNCTION CALL (THIS IS THE ONLY READ)
-    // =========================
-    async function fetchCandidateStatus(token, last4) {
-      const res = await fetch(CONFIG.FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, last4 })
-      });
-
-      if (res.status === 404) return null;
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Lookup failed (${res.status}): ${text}`);
-      }
-
-      const json = await res.json();
-      return json?.candidate ?? null;
     }
 
     async function checkStatus(event) {
@@ -929,7 +836,7 @@
         return;
       }
 
-      const last4 = (elements.last4Input?.value || '').trim();
+      const last4 = (elements.last4Input.value || '').trim();
       const validation = validatePhoneDigits(last4);
 
       if (!validation.valid) {
@@ -949,22 +856,36 @@
       setStatus('Verifying your information...', 'loading');
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, last4 })
+        });
 
-        const candidate = await fetchCandidateStatus(token, last4);
+        if (resp.status === 429) {
+          setStatus('Too many attempts. Please try again later.', 'warning');
+          return;
+        }
 
-        if (!candidate) {
+        if (resp.status === 403) {
+          setStatus('Access blocked. Please use the official portal link.', 'error');
+          return;
+        }
+
+        const payload = await resp.json().catch(() => null);
+
+        if (!resp.ok || !payload || payload.ok !== true) {
           setStatus('No matching record found. Please verify your phone number and try again.', 'warning');
           return;
         }
 
         setStatus('Application found successfully!', 'success');
-        renderResult(candidate);
-        setTimeout(() => setStatus(''), 3000);
+        renderResult(payload.candidate);
+        setTimeout(() => setStatus(''), 2500);
 
-      } catch (error) {
-        console.error('Lookup error:', error);
-        setStatus('System error occurred. Please try again or contact your recruiter.', 'error');
+      } catch (err) {
+        console.error(err);
+        setStatus('Connection error. Please refresh and try again.', 'error');
       } finally {
         elements.last4Input.disabled = false;
         elements.submitBtn.disabled = false;
