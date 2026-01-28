@@ -1,4 +1,54 @@
 // api/get-offer-url.js
+
+// --- Token-scoped failure throttling (in-memory) ---
+// Goal: stop brute-force even across rotating IPs.
+// NOTE: in-memory resets on cold starts (still valuable + zero cost).
+const TOKEN_FAIL_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const TOKEN_FAIL_LIMIT = 5;                  // 5 failed attempts per window
+
+const tokenFailBuckets = globalThis.__tokenFailBuckets ?? new Map();
+globalThis.__tokenFailBuckets = tokenFailBuckets;
+
+function _now() { return Date.now(); }
+
+function isTokenBlocked(token) {
+  const key = String(token || "").trim();
+  if (!key) return false;
+
+  const arr = tokenFailBuckets.get(key);
+  if (!arr || arr.length === 0) return false;
+
+  const cutoff = _now() - TOKEN_FAIL_WINDOW_MS;
+  const recent = arr.filter(ts => ts >= cutoff);
+
+  if (recent.length === 0) {
+    tokenFailBuckets.delete(key);
+    return false;
+  }
+
+  tokenFailBuckets.set(key, recent);
+  return recent.length >= TOKEN_FAIL_LIMIT;
+}
+
+function registerTokenFailure(token) {
+  const key = String(token || "").trim();
+  if (!key) return 0;
+
+  const cutoff = _now() - TOKEN_FAIL_WINDOW_MS;
+
+  const arr = (tokenFailBuckets.get(key) ?? []).filter(ts => ts >= cutoff);
+  arr.push(_now());
+
+  tokenFailBuckets.set(key, arr);
+  return arr.length; // do not return this count to clients
+}
+
+function clearTokenFailures(token) {
+  const key = String(token || "").trim();
+  if (!key) return;
+  tokenFailBuckets.delete(key);
+}
+
 module.exports = async (req, res) => {
   try {
     // Basic CORS (optional but helpful)
@@ -20,6 +70,11 @@ module.exports = async (req, res) => {
 
     if (!token || !last4) {
       return res.status(400).json({ error: "Missing token or last4" });
+    }
+
+    // Token-scoped throttling: block early (before any DB / signing work)
+    if (isTokenBlocked(token)) {
+      return res.status(429).json({ error: "Too many attempts. Try again later." });
     }
 
     // Lookup candidate by magic_token
@@ -45,7 +100,15 @@ module.exports = async (req, res) => {
     const row = rows?.[0];
 
     if (!row) return res.status(404).json({ error: "Candidate not found" });
-    if ((row.last_four || "").toString() !== last4) return res.status(401).json({ error: "Invalid last4" });
+
+    // If the identity check fails, register a token failure before returning.
+    if ((row.last_four || "").toString() !== last4) {
+      registerTokenFailure(token);
+      return res.status(401).json({ error: "Invalid credentials." });
+    }
+
+    // Identity success: clear prior failures for this token.
+    clearTokenFailures(token);
 
     const key = (row.offer_letter_key || "").toString().trim();
     if (!key) return res.status(404).json({ error: "No offer_letter_key on candidate" });
