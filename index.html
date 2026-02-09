@@ -410,15 +410,38 @@
   margin: 0;
 }
 
-/* Folder-style tab: square-ish top, not pill */
+/* ===== True file-folder tabs (one continuous outline) ===== */
+.tabs-shell { margin-top: 1.25rem; }
+
+/* wrapper becomes the "folder" outline */
+.tabwrap {
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--bg-card) 92%, transparent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden; /* keeps the outline clean */
+}
+
+/* bar sits INSIDE the folder and shares its outline */
+.tabbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  padding: 0.75rem 0.75rem 0; /* no left indent gap vs panel */
+  margin: 0;
+  background: transparent;
+}
+
+/* tab base: square-ish, like folder tabs */
 .tab {
   appearance: none;
+  position: relative;
   border: 1px solid var(--border-subtle);
-  border-bottom: 0;                 /* tab sits on panel */
-  background: transparent;
+  border-bottom: 0;                 /* tab merges into panel */
+  background: color-mix(in oklab, var(--bg-card) 75%, transparent);
   color: var(--text-main);
-  border-top-left-radius: 0.45rem;  /* subtle, not rounded-pill */
-  border-top-right-radius: 0.45rem;
   padding: 0.7rem 0.95rem 0.65rem;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -427,14 +450,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.18rem;
-  position: relative;
+
+  /* folder corners: sharp-ish, not pills */
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
 }
 
-/* Inactive tabs: cohesive, not "greyed out" */
+/* inactive tabs still look usable */
 .tab:not(.active) {
-  background: color-mix(in oklab, var(--bg-card) 70%, transparent);
-  border-color: color-mix(in oklab, var(--border-subtle) 75%, var(--accent-border));
-  opacity: 0.95;
+  opacity: 0.92;
 }
 
 .tab:hover {
@@ -444,37 +468,36 @@
   opacity: 1;
 }
 
-/* Active tab defines the shared border color */
+/* ACTIVE TAB: this is the "folder tab" that owns the outline color */
 .tab.active {
   background: var(--bg-card);
-  border-color: var(--tab-border-active);
-  color: var(--text-main);          /* keep cohesive; no blue outline vibe */
+  border-color: var(--accent-border);
   box-shadow: var(--shadow-md);
   opacity: 1;
 }
 
-/* Panel border EXACTLY matches the active tab */
-.panel {
-  border: 1px solid var(--tab-border-active); /* key fix */
-  border-radius: var(--radius-md);
-  background: var(--bg-card);
-  padding: 0.9rem;
-  margin-top: -1px;                           /* snug against tab */
-  box-shadow: var(--shadow-sm);
-}
-
-/* Seam fix: active tab "covers" the panel border underneath it */
+/* The key: active tab covers the folder's top border so it looks cut-in */
 .tab.active::after {
   content: "";
   position: absolute;
   left: -1px;
   right: -1px;
   bottom: -1px;
-  height: 2px;
+  height: 3px;
   background: var(--bg-card);
 }
 
-/* Titles */
+/* panel area is just the inside of the folder — no extra border box */
+.panel {
+  border: 0; /* IMPORTANT: no separate box border */
+  border-top: 1px solid var(--accent-border); /* highlighted “folder seam” */
+  background: transparent;
+  padding: 1rem;
+  margin: 0;  /* removes the stupid gap/indent */
+  box-shadow: none;
+}
+
+/* Title/subtitle */
 .tab-title {
   font-size: 0.875rem;
   font-weight: 800;
@@ -497,11 +520,17 @@
   text-overflow: ellipsis;
 }
 
-/* Mobile: tabs stack */
+/* make the whole folder outline match the active tab color */
+.tabwrap[data-active="true"] {
+  border-color: var(--accent-border);
+}
+
+/* Mobile: tabs stack cleanly */
 @media (max-width: 640px) {
   .tab { min-width: 100%; }
 }
 /* ===== /tabs ===== */
+
 
     .result-card {
       border-radius: var(--radius-md);
@@ -1007,13 +1036,16 @@
       }).join('');
 
       elements.resultEl.innerHTML = `
-        <div class="tabs-shell">
-          <div class="tabbar" role="tablist" aria-label="Applications">
-            ${tabs}
-          </div>
-          <div class="panel" id="application-panel" role="tabpanel"></div>
-        </div>
-      `;
+  <div class="tabs-shell">
+    <div class="tabwrap" data-active="true">
+      <div class="tabbar" role="tablist" aria-label="Applications">
+        ${tabs}
+      </div>
+      <div class="panel" id="application-panel" role="tabpanel"></div>
+    </div>
+  </div>
+`;
+
 
       const tabButtons = elements.resultEl.querySelectorAll('.tab');
       tabButtons.forEach(btn => {
