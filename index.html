@@ -183,7 +183,6 @@
       line-height: 1.6;
     }
 
-    /* Return to careers link */
     .portal-actions {
       display: flex;
       justify-content: flex-end;
@@ -384,7 +383,6 @@
 
     #result { margin-top: 1.75rem; }
 
-    /* Tabs for multiple applications */
     .tabs {
       margin-top: 1.25rem;
       display: flex;
@@ -541,7 +539,7 @@
       width: 1px;
       height: 1px;
       padding: 0;
-      margin: -1px;
+      margin: 0;
       overflow: hidden;
       clip: rect(0, 0, 0, 0);
       white-space: nowrap;
@@ -677,8 +675,8 @@
     const CONFIG = {
       EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
       MAX_ATTEMPTS: 10,
-      RATE_LIMIT_WINDOW: 15 * 60 * 1000, // 15 minutes (client-side)
-      TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/ // GUID-ish
+      RATE_LIMIT_WINDOW: 15 * 60 * 1000,
+      TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/
     };
 
     const rateLimiter = {
@@ -708,11 +706,23 @@
       elements.phoneHelper = document.getElementById('phone-helper');
     }
 
+    // Keep commas (and other safe characters) - still used for generic UI messages.
     function sanitizeInput(input) {
-  if (typeof input !== 'string') return '';
-  // Keep commas (and the rest of your safe characters)
-  return input.replace(/[^\w\s@.,-]/gi, '').trim();
-}
+      if (typeof input !== 'string') return '';
+      return input.replace(/[^\w\s@.,-]/gi, '').trim();
+    }
+
+    // For names / recruiter fields: do NOT strip characters. Only escape HTML.
+    // This guarantees commas remain visible if present in the data.
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;')
+        .trim();
+    }
 
     function setStatus(text, type = 'info') {
       if (!elements.statusEl) return;
@@ -856,12 +866,12 @@
       if (!elements.resultEl) return;
 
       if (!Array.isArray(applications) || applications.length <= 1) {
-        return; // no tabs needed
+        return;
       }
 
       const tabsHtml = applications.map((app, idx) => {
-        const position = sanitizeInput(app?.position || 'Application');
-        const applied = formatAppliedDate(app?.created_at);
+        const position = escapeHtml(app?.position || 'Application');
+        const applied = escapeHtml(formatAppliedDate(app?.created_at));
         const label = `${position} — Applied ${applied}`;
         const isActive = idx === portalState.selectedIndex;
         return `<button type="button" class="tab ${isActive ? 'active' : ''}" data-idx="${idx}">${label}</button>`;
@@ -874,14 +884,12 @@
         <div id="application-panel"></div>
       `;
 
-      // Wire clicks
       const tabButtons = elements.resultEl.querySelectorAll('.tab');
       tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           const idx = parseInt(btn.getAttribute('data-idx'), 10);
           if (Number.isFinite(idx)) {
             portalState.selectedIndex = idx;
-            // re-render tabs + selected application
             renderMultiApplicationView();
           }
         });
@@ -892,25 +900,25 @@
       const statusInfo = classifyStatus(app?.current_stage);
 
       const safeValues = {
-        name: sanitizeInput(app?.name || personNameFallback || 'Applicant'),
-        position: sanitizeInput(app?.position || 'Not specified'),
-        stage: sanitizeInput(app?.current_stage || 'Under Review'),
-        recruiter: sanitizeInput(app?.recruiter || 'Not assigned'),
-        hiringManager: sanitizeInput(app?.hiring_manager || 'Not assigned')
+        name: escapeHtml(app?.name || personNameFallback || 'Applicant'),
+        position: escapeHtml(app?.position || 'Not specified'),
+        stage: escapeHtml(app?.current_stage || 'Under Review'),
+        recruiter: escapeHtml(app?.recruiter || 'Not assigned'),
+        hiringManager: escapeHtml(app?.hiring_manager || 'Not assigned')
       };
 
       const nextInterviewFormatted = app?.next_interview
-        ? formatDateToLocal(app.next_interview)
+        ? escapeHtml(formatDateToLocal(app.next_interview))
         : null;
 
-      const applied = formatAppliedDate(app?.created_at);
+      const applied = escapeHtml(formatAppliedDate(app?.created_at));
 
       return `
         <div class="result-card">
           <div class="result-header">
             <h2 class="result-title">Welcome, ${safeValues.name}</h2>
             <span class="status-pill ${statusInfo.pillClass}">
-              ${statusInfo.pillText}
+              ${escapeHtml(statusInfo.pillText)}
             </span>
           </div>
 
@@ -952,7 +960,7 @@
 
           ${statusInfo.message ? `
             <div class="note ${statusInfo.noteClass}">
-              ${statusInfo.message}
+              ${escapeHtml(statusInfo.message)}
             </div>
           ` : ''}
 
@@ -985,15 +993,11 @@
         return;
       }
 
-      // If tabs already exist, keep them and just update panel
       const tabsExist = elements.resultEl.querySelector('#application-panel');
-
       if (!tabsExist) {
-        // First render: tabs + panel container
         renderTabs(apps);
       }
 
-      // Update active tab highlight + panel content
       const tabButtons = elements.resultEl.querySelectorAll('.tab');
       tabButtons.forEach(btn => {
         const idx = parseInt(btn.getAttribute('data-idx'), 10);
@@ -1004,14 +1008,12 @@
       if (panel) {
         panel.innerHTML = renderSelectedApplication(selected, personNameFallback);
       } else {
-        // Single app case (no tabs): render directly
         elements.resultEl.innerHTML = renderSelectedApplication(selected, personNameFallback);
       }
     }
 
     async function checkStatus(event) {
       if (event) event.preventDefault();
-
       clearResult();
 
       const rateCheck = rateLimiter.canAttempt();
@@ -1080,13 +1082,11 @@
           return;
         }
 
-        // Store apps for tabs
         portalState.applications = Array.isArray(payload.applications) ? payload.applications : [];
         portalState.selectedIndex = 0;
 
         setStatus('Application found successfully!', 'success');
 
-        // Render tabs + first application (or single application)
         const personName = payload?.person?.name || payload?.candidate?.name || '';
         renderMultiApplicationView(personName);
 
