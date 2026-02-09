@@ -183,6 +183,36 @@
       line-height: 1.6;
     }
 
+    /* Return to careers link */
+    .portal-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+
+    .careers-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      height: 44px;
+      padding: 0 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .careers-link:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent-border);
+    }
+
     .form-container { margin-bottom: 1.5rem; }
 
     label {
@@ -354,12 +384,47 @@
 
     #result { margin-top: 1.75rem; }
 
+    /* Tabs for multiple applications */
+    .tabs {
+      margin-top: 1.25rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-radius: var(--radius-full);
+      padding: 0.5rem 0.875rem;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent-border);
+    }
+
+    .tab.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
     .result-card {
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
       background: var(--bg-subtle);
       padding: 1.5rem;
       animation: fadeIn var(--transition-base);
+      margin-top: 1rem;
     }
 
     .result-header {
@@ -498,6 +563,8 @@
       button { width: 100%; min-width: unset; }
       .result-row { flex-direction: column; gap: 0.25rem; }
       .result-label { min-width: unset; }
+      .portal-actions { justify-content: stretch; }
+      .careers-link { width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -537,6 +604,12 @@
             Enter the last name and phone number from your application to view your current status.
             This secure link can only be accessed using the personalized URL sent by your recruiter.
           </p>
+
+          <div class="portal-actions">
+            <a class="careers-link" href="https://jobs.lever.co/msconsultants" target="_blank" rel="noopener noreferrer">
+              Return to Careers <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
 
         <form id="status-form" class="form-container" novalidate>
@@ -702,6 +775,22 @@
       }
     }
 
+    function formatAppliedDate(dateString) {
+      if (!dateString) return 'Applied date unavailable';
+      try {
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return 'Applied date unavailable';
+        return new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/New_York',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }).format(d);
+      } catch {
+        return 'Applied date unavailable';
+      }
+    }
+
     function classifyStatus(stageRaw) {
       const stage = (stageRaw || '').toLowerCase();
 
@@ -753,24 +842,69 @@
       };
     }
 
-    function renderResult(candidate) {
-      if (!elements.resultEl || !candidate) return;
+    let portalState = {
+      applications: [],
+      selectedIndex: 0
+    };
 
-      const statusInfo = classifyStatus(candidate.current_stage);
+    function clearResult() {
+      if (elements.resultEl) elements.resultEl.innerHTML = '';
+    }
 
-      const safeValues = {
-        name: sanitizeInput(candidate.name || 'Applicant'),
-        position: sanitizeInput(candidate.position || 'Not specified'),
-        stage: sanitizeInput(candidate.current_stage || 'Under Review'),
-        recruiter: sanitizeInput(candidate.recruiter || 'Not assigned'),
-        hiringManager: sanitizeInput(candidate.hiring_manager || 'Not assigned')
-      };
+    function renderTabs(applications) {
+      if (!elements.resultEl) return;
 
-      const nextInterviewFormatted = candidate.next_interview
-        ? formatDateToLocal(candidate.next_interview)
-        : null;
+      if (!Array.isArray(applications) || applications.length <= 1) {
+        return; // no tabs needed
+      }
+
+      const tabsHtml = applications.map((app, idx) => {
+        const position = sanitizeInput(app?.position || 'Application');
+        const applied = formatAppliedDate(app?.created_at);
+        const label = `${position} — Applied ${applied}`;
+        const isActive = idx === portalState.selectedIndex;
+        return `<button type="button" class="tab ${isActive ? 'active' : ''}" data-idx="${idx}">${label}</button>`;
+      }).join('');
 
       elements.resultEl.innerHTML = `
+        <div class="tabs" role="tablist" aria-label="Applications">
+          ${tabsHtml}
+        </div>
+        <div id="application-panel"></div>
+      `;
+
+      // Wire clicks
+      const tabButtons = elements.resultEl.querySelectorAll('.tab');
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-idx'), 10);
+          if (Number.isFinite(idx)) {
+            portalState.selectedIndex = idx;
+            // re-render tabs + selected application
+            renderMultiApplicationView();
+          }
+        });
+      });
+    }
+
+    function renderSelectedApplication(app, personNameFallback) {
+      const statusInfo = classifyStatus(app?.current_stage);
+
+      const safeValues = {
+        name: sanitizeInput(app?.name || personNameFallback || 'Applicant'),
+        position: sanitizeInput(app?.position || 'Not specified'),
+        stage: sanitizeInput(app?.current_stage || 'Under Review'),
+        recruiter: sanitizeInput(app?.recruiter || 'Not assigned'),
+        hiringManager: sanitizeInput(app?.hiring_manager || 'Not assigned')
+      };
+
+      const nextInterviewFormatted = app?.next_interview
+        ? formatDateToLocal(app.next_interview)
+        : null;
+
+      const applied = formatAppliedDate(app?.created_at);
+
+      return `
         <div class="result-card">
           <div class="result-header">
             <h2 class="result-title">Welcome, ${safeValues.name}</h2>
@@ -785,6 +919,11 @@
               <span class="result-value">${safeValues.position}</span>
             </div>
 
+            <div class="result-row">
+              <span class="result-label">Applied:</span>
+              <span class="result-value">${applied}</span>
+            </div>
+
             ${statusInfo.showStage ? `
               <div class="result-row">
                 <span class="result-label">Current Stage:</span>
@@ -792,7 +931,7 @@
               </div>
             ` : ''}
 
-            ${candidate.next_interview ? `
+            ${app?.next_interview ? `
               <div class="result-row">
                 <span class="result-label">Next Interview:</span>
                 <span class="result-value">${nextInterviewFormatted}</span>
@@ -815,14 +954,64 @@
               ${statusInfo.message}
             </div>
           ` : ''}
+
+          ${app?.offer_access ? `
+            <div class="note">
+              Offer letter available for this application.
+            </div>
+          ` : ''}
         </div>
       `;
+    }
+
+    function renderMultiApplicationView(personNameFallback) {
+      if (!elements.resultEl) return;
+      const apps = portalState.applications || [];
+      const selected = apps[portalState.selectedIndex] || apps[0];
+
+      if (!Array.isArray(apps) || apps.length === 0) {
+        elements.resultEl.innerHTML = `
+          <div class="result-card">
+            <div class="result-header">
+              <h2 class="result-title">No applications found</h2>
+              <span class="status-pill status-pill-inactive">Unavailable</span>
+            </div>
+            <div class="note note-warning">
+              We could not locate application details for this account at this time.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // If tabs already exist, keep them and just update panel
+      const tabsExist = elements.resultEl.querySelector('#application-panel');
+
+      if (!tabsExist) {
+        // First render: tabs + panel container
+        renderTabs(apps);
+      }
+
+      // Update active tab highlight + panel content
+      const tabButtons = elements.resultEl.querySelectorAll('.tab');
+      tabButtons.forEach(btn => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        btn.classList.toggle('active', idx === portalState.selectedIndex);
+      });
+
+      const panel = elements.resultEl.querySelector('#application-panel');
+      if (panel) {
+        panel.innerHTML = renderSelectedApplication(selected, personNameFallback);
+      } else {
+        // Single app case (no tabs): render directly
+        elements.resultEl.innerHTML = renderSelectedApplication(selected, personNameFallback);
+      }
     }
 
     async function checkStatus(event) {
       if (event) event.preventDefault();
 
-      if (elements.resultEl) elements.resultEl.innerHTML = '';
+      clearResult();
 
       const rateCheck = rateLimiter.canAttempt();
       if (!rateCheck.allowed) {
@@ -890,8 +1079,16 @@
           return;
         }
 
+        // Store apps for tabs
+        portalState.applications = Array.isArray(payload.applications) ? payload.applications : [];
+        portalState.selectedIndex = 0;
+
         setStatus('Application found successfully!', 'success');
-        renderResult(payload.candidate);
+
+        // Render tabs + first application (or single application)
+        const personName = payload?.person?.name || payload?.candidate?.name || '';
+        renderMultiApplicationView(personName);
+
         setTimeout(() => setStatus(''), 2500);
 
       } catch (err) {
