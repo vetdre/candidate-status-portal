@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Application Status | MS Consultants</title>
+  <title>Application Status | ms consultants</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Check your job application status with MS Consultants" />
+  <meta name="description" content="Check your job application status with ms consultants" />
   <meta name="robots" content="noindex, nofollow" />
 
   <style>
     :root {
       /* Brand-ish */
-      --accent: #0f2f4a;             /* deep slate/navy */
-      --accent-2: #1b4f72;           /* hover */
+      --accent: #0f2f4a;
+      --accent-2: #1b4f72;
       --accent-soft: rgba(15, 47, 74, 0.08);
       --accent-border: rgba(15, 47, 74, 0.25);
 
@@ -97,7 +97,7 @@
     }
 
     .topbar-inner {
-      max-width: 980px;
+      max-width: 1040px;
       margin: 0 auto;
       padding: 14px 18px;
       display: flex;
@@ -178,9 +178,9 @@
 
     /* ===== Main shell ===== */
     .page {
-      max-width: 980px;
+      max-width: 1040px;
       margin: 0 auto;
-      padding: 22px 18px 48px;
+      padding: 26px 18px 56px;
     }
 
     .card {
@@ -188,7 +188,7 @@
       border: 1px solid var(--card-border);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-lg);
-      padding: 34px 34px 22px;
+      padding: 38px 38px 26px; /* less squashed */
     }
 
     h1 {
@@ -203,12 +203,12 @@
       margin: 10px 0 0;
       color: var(--text-muted);
       font-size: 14.5px;
-      max-width: 680px;
+      max-width: 720px;
       line-height: 1.65;
     }
 
     /* ===== Form ===== */
-    form { margin-top: 22px; }
+    form { margin-top: 24px; }
 
     label {
       display: block;
@@ -279,11 +279,10 @@
     }
 
     .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
     .primary-btn svg { width: 16px; height: 16px; }
 
     .form-meta {
-      margin-top: 10px;
+      margin-top: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -332,7 +331,7 @@
 
     /* ===== Status line ===== */
     #status {
-      margin-top: 14px;
+      margin-top: 16px;
       min-height: 22px;
     }
 
@@ -370,22 +369,14 @@
     }
 
     /* ===== Results ===== */
-    #result { margin-top: 22px; }
-
-    /*
-      Key change vs your current layout:
-      - Outer shell becomes “spacing only” (no competing border).
-      - Tabs connect to the INNER panel (the real content surface).
-      - Panel border color matches active tab border for cohesive “folder tab” feel.
-    */
+    #result { margin-top: 24px; }
 
     .applications-shell {
-      margin-top: 22px;
-      padding: 18px 0 4px; /* a smidge more vertical breathing room */
+      margin-top: 26px;
+      padding: 20px 0 6px; /* less squashed */
     }
 
     .tabs-and-panel {
-      /* This wrapper exists ONLY for alignment; no border here. */
       position: relative;
     }
 
@@ -395,9 +386,9 @@
       gap: 10px;
       flex-wrap: wrap;
       align-items: flex-end;
-      padding-left: 16px;   /* align with panel inner padding */
+      padding-left: 16px;
       padding-right: 16px;
-      margin: 0 0 -1px;     /* sit tabs onto the panel border seam */
+      margin: 0 0 -1px;
       position: relative;
       z-index: 3;
     }
@@ -407,25 +398,24 @@
       border: 1px solid var(--tab-inactive-border);
       background: var(--tab-inactive-bg);
       color: var(--tab-inactive-text);
-      border-bottom-color: transparent; /* default: looks like it sits above something */
+      border-bottom-color: transparent;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
       padding: 10px 14px 9px;
       cursor: pointer;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+      transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
       min-width: 320px;
       max-width: 100%;
       display: grid;
       gap: 3px;
       position: relative;
-      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+      box-shadow: none; /* key: no tab shadow */
     }
 
     .app-tab:hover {
       transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
       border-color: rgba(15, 47, 74, 0.22);
     }
 
@@ -433,9 +423,10 @@
       border-color: var(--tab-active-border);
       color: var(--tab-active-text);
       background: var(--tab-active-bg);
-      border-bottom-color: var(--tab-active-bg); /* critical: makes tab “seamless” into panel */
+      border-bottom-color: var(--tab-active-bg);
       z-index: 4;
-      box-shadow: 0 14px 26px rgba(15, 23, 42, 0.10);
+      transform: none;
+      box-shadow: none; /* key: selected tab should not shade the panel */
     }
 
     .tab-title {
@@ -461,19 +452,19 @@
 
     .app-tab.active .tab-subtitle { color: rgba(15, 47, 74, 0.70); }
 
-    /* PANEL: this is the “folder body” the tab connects to */
+    /* PANEL: folder body */
     .panel {
       border: 1px solid var(--panel-border);
       border-radius: var(--radius-lg);
       background: #fff;
       box-shadow: var(--shadow-md);
-      padding: 16px;              /* a bit more vertical space */
+      padding: 18px; /* more breathing room */
       position: relative;
       z-index: 2;
       overflow: hidden;
     }
 
-    /* Inner details surface (the “Welcome Kevin…” box) */
+    /* Inner details surface */
     .result-card {
       border-radius: var(--radius-md);
       border: 1px solid rgba(15, 23, 42, 0.14);
@@ -482,7 +473,7 @@
       padding: 0;
       overflow: hidden;
       animation: fadeIn var(--transition-base);
-      min-height: 240px;          /* slightly more vertical openness */
+      min-height: 260px; /* less squashed */
     }
 
     .result-header {
@@ -490,14 +481,12 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 14px;
-      padding: 16px 18px;
+      padding: 18px 20px;
       border-bottom: 1px solid rgba(15, 23, 42, 0.10);
       background: linear-gradient(180deg, rgba(15, 47, 74, 0.03), rgba(255,255,255,0));
     }
 
-    .result-title-wrap {
-      min-width: 0;
-    }
+    .result-title-wrap { min-width: 0; }
 
     .result-title {
       margin: 0;
@@ -552,18 +541,18 @@
     .status-pill-inactive { color: rgba(15, 23, 42, 0.62); border-color: rgba(15, 23, 42, 0.14); background: rgba(15, 23, 42, 0.03); }
 
     .result-body {
-      padding: 14px 18px 18px;
+      padding: 16px 20px 20px;
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
     .result-row {
       display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 10px;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
       align-items: baseline;
       font-size: 14px;
-      line-height: 1.45;
+      line-height: 1.55;
     }
 
     .result-label {
@@ -577,7 +566,7 @@
     }
 
     .note {
-      margin: 0 18px 18px;
+      margin: 0 20px 20px;
       padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid rgba(37, 99, 235, 0.24);
@@ -600,7 +589,7 @@
     }
 
     .divider {
-      margin: 22px 0 0;
+      margin: 24px 0 0;
       border-top: 1px solid rgba(15, 23, 42, 0.08);
     }
 
@@ -634,7 +623,7 @@
     }
 
     @media (max-width: 820px) {
-      .card { padding: 26px 18px 18px; }
+      .card { padding: 28px 18px 20px; }
       h1 { font-size: 28px; }
       .row { grid-template-columns: 1fr; }
       .primary-btn { width: 100%; }
@@ -659,8 +648,8 @@
           />
         </div>
         <div class="brand-text">
-          <div class="brand-title">MS Consultants Application Portal</div>
-          <div class="brand-subtitle">Secure status updates for your application</div>
+          <div class="brand-title">ms consultants application portal</div>
+          <div class="brand-subtitle">secure status updates for your application</div>
         </div>
       </div>
 
@@ -669,7 +658,7 @@
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
-        <span>Secure</span>
+        <span>secure</span>
       </div>
     </div>
   </header>
@@ -679,7 +668,7 @@
       <h1>Check Your Application Status</h1>
       <p class="subtitle">
         Enter the last name and phone number from your application to view your current status.
-        This secure page requires the personalized link sent to you by MS Consultants.
+        This secure page requires the personalized link sent to you by ms consultants.
       </p>
 
       <form id="status-form" novalidate>
@@ -739,13 +728,20 @@
         <p>
           <strong>Important:</strong> This page requires a personalized security token to function.
           If you accessed this page directly or the link isn't working, please use the exact URL provided by your recruiter.
-          For assistance, contact MS Consultants.
+          For assistance, contact ms consultants.
         </p>
       </footer>
     </section>
   </main>
 
   <script>
+    /*
+      Quick answers to your questions:
+      - The old "REF:" was just a short internal reference derived from lever_id (first 8 alphanumerics).
+        It’s not required, so I removed it entirely in this version.
+      - Tabs: this version removes ALL tab shadows so the active tab never “casts” onto the panel.
+    */
+
     const CONFIG = {
       EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
       CAREERS_URL: "https://jobs.lever.co/msconsultants",
@@ -821,10 +817,6 @@
       let digits = String(raw || "").replace(/\D/g, "");
       if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
       return /^\d{10}$/.test(digits) ? digits : "";
-    }
-
-    function normalizeLastName(s) {
-      return String(s || "").trim().toLowerCase();
     }
 
     function validateInputs(lastName, phoneRaw) {
@@ -915,12 +907,6 @@
       };
     }
 
-    function safeRef(leverId) {
-      const s = String(leverId || "").trim();
-      if (!s) return "";
-      return s.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
-    }
-
     function setPanelBorderToActive() {
       document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
     }
@@ -928,7 +914,6 @@
     function renderApplicationsView(payload) {
       if (!el.result) return;
 
-      const person = payload?.person || null;
       const candidate = payload?.candidate || null;
       const apps = Array.isArray(payload?.applications) ? payload.applications.slice() : [];
 
@@ -937,7 +922,7 @@
         return;
       }
 
-      // Sort: most recent application first (created_at desc)
+      // Sort: most recent first
       apps.sort((a, b) => {
         const ad = new Date(a?.created_at || 0).getTime();
         const bd = new Date(b?.created_at || 0).getTime();
@@ -989,12 +974,7 @@
         const appliedShort = formatDateShort(active?.created_at);
         const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
 
-        const ref = safeRef(active?.lever_id);
-
         const statusInfo = classifyStatus(mergedStage, active?.archived);
-
-        const showStageRow = statusInfo.showStage;
-        const showNextInterviewRow = !!nextInterview;
 
         const inner = document.getElementById("app-panel-inner");
         if (!inner) return;
@@ -1007,7 +987,6 @@
                 <div class="pill-row">
                   <span class="chip">Applied: ${sanitizeInput(appliedShort).toUpperCase()}</span>
                   ${updatedShort ? `<span class="chip">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
-                  ${ref ? `<span class="chip">Ref: ${sanitizeInput(ref)}</span>` : ``}
                 </div>
               </div>
               <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
@@ -1019,14 +998,14 @@
                 <div class="result-value">${mergedPosition}</div>
               </div>
 
-              ${showStageRow ? `
+              ${statusInfo.showStage ? `
                 <div class="result-row">
                   <div class="result-label">Current Stage:</div>
                   <div class="result-value">${mergedStage}</div>
                 </div>
               ` : ""}
 
-              ${showNextInterviewRow ? `
+              ${nextInterview ? `
                 <div class="result-row">
                   <div class="result-label">Next Interview:</div>
                   <div class="result-value">${sanitizeInput(nextInterviewFormatted)}</div>
@@ -1061,13 +1040,10 @@
           t.setAttribute("aria-selected", isActive ? "true" : "false");
         });
 
-        // Keep the panel border matched to the active tab border (cohesive folder feel)
         document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
-
         renderActiveApp(index);
       }
 
-      // Wire clicks
       const tabs = Array.from(document.querySelectorAll(".app-tab"));
       tabs.forEach(tab => {
         tab.addEventListener("click", () => {
