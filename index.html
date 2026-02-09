@@ -709,9 +709,10 @@
     }
 
     function sanitizeInput(input) {
-      if (typeof input !== 'string') return '';
-      return input.replace(/[^\w\s@.-]/gi, '').trim();
-    }
+  if (typeof input !== 'string') return '';
+  // Keep commas (and the rest of your safe characters)
+  return input.replace(/[^\w\s@.,-]/gi, '').trim();
+}
 
     function setStatus(text, type = 'info') {
       if (!elements.statusEl) return;
