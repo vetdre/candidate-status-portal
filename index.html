@@ -9,26 +9,23 @@
 
   <style>
     :root {
-      /* Brand-ish */
-      --accent: #0f2f4a;             /* deep slate/navy */
-      --accent-2: #1b4f72;           /* hover */
+      --accent: #0f2f4a;
+      --accent-2: #1b4f72;
       --accent-soft: rgba(15, 47, 74, 0.08);
       --accent-border: rgba(15, 47, 74, 0.25);
 
-      /* Surfaces */
       --page-bg-1: #f4f6f8;
       --page-bg-2: #e9eef3;
       --card-bg: #ffffff;
       --card-border: rgba(15, 23, 42, 0.10);
 
-      /* Text */
       --text-main: #0f172a;
       --text-muted: rgba(15, 23, 42, 0.70);
       --text-light: rgba(15, 23, 42, 0.55);
 
-      /* UI */
       --line: rgba(15, 23, 42, 0.12);
       --line-strong: rgba(15, 23, 42, 0.18);
+
       --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
       --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.10);
       --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.12);
@@ -41,7 +38,6 @@
       --transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
       --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 
-      /* Status */
       --info: #2563eb;
       --info-bg: rgba(37, 99, 235, 0.08);
       --info-border: rgba(37, 99, 235, 0.24);
@@ -58,15 +54,13 @@
       --error-bg: rgba(220, 38, 38, 0.08);
       --error-border: rgba(220, 38, 38, 0.22);
 
-      /* Tabs + panel */
-      --tab-inactive-bg: #ffffff;
+      --tab-inactive-bg: rgba(15, 23, 42, 0.03); /* <- light gray */
       --tab-active-bg: #ffffff;
-      --tab-inactive-text: rgba(15, 23, 42, 0.75);
+      --tab-inactive-text: rgba(15, 23, 42, 0.72);
       --tab-active-text: rgba(15, 47, 74, 1);
       --tab-inactive-border: rgba(15, 23, 42, 0.18);
       --tab-active-border: rgba(15, 47, 74, 0.28);
 
-      /* Panel border will match the active tab border for cohesion */
       --panel-border: var(--tab-active-border);
     }
 
@@ -86,7 +80,6 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ===== Top header (careers page vibe) ===== */
     .topbar {
       position: sticky;
       top: 0;
@@ -176,7 +169,6 @@
 
     .secure-pill svg { width: 16px; height: 16px; }
 
-    /* ===== Main shell ===== */
     .page {
       max-width: 1020px;
       margin: 0 auto;
@@ -207,7 +199,6 @@
       line-height: 1.7;
     }
 
-    /* ===== Form ===== */
     form { margin-top: 26px; }
 
     label {
@@ -279,7 +270,6 @@
     }
 
     .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
     .primary-btn svg { width: 16px; height: 16px; }
 
     .form-meta {
@@ -330,7 +320,6 @@
 
     .secondary-btn svg { width: 14px; height: 14px; }
 
-    /* ===== Status line ===== */
     #status {
       margin-top: 18px;
       min-height: 22px;
@@ -369,7 +358,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===== Results ===== */
     #result { margin-top: 26px; }
 
     .applications-shell {
@@ -377,9 +365,7 @@
       padding: 22px 0 6px;
     }
 
-    .tabs-and-panel {
-      position: relative;
-    }
+    .tabs-and-panel { position: relative; }
 
     .tabbar {
       display: flex;
@@ -396,7 +382,7 @@
     .app-tab {
       appearance: none;
       border: 1px solid var(--tab-inactive-border);
-      background: var(--tab-inactive-bg);
+      background: var(--tab-inactive-bg); /* <- gray inactive */
       color: var(--tab-inactive-text);
       border-bottom-color: transparent;
       border-top-left-radius: 12px;
@@ -411,12 +397,13 @@
       display: grid;
       gap: 3px;
       position: relative;
-      box-shadow: none; /* IMPORTANT: no “shadow casting onto the panel” */
+      box-shadow: none;
     }
 
     .app-tab:hover {
       transform: translateY(-1px);
       border-color: rgba(15, 47, 74, 0.22);
+      background: rgba(15, 23, 42, 0.02);
     }
 
     .app-tab.active {
@@ -425,7 +412,7 @@
       background: var(--tab-active-bg);
       border-bottom-color: var(--tab-active-bg);
       z-index: 4;
-      box-shadow: none; /* IMPORTANT: active tab should not shade what's below */
+      box-shadow: none;
     }
 
     .tab-title {
@@ -470,7 +457,7 @@
       padding: 0;
       overflow: hidden;
       animation: fadeIn var(--transition-base);
-      min-height: 270px; /* less squashed */
+      min-height: 290px;
     }
 
     .result-header {
@@ -562,6 +549,45 @@
       word-break: break-word;
     }
 
+    .offer-actions {
+      margin: 6px 20px 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .offer-btn {
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 47, 74, 0.18);
+      background: rgba(15, 47, 74, 0.06);
+      color: rgba(15, 47, 74, 0.95);
+      cursor: pointer;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .offer-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: rgba(15, 47, 74, 0.26);
+      background: rgba(15, 47, 74, 0.08);
+    }
+
+    .offer-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .offer-btn svg { width: 16px; height: 16px; }
+
     .note {
       margin: 0 20px 20px;
       padding: 12px 14px;
@@ -628,6 +654,8 @@
       .tabbar { padding-left: 10px; padding-right: 10px; }
       .app-tab { min-width: 100%; }
       .result-row { grid-template-columns: 1fr; }
+      .offer-actions { margin-left: 20px; margin-right: 20px; }
+      .offer-btn { width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -733,7 +761,8 @@
 
   <script>
     const CONFIG = {
-      EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
+      PORTAL_STATUS_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
+      PORTAL_OFFER_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-offer-url",
       CAREERS_URL: "https://jobs.lever.co/msconsultants",
       MAX_ATTEMPTS: 10,
       RATE_LIMIT_WINDOW: 15 * 60 * 1000,
@@ -809,8 +838,12 @@
       return /^\d{10}$/.test(digits) ? digits : "";
     }
 
+    function normalizeLastName(raw) {
+      return String(raw || "").trim();
+    }
+
     function validateInputs(lastName, phoneRaw) {
-      const last = String(lastName || "").trim();
+      const last = normalizeLastName(lastName);
       const phone = normalizePhone10(phoneRaw);
 
       if (!last) return { valid: false, message: "Please enter the last name from your application." };
@@ -901,6 +934,36 @@
       document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
     }
 
+    let SESSION = {
+      token: "",
+      lastName: "",
+      phone: "",
+      payload: null
+    };
+
+    async function requestOfferUrl(leverId) {
+      const token = SESSION.token;
+      const lastName = SESSION.lastName;
+      const phone = SESSION.phone;
+
+      if (!token || !lastName || !phone || !leverId) {
+        return { ok: false, error: "Missing required inputs" };
+      }
+
+      const resp = await fetch(CONFIG.PORTAL_OFFER_FUNCTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, lastName, phone, leverId })
+      });
+
+      const payload = await resp.json().catch(() => null);
+      if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
+        return { ok: false, error: "Offer unavailable" };
+      }
+
+      return { ok: true, url: payload.url };
+    }
+
     function renderApplicationsView(payload) {
       if (!el.result) return;
 
@@ -968,6 +1031,8 @@
         const showStageRow = statusInfo.showStage;
         const showNextInterviewRow = !!nextInterview;
 
+        const canOffer = !!active?.offer_access && !!active?.offer_letter_key && String(active.offer_letter_key).trim().length > 0 && !!active?.lever_id;
+
         const inner = document.getElementById("app-panel-inner");
         if (!inner) return;
 
@@ -1015,6 +1080,20 @@
               </div>
             </div>
 
+            ${canOffer ? `
+              <div class="offer-actions">
+                <button type="button" class="offer-btn" id="offer-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <polyline points="9 15 12 12 15 15"></polyline>
+                  </svg>
+                  Download Offer Letter
+                </button>
+              </div>
+            ` : ""}
+
             ${statusInfo.message ? `
               <div class="${statusInfo.noteClass}">
                 ${sanitizeInput(statusInfo.message)}
@@ -1022,6 +1101,34 @@
             ` : ""}
           </div>
         `;
+
+        const offerBtn = document.getElementById("offer-btn");
+        if (offerBtn && canOffer) {
+          offerBtn.addEventListener("click", async () => {
+            try {
+              offerBtn.disabled = true;
+              setStatus("Preparing your offer letter...", "loading");
+
+              const leverId = String(active?.lever_id || "").trim();
+              const r = await requestOfferUrl(leverId);
+
+              if (!r.ok || !r.url) {
+                setStatus("Offer letter is not available for this application.", "warning");
+                offerBtn.disabled = false;
+                return;
+              }
+
+              setStatus("Offer letter ready. Opening now…", "success");
+              window.open(r.url, "_blank", "noopener,noreferrer");
+              setTimeout(() => setStatus(""), 2000);
+              offerBtn.disabled = false;
+            } catch (e) {
+              console.error(e);
+              setStatus("Could not generate your offer letter link. Please try again.", "error");
+              offerBtn.disabled = false;
+            }
+          });
+        }
       }
 
       function setActiveTab(index) {
@@ -1049,7 +1156,6 @@
 
     async function checkStatus(event) {
       if (event) event.preventDefault();
-
       if (el.result) el.result.innerHTML = "";
 
       const rateCheck = rateLimiter.canAttempt();
@@ -1100,7 +1206,7 @@
       setStatus("Verifying your information...", "loading");
 
       try {
-        const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
+        const resp = await fetch(CONFIG.PORTAL_STATUS_FUNCTION_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1121,6 +1227,11 @@
           setStatus("No matching record found. Please verify your information and try again.", "warning");
           return;
         }
+
+        SESSION.token = token;
+        SESSION.lastName = validation.lastName;
+        SESSION.phone = validation.phone;
+        SESSION.payload = payload;
 
         setStatus("Application found successfully!", "success");
         renderApplicationsView(payload);
