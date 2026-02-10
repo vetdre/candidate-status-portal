@@ -108,10 +108,11 @@ body {
   min-width: 0;
 }
 
+/* FIX: badge stays square, but image is NOT stretched */
 .brand-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   background: #fff;
   border: 1px solid rgba(15, 23, 42, 0.10);
   box-shadow: var(--shadow-sm);
@@ -119,12 +120,14 @@ body {
   place-items: center;
   overflow: hidden;
   flex: 0 0 auto;
+  padding: 6px;
 }
 
 .brand-badge img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  display: block;
 }
 
 .brand-text {
@@ -137,8 +140,7 @@ body {
 .brand-title {
   font-size: 12px;
   letter-spacing: 0.12em;
-  /* IMPORTANT: do NOT force uppercase; ms consultants wants lowercase here */
-  text-transform: none;
+  text-transform: none; /* keep ms consultants lowercase */
   font-weight: 800;
   color: rgba(15, 23, 42, 0.76);
   white-space: nowrap;
@@ -794,12 +796,7 @@ const CONFIG = {
   TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/
 };
 
-const session = {
-  token: "",
-  lastName: "",
-  phone10: "",
-  verified: false
-};
+const session = { token: "", lastName: "", phone10: "", verified: false };
 
 const rateLimiter = {
   attempts: [],
@@ -836,29 +833,14 @@ function sanitizeInput(input) {
 
 function setStatus(text, type = "info") {
   if (!el.status) return;
-  if (!text) {
-    el.status.innerHTML = "";
-    return;
-  }
+  if (!text) { el.status.innerHTML = ""; return; }
+
   let icon = "";
   if (type === "loading") icon = '<span class="spinner" aria-hidden="true"></span>';
-  if (type === "info") icon =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' +
-    '</svg>';
-  if (type === "success") icon =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
-    '<polyline points="20 6 9 17 4 12"/>' +
-    '</svg>';
-  if (type === "warning") icon =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
-    '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>' +
-    '<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' +
-    '</svg>';
-  if (type === "error") icon =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' +
-    '</svg>';
+  if (type === "info") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  if (type === "success") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+  if (type === "warning") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  if (type === "error") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
 
   const classMap = {
     info: "status-line status-info",
@@ -925,7 +907,6 @@ function formatDateShort(dateString) {
   }
 }
 
-/* NEW: treat past next_interview as "no upcoming interview" */
 function isFutureDate(dateString) {
   if (!dateString) return false;
   const d = new Date(dateString);
@@ -988,22 +969,28 @@ async function handleOfferDownload() {
     setStatus("Please verify your application status first.", "warning");
     return;
   }
+
   setStatus("Generating your offer letter link...", "loading");
+
   try {
     const qs = new URLSearchParams({
       token: session.token,
       lastName: session.lastName,
       phone: session.phone10
     });
+
     const resp = await fetch(`/api/get-offer-url?${qs.toString()}`, { method: "GET" });
     const payload = await resp.json().catch(() => null);
+
     if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
       setStatus("Could not generate your offer letter link. Please try again.", "warning");
       return;
     }
+
     setStatus("Offer letter ready. Opening...", "success");
     window.open(payload.url, "_blank", "noopener,noreferrer");
     setTimeout(() => setStatus(""), 2200);
+
   } catch (e) {
     console.error(e);
     setStatus("Could not generate your offer letter link. Please try again.", "error");
@@ -1043,7 +1030,7 @@ function renderApplicationsView(payload) {
     `;
   }).join("");
 
-  const shellHtml = `
+  el.result.innerHTML = `
     <div class="applications-shell">
       <div class="tabs-and-panel">
         <div class="tabbar" role="tablist" aria-label="Applications">
@@ -1055,8 +1042,6 @@ function renderApplicationsView(payload) {
       </div>
     </div>
   `;
-
-  el.result.innerHTML = shellHtml;
 
   function renderActiveApp(index) {
     const active = apps[index] || apps[0];
