@@ -362,6 +362,19 @@
 
     .offer-btn svg { width: 14px; height: 14px; }
 
+    .offer-disclaimer {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(15, 23, 42, 0.55);
+      line-height: 1.45;
+    }
+
+    .offer-disclaimer strong {
+      color: rgba(15, 23, 42, 0.70);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
     /* ===== Status line ===== */
     #status {
       margin-top: 18px;
@@ -443,7 +456,7 @@
       display: grid;
       gap: 3px;
       position: relative;
-      box-shadow: none; /* IMPORTANT: no “shadow casting onto the panel” */
+      box-shadow: none;
     }
 
     .app-tab:hover {
@@ -457,7 +470,7 @@
       background: var(--tab-active-bg);
       border-bottom-color: var(--tab-active-bg);
       z-index: 4;
-      box-shadow: none; /* IMPORTANT: active tab should not shade what's below */
+      box-shadow: none;
     }
 
     .tab-title {
@@ -502,7 +515,7 @@
       padding: 0;
       overflow: hidden;
       animation: fadeIn var(--transition-base);
-      min-height: 270px; /* less squashed */
+      min-height: 270px;
     }
 
     .result-header {
@@ -622,8 +635,15 @@
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-start;
+    }
+
+    .offer-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
     }
 
     .divider {
@@ -669,6 +689,9 @@
       .tabbar { padding-left: 10px; padding-right: 10px; }
       .app-tab { min-width: 100%; }
       .result-row { grid-template-columns: 1fr; }
+      .actions-row { flex-direction: column; align-items: stretch; }
+      .offer-wrap { align-items: stretch; }
+      .offer-btn { width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -1044,10 +1067,6 @@
         const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
 
         const statusInfo = classifyStatus(mergedStage, active?.archived);
-
-        const showStageRow = statusInfo.showStage;
-        const showNextInterviewRow = !!nextInterview;
-
         const offerAccess = !!active?.offer_access;
 
         const inner = document.getElementById("app-panel-inner");
@@ -1072,14 +1091,14 @@
                 <div class="result-value">${mergedPosition}</div>
               </div>
 
-              ${showStageRow ? `
+              ${statusInfo.showStage ? `
                 <div class="result-row">
                   <div class="result-label">Current Stage:</div>
                   <div class="result-value">${mergedStage}</div>
                 </div>
               ` : ""}
 
-              ${showNextInterviewRow ? `
+              ${nextInterview ? `
                 <div class="result-row">
                   <div class="result-label">Next Interview:</div>
                   <div class="result-value">${sanitizeInput(nextInterviewFormatted)}</div>
@@ -1112,16 +1131,20 @@
               </button>
 
               ${offerAccess ? `
-                <button type="button" class="offer-btn" id="offer-btn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                  <span>Download Offer Letter</span>
-                </button>
+                <div class="offer-wrap">
+                  <button type="button" class="offer-btn" id="offer-btn" aria-describedby="offer-disclaimer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download Offer Letter</span>
+                  </button>
+                  <div class="offer-disclaimer" id="offer-disclaimer">
+                    <strong>*</strong> To sign your offer letter, please use the link sent via email.
+                  </div>
+                </div>
               ` : ""}
-
             </div>
           </div>
         `;
