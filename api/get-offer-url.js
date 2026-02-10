@@ -1,15 +1,28 @@
 // api/get-offer-url.js
+//
+// Generates a signed, 1-hour download URL for a candidate's offer letter.
+//
+// Behavior:
+// - Validates identity via token + lastName + phone10 (same inputs as portal-status).
+// - Resolves person_key from magic_token (Candidates table).
+// - Finds the best application row with an offer (offer_letter_key or offer_access).
+// - Supports legacy keys like "offer_{opportunityId}.pdf" by listing Storage under "{opportunityId}/"
+//   and selecting the newest PDF automatically.
+// - Signs the resolved object in Supabase Storage bucket: "offer-letters".
+//
+// NOTE:
+// - Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel env.
+// - This is server-side only (service role must never be exposed to the browser).
 
-// --- Token-scoped failure throttling (in-memory) ---
-// Goal: stop brute-force even across rotating IPs.
-// NOTE: in-memory resets on cold starts (still valuable + zero cost).
 const TOKEN_FAIL_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const TOKEN_FAIL_LIMIT = 5;                  // 5 failed attempts per window
+const TOKEN_FAIL_LIMIT = 5;
 
 const tokenFailBuckets = globalThis.__tokenFailBuckets ?? new Map();
 globalThis.__tokenFailBuckets = tokenFailBuckets;
 
-function _now() { return Date.now(); }
+function _now() {
+  return Date.now();
+}
 
 function isTokenBlocked(token) {
   const key = String(token || "").trim();
@@ -19,7 +32,7 @@ function isTokenBlocked(token) {
   if (!arr || arr.length === 0) return false;
 
   const cutoff = _now() - TOKEN_FAIL_WINDOW_MS;
-  const recent = arr.filter(ts => ts >= cutoff);
+  const recent = arr.filter((ts) => ts >= cutoff);
 
   if (recent.length === 0) {
     tokenFailBuckets.delete(key);
@@ -35,12 +48,11 @@ function registerTokenFailure(token) {
   if (!key) return 0;
 
   const cutoff = _now() - TOKEN_FAIL_WINDOW_MS;
-
-  const arr = (tokenFailBuckets.get(key) ?? []).filter(ts => ts >= cutoff);
+  const arr = (tokenFailBuckets.get(key) ?? []).filter((ts) => ts >= cutoff);
   arr.push(_now());
 
   tokenFailBuckets.set(key, arr);
-  return arr.length; // do not return this count to clients
+  return arr.length;
 }
 
 function clearTokenFailures(token) {
@@ -49,9 +61,134 @@ function clearTokenFailures(token) {
   tokenFailBuckets.delete(key);
 }
 
+function normalizeLastName(s) {
+  return String(s ?? "").trim().toLowerCase();
+}
+
+function normalizePhone10(s) {
+  let digits = String(s ?? "").replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  if (/^\d{10}$/.test(digits)) return digits;
+  return "";
+}
+
+function json(res, status, body) {
+  return res.status(status).json(body);
+}
+
+async function supaFetch(url, opts, SUPABASE_URL, SERVICE_ROLE) {
+  const resp = await fetch(url, {
+    ...opts,
+    headers: {
+      ...(opts.headers || {}),
+      apikey: SERVICE_ROLE,
+      Authorization: `Bearer ${SERVICE_ROLE}`,
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    const err = new Error(`Supabase request failed: ${resp.status} ${resp.statusText} :: ${text}`);
+    err.status = resp.status;
+    err.details = text;
+    throw err;
+  }
+
+  return resp;
+}
+
+function pickBestOfferRow(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+
+  // Prefer rows that explicitly have offer_access true, then those with offer_letter_key,
+  // and pick most recently updated/created.
+  const scored = rows.map((r) => {
+    const offerAccess = !!r.offer_access;
+    const hasKey = !!(r.offer_letter_key && String(r.offer_letter_key).trim());
+    const stageUpdated = r.stage_updated ? new Date(r.stage_updated).getTime() : 0;
+    const createdAt = r.created_at ? new Date(r.created_at).getTime() : 0;
+    const recency = Math.max(stageUpdated, createdAt);
+
+    const score =
+      (offerAccess ? 1000 : 0) +
+      (hasKey ? 100 : 0) +
+      (recency ? Math.min(99, Math.floor(recency / 1000000000)) : 0);
+
+    return { r, score, recency };
+  });
+
+  scored.sort((a, b) => (b.score - a.score) || (b.recency - a.recency));
+  return scored[0].r;
+}
+
+async function resolveStorageKeyFromRow(row, SUPABASE_URL, SERVICE_ROLE) {
+  const rawKey = String(row.offer_letter_key || "").trim();
+
+  // New/canonical format: "{opportunityId}/{offerId}_{status}.pdf"
+  if (rawKey.includes("/")) return rawKey;
+
+  // Legacy format: "offer_{opportunityId}.pdf" (or anything without a slash)
+  // Best effort: list storage objects under "{opportunityId}/" and pick newest PDF.
+  const opportunityId = String(row.lever_id || "").trim();
+  if (!opportunityId) return null;
+
+  // Storage list endpoint: POST /storage/v1/object/list/{bucket}
+  // Body supports prefix and limit.
+  const listUrl = `${SUPABASE_URL}/storage/v1/object/list/offer-letters`;
+  const listResp = await supaFetch(
+    listUrl,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prefix: `${opportunityId}/`,
+        limit: 100,
+        offset: 0,
+        sortBy: { column: "updated_at", order: "desc" },
+      }),
+    },
+    SUPABASE_URL,
+    SERVICE_ROLE
+  );
+
+  const items = await listResp.json().catch(() => []);
+  if (!Array.isArray(items) || items.length === 0) return null;
+
+  // Prefer PDFs
+  const pdfs = items.filter((x) => String(x?.name || "").toLowerCase().endsWith(".pdf"));
+  const pick = (pdfs.length ? pdfs : items)[0];
+  const name = String(pick?.name || "").trim();
+  if (!name) return null;
+
+  // list returns "name" relative to prefix folder (e.g. "abc_offer.pdf" or "offerId_status.pdf")
+  return `${opportunityId}/${name}`;
+}
+
+async function signOfferKey(key, SUPABASE_URL, SERVICE_ROLE) {
+  // Keep slashes, encode each segment
+  const safeKey = key.split("/").map(encodeURIComponent).join("/");
+
+  const signUrl = `${SUPABASE_URL}/storage/v1/object/sign/offer-letters/${safeKey}`;
+  const signResp = await supaFetch(
+    signUrl,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expiresIn: 3600 }),
+    },
+    SUPABASE_URL,
+    SERVICE_ROLE
+  );
+
+  const signed = await signResp.json();
+  const signedURL = signed?.signedURL;
+  if (!signedURL) return null;
+
+  return `${SUPABASE_URL}/storage/v1${signedURL}`;
+}
+
 module.exports = async (req, res) => {
   try {
-    // Basic CORS (optional but helpful)
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -61,84 +198,98 @@ module.exports = async (req, res) => {
     const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!SUPABASE_URL || !SERVICE_ROLE) {
-      return res.status(500).json({ error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" });
+      return json(res, 500, { ok: false, error: "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" });
     }
 
-    // Accept token/last4 via querystring (easy for your static portal to call)
-    const token = (req.query.token || "").toString().trim();
-    const last4 = (req.query.last4 || "").toString().trim();
+    // Accept token + lastName + phone via querystring or body (supports both)
+    const token = String((req.query.token ?? req.body?.token) ?? "").trim();
+    const lastNameInput = (req.query.lastName ?? req.body?.lastName);
+    const phoneInput = (req.query.phone ?? req.body?.phone);
 
-    if (!token || !last4) {
-      return res.status(400).json({ error: "Missing token or last4" });
+    if (!token || !lastNameInput || !phoneInput) {
+      return json(res, 400, { ok: false, error: "Missing token, lastName, or phone" });
     }
 
-    // Token-scoped throttling: block early (before any DB / signing work)
     if (isTokenBlocked(token)) {
-      return res.status(429).json({ error: "Too many attempts. Try again later." });
+      return json(res, 429, { ok: false, error: "Too many attempts. Try again later." });
     }
 
-    // Lookup candidate by magic_token
-    const candidatesUrl =
+    const lastNameNorm = normalizeLastName(lastNameInput);
+    const phoneNorm = normalizePhone10(phoneInput);
+    if (!lastNameNorm || !phoneNorm) {
+      registerTokenFailure(token);
+      return json(res, 200, { ok: false });
+    }
+
+    // 1) Resolve person_key from any Candidate row with this token, and validate identity.
+    // We select identity factors from the same row as the token.
+    const tokenLookupUrl =
       `${SUPABASE_URL}/rest/v1/Candidates` +
-      `?select=offer_letter_key,last_four` +
+      `?select=person_key,application_last_name,application_phone,name` +
       `&magic_token=eq.${encodeURIComponent(token)}` +
       `&limit=1`;
 
-    const candResp = await fetch(candidatesUrl, {
-      headers: {
-        apikey: SERVICE_ROLE,
-        Authorization: `Bearer ${SERVICE_ROLE}`,
-      },
-    });
+    const tokenResp = await supaFetch(
+      tokenLookupUrl,
+      { method: "GET" },
+      SUPABASE_URL,
+      SERVICE_ROLE
+    );
 
-    if (!candResp.ok) {
-      const text = await candResp.text();
-      return res.status(500).json({ error: "Supabase query failed", details: text });
-    }
+    const tokenRows = await tokenResp.json().catch(() => []);
+    const tokenRow = tokenRows?.[0];
 
-    const rows = await candResp.json();
-    const row = rows?.[0];
-
-    if (!row) return res.status(404).json({ error: "Candidate not found" });
-
-    // If the identity check fails, register a token failure before returning.
-    if ((row.last_four || "").toString() !== last4) {
+    if (!tokenRow || !tokenRow.person_key) {
       registerTokenFailure(token);
-      return res.status(401).json({ error: "Invalid credentials." });
+      return json(res, 200, { ok: false });
     }
 
-    // Identity success: clear prior failures for this token.
+    const dbLastNameNorm = normalizeLastName(tokenRow.application_last_name);
+    const dbPhoneNorm = normalizePhone10(tokenRow.application_phone);
+
+    if (dbLastNameNorm !== lastNameNorm || dbPhoneNorm !== phoneNorm) {
+      registerTokenFailure(token);
+      return json(res, 200, { ok: false });
+    }
+
     clearTokenFailures(token);
 
-    const key = (row.offer_letter_key || "").toString().trim();
-    if (!key) return res.status(404).json({ error: "No offer_letter_key on candidate" });
+    const personKey = String(tokenRow.person_key).trim();
 
-    // Keep slashes, encode each path segment
-    const safeKey = key.split("/").map(encodeURIComponent).join("/");
+    // 2) Pull all applications for this person_key and choose best offer row.
+    const appsUrl =
+      `${SUPABASE_URL}/rest/v1/Candidates` +
+      `?select=id,lever_id,offer_access,offer_letter_key,stage_updated,created_at` +
+      `&person_key=eq.${encodeURIComponent(personKey)}` +
+      `&order=created_at.desc`;
 
-    // Request a signed URL from Supabase Storage
-    const signUrl = `${SUPABASE_URL}/storage/v1/object/sign/offer-letters/${safeKey}`;
-    const signResp = await fetch(signUrl, {
-      method: "POST",
-      headers: {
-        apikey: SERVICE_ROLE,
-        Authorization: `Bearer ${SERVICE_ROLE}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ expiresIn: 3600 }), // 1 hour
-    });
+    const appsResp = await supaFetch(
+      appsUrl,
+      { method: "GET" },
+      SUPABASE_URL,
+      SERVICE_ROLE
+    );
 
-    if (!signResp.ok) {
-      const text = await signResp.text();
-      return res.status(500).json({ error: "Signing failed", details: text });
-    }
+    const apps = await appsResp.json().catch(() => []);
+    const best = pickBestOfferRow(apps);
 
-    const signed = await signResp.json();
-    // signed.signedURL looks like "/object/sign/offer-letters/...."
-    const fullUrl = `${SUPABASE_URL}/storage/v1${signed.signedURL}`;
+    if (!best) return json(res, 404, { ok: false, error: "No applications found for person" });
 
-    return res.status(200).json({ url: fullUrl });
+    // 3) Resolve storage key (handles legacy)
+    const key = await resolveStorageKeyFromRow(best, SUPABASE_URL, SERVICE_ROLE);
+    if (!key) return json(res, 404, { ok: false, error: "No offer file found" });
+
+    // 4) Sign it
+    const url = await signOfferKey(key, SUPABASE_URL, SERVICE_ROLE);
+    if (!url) return json(res, 500, { ok: false, error: "Signing failed" });
+
+    return json(res, 200, { ok: true, url });
+
   } catch (e) {
-    return res.status(500).json({ error: "Unhandled error", details: String(e) });
+    return res.status(500).json({
+      ok: false,
+      error: "Unhandled error",
+      details: String(e?.message || e),
+    });
   }
 };
