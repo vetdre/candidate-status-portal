@@ -1,1345 +1,1340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Application Status | ms consultants</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Check your job application status with ms consultants" />
-  <meta name="robots" content="noindex, nofollow" />
-
-  <style>
-    :root {
-      /* Brand-ish */
-      --accent: #0f2f4a;             /* deep slate/navy */
-      --accent-2: #1b4f72;           /* hover */
-      --accent-soft: rgba(15, 47, 74, 0.08);
-      --accent-border: rgba(15, 47, 74, 0.25);
-
-      /* Surfaces */
-      --page-bg-1: #f4f6f8;
-      --page-bg-2: #e9eef3;
-      --card-bg: #ffffff;
-      --card-border: rgba(15, 23, 42, 0.10);
-
-      /* Text */
-      --text-main: #0f172a;
-      --text-muted: rgba(15, 23, 42, 0.70);
-      --text-light: rgba(15, 23, 42, 0.55);
-
-      /* UI */
-      --line: rgba(15, 23, 42, 0.12);
-      --line-strong: rgba(15, 23, 42, 0.18);
-      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-      --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.10);
-      --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.12);
-
-      --radius-sm: 10px;
-      --radius-md: 14px;
-      --radius-lg: 18px;
-      --radius-xl: 22px;
-
-      --transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-
-      /* Status */
-      --info: #2563eb;
-      --info-bg: rgba(37, 99, 235, 0.08);
-      --info-border: rgba(37, 99, 235, 0.24);
-
-      --success: #16a34a;
-      --success-bg: rgba(22, 163, 74, 0.08);
-      --success-border: rgba(22, 163, 74, 0.24);
-
-      --warning: #b45309;
-      --warning-bg: rgba(180, 83, 9, 0.08);
-      --warning-border: rgba(180, 83, 9, 0.22);
-
-      --error: #dc2626;
-      --error-bg: rgba(220, 38, 38, 0.08);
-      --error-border: rgba(220, 38, 38, 0.22);
-
-      /* Tabs + panel */
-      --tab-inactive-bg: #ffffff;
-      --tab-active-bg: #ffffff;
-      --tab-inactive-text: rgba(15, 23, 42, 0.75);
-      --tab-active-text: rgba(15, 47, 74, 1);
-      --tab-inactive-border: rgba(15, 23, 42, 0.18);
-      --tab-active-border: rgba(15, 47, 74, 0.28);
-
-      /* Panel border will match the active tab border for cohesion */
-      --panel-border: var(--tab-active-border);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background:
-        radial-gradient(900px 450px at 15% 10%, rgba(15, 47, 74, 0.08) 0%, rgba(255,255,255,0) 55%),
-        radial-gradient(900px 450px at 85% 15%, rgba(37, 99, 235, 0.07) 0%, rgba(255,255,255,0) 60%),
-        linear-gradient(180deg, var(--page-bg-1), var(--page-bg-2));
-      color: var(--text-main);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ===== Top header (careers page vibe) ===== */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-    }
-
-    .topbar-inner {
-      max-width: 1020px;
-      margin: 0 auto;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .brand-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: #fff;
-      border: 1px solid rgba(15, 23, 42, 0.10);
-      box-shadow: var(--shadow-sm);
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      flex: 0 0 auto;
-    }
-
-    .brand-badge img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .brand-title {
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: rgba(15, 23, 42, 0.76);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .brand-subtitle {
-      font-size: 12px;
-      color: rgba(15, 23, 42, 0.55);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .secure-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(22, 163, 74, 0.08);
-      border: 1px solid rgba(22, 163, 74, 0.20);
-      color: rgba(22, 163, 74, 0.95);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      flex: 0 0 auto;
-    }
-
-    .secure-pill svg { width: 16px; height: 16px; }
-
-    /* ===== Main shell ===== */
-    .page {
-      max-width: 1020px;
-      margin: 0 auto;
-      padding: 26px 18px 64px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
-      padding: 42px 42px 28px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: var(--text-main);
-    }
-
-    .subtitle {
-      margin: 12px 0 0;
-      color: var(--text-muted);
-      font-size: 15px;
-      max-width: 720px;
-      line-height: 1.7;
-    }
-
-    /* ===== Form ===== */
-    form { margin-top: 26px; }
-
-    label {
-      display: block;
-      margin: 0 0 12px;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(15, 23, 42, 0.78);
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 14px;
-      align-items: center;
-    }
-
-    input[type="text"],
-    input[type="tel"] {
-      height: 50px;
-      width: 100%;
-      border-radius: 14px;
-      border: 1px solid rgba(15, 23, 42, 0.14);
-      background: #fff;
-      padding: 0 16px;
-      font-size: 15.5px;
-      outline: none;
-      transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
-    }
-
-    input[type="text"]:focus,
-    input[type="tel"]:focus {
-      border-color: rgba(37, 99, 235, 0.35);
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-    }
-
-    input.error {
-      border-color: var(--error-border);
-      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10);
-      background: rgba(220, 38, 38, 0.04);
-    }
-
-    .primary-btn {
-      height: 50px;
-      border: none;
-      border-radius: 14px;
-      padding: 0 24px;
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-      color: white;
-      background: linear-gradient(135deg, var(--accent), #0b2438);
-      box-shadow: 0 10px 24px rgba(15, 47, 74, 0.22);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
-      white-space: nowrap;
-    }
-
-    .primary-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(15, 47, 74, 0.26);
-    }
-
-    .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
-    .primary-btn svg { width: 16px; height: 16px; }
-
-    .form-meta {
-      margin-top: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .helper {
-      font-size: 12.8px;
-      color: var(--text-light);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .helper.error { color: rgba(220, 38, 38, 0.92); }
-
-    .secondary-btn {
-      height: 42px;
-      border-radius: 12px;
-      border: 1px solid rgba(15, 23, 42, 0.14);
-      background: #fff;
-      color: rgba(15, 23, 42, 0.84);
-      cursor: pointer;
-      padding: 0 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
-      white-space: nowrap;
-      text-decoration: none;
-    }
-
-    .secondary-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
-      border-color: rgba(15, 47, 74, 0.22);
-    }
-
-    .secondary-btn svg { width: 14px; height: 14px; }
-
-    /* Offer button variant */
-    .offer-btn {
-      height: 42px;
-      border-radius: 12px;
-      border: 1px solid rgba(15, 47, 74, 0.22);
-      background: rgba(15, 47, 74, 0.03);
-      color: rgba(15, 47, 74, 0.96);
-      cursor: pointer;
-      padding: 0 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
-      white-space: nowrap;
-    }
-
-    .offer-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
-      border-color: rgba(15, 47, 74, 0.30);
-      background: rgba(15, 47, 74, 0.06);
-    }
-
-    .offer-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
-    .offer-btn svg { width: 14px; height: 14px; }
-
-    .offer-disclaimer {
-      margin-top: 6px;
-      font-size: 12px;
-      color: rgba(15, 23, 42, 0.55);
-      line-height: 1.45;
-    }
-
-    .offer-disclaimer strong {
-      color: rgba(15, 23, 42, 0.70);
-      font-weight: 900;
-      letter-spacing: 0.02em;
-    }
-
-    /* ===== Status line ===== */
-    #status {
-      margin-top: 18px;
-      min-height: 22px;
-    }
-
-    .status-line {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid;
-      font-size: 14px;
-      font-weight: 650;
-      animation: fadeIn var(--transition-base);
-    }
-
-    .status-info { background: var(--info-bg); border-color: var(--info-border); color: var(--info); }
-    .status-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
-    .status-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); }
-    .status-error { background: var(--error-bg); border-color: var(--error-border); color: var(--error); }
-
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(15, 23, 42, 0.18);
-      border-top-color: rgba(37, 99, 235, 0.65);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== Results ===== */
-    #result { margin-top: 26px; }
-
-    .applications-shell {
-      margin-top: 22px;
-      padding: 22px 0 6px;
-    }
-
-    .tabs-and-panel {
-      position: relative;
-    }
-
-    .tabbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      padding-left: 16px;
-      padding-right: 16px;
-      margin: 0 0 -1px;
-      position: relative;
-      z-index: 3;
-    }
-
-    .app-tab {
-      appearance: none;
-      border: 1px solid var(--tab-inactive-border);
-      background: var(--tab-inactive-bg);
-      color: var(--tab-inactive-text);
-      border-bottom-color: transparent;
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      padding: 11px 14px 10px;
-      cursor: pointer;
-      transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
-      min-width: 320px;
-      max-width: 100%;
-      display: grid;
-      gap: 3px;
-      position: relative;
-      box-shadow: none;
-    }
-
-    .app-tab:hover {
-      transform: translateY(-1px);
-      border-color: rgba(15, 47, 74, 0.22);
-    }
-
-    .app-tab.active {
-      border-color: var(--tab-active-border);
-      color: var(--tab-active-text);
-      background: var(--tab-active-bg);
-      border-bottom-color: var(--tab-active-bg);
-      z-index: 4;
-      box-shadow: none;
-    }
-
-    .tab-title {
-      font-size: 13px;
-      font-weight: 950;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tab-subtitle {
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      color: rgba(15, 23, 42, 0.55);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .app-tab.active .tab-subtitle { color: rgba(15, 47, 74, 0.70); }
-
-    .panel {
-      border: 1px solid var(--panel-border);
-      border-radius: var(--radius-lg);
-      background: #fff;
-      box-shadow: var(--shadow-md);
-      padding: 18px;
-      position: relative;
-      z-index: 2;
-      overflow: hidden;
-    }
-
-    .result-card {
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(15, 23, 42, 0.14);
-      background: #ffffff;
-      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
-      padding: 0;
-      overflow: hidden;
-      animation: fadeIn var(--transition-base);
-      min-height: 270px;
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 18px 20px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.10);
-      background: linear-gradient(180deg, rgba(15, 47, 74, 0.03), rgba(255,255,255,0));
-    }
-
-    .result-title-wrap { min-width: 0; }
-
-    .result-title {
-      margin: 0;
-      font-size: 19px;
-      font-weight: 850;
-      letter-spacing: -0.02em;
-      color: rgba(15, 23, 42, 0.92);
-    }
-
-    .pill-row {
-      margin-top: 12px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(15, 23, 42, 0.12);
-      background: rgba(15, 23, 42, 0.03);
-      color: rgba(15, 23, 42, 0.70);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .status-pill {
-      margin-top: 2px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
-      border-radius: 999px;
-      border: 1px solid;
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      flex: 0 0 auto;
-    }
-
-    .status-pill-active { color: var(--info); border-color: var(--info-border); background: var(--info-bg); }
-    .status-pill-hired { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
-    .status-pill-inactive { color: rgba(15, 23, 42, 0.62); border-color: rgba(15, 23, 42, 0.14); background: rgba(15, 23, 42, 0.03); }
-
-    .result-body {
-      padding: 16px 20px 20px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .result-row {
-      display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 12px;
-      align-items: baseline;
-      font-size: 14.5px;
-      line-height: 1.5;
-    }
-
-    .result-label {
-      font-weight: 800;
-      color: rgba(15, 23, 42, 0.60);
-    }
-
-    .result-value {
-      color: rgba(15, 23, 42, 0.92);
-      word-break: break-word;
-    }
-
-    .note {
-      margin: 0 20px 20px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(37, 99, 235, 0.24);
-      background: rgba(37, 99, 235, 0.08);
-      color: rgba(37, 99, 235, 0.95);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .note-success {
-      border-color: rgba(22, 163, 74, 0.24);
-      background: rgba(22, 163, 74, 0.08);
-      color: rgba(22, 163, 74, 0.95);
-    }
-
-    .note-warning {
-      border-color: rgba(180, 83, 9, 0.22);
-      background: rgba(180, 83, 9, 0.08);
-      color: rgba(180, 83, 9, 0.95);
-    }
-
-    .actions-row {
-      padding: 0 20px 20px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: flex-start;
-    }
-
-    .offer-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      align-items: flex-start;
-    }
-
-    .divider {
-      margin: 26px 0 0;
-      border-top: 1px solid rgba(15, 23, 42, 0.08);
-    }
-
-    .footer-hint {
-      margin: 20px 0 0;
-      padding: 16px 8px 0;
-      text-align: center;
-      color: rgba(15, 23, 42, 0.54);
-      font-size: 12.5px;
-      line-height: 1.7;
-    }
-
-    .footer-hint strong { color: rgba(15, 23, 42, 0.70); }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    :focus-visible {
-      outline: 3px solid rgba(37, 99, 235, 0.35);
-      outline-offset: 2px;
-      border-radius: 10px;
-    }
-
-    @media (max-width: 860px) {
-      .card { padding: 30px 20px 22px; }
-      h1 { font-size: 30px; }
-      .row { grid-template-columns: 1fr; }
-      .primary-btn { width: 100%; }
-      .form-meta { justify-content: flex-start; }
-      .tabbar { padding-left: 10px; padding-right: 10px; }
-      .app-tab { min-width: 100%; }
-      .result-row { grid-template-columns: 1fr; }
-      .actions-row { flex-direction: column; align-items: stretch; }
-      .offer-wrap { align-items: stretch; }
-      .offer-btn { width: 100%; justify-content: center; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Application Status | ms consultants</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Check your job application status with ms consultants" />
+<meta name="robots" content="noindex, nofollow" />
+<style>
+:root {
+  /* Brand-ish */
+  --accent: #0f2f4a;             /* deep slate/navy */
+  --accent-2: #1b4f72;           /* hover */
+  --accent-soft: rgba(15, 47, 74, 0.08);
+  --accent-border: rgba(15, 47, 74, 0.25);
+
+  /* Surfaces */
+  --page-bg-1: #f4f6f8;
+  --page-bg-2: #e9eef3;
+  --card-bg: #ffffff;
+  --card-border: rgba(15, 23, 42, 0.10);
+
+  /* Text */
+  --text-main: #0f172a;
+  --text-muted: rgba(15, 23, 42, 0.70);
+  --text-light: rgba(15, 23, 42, 0.55);
+
+  /* UI */
+  --line: rgba(15, 23, 42, 0.12);
+  --line-strong: rgba(15, 23, 42, 0.18);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.12);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Status */
+  --info: #2563eb;
+  --info-bg: rgba(37, 99, 235, 0.08);
+  --info-border: rgba(37, 99, 235, 0.24);
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.08);
+  --success-border: rgba(22, 163, 74, 0.24);
+  --warning: #b45309;
+  --warning-bg: rgba(180, 83, 9, 0.08);
+  --warning-border: rgba(180, 83, 9, 0.22);
+  --error: #dc2626;
+  --error-bg: rgba(220, 38, 38, 0.08);
+  --error-border: rgba(220, 38, 38, 0.22);
+
+  /* Tabs + panel */
+  --tab-inactive-bg: #ffffff;
+  --tab-active-bg: #ffffff;
+  --tab-inactive-text: rgba(15, 23, 42, 0.75);
+  --tab-active-text: rgba(15, 47, 74, 1);
+  --tab-inactive-border: rgba(15, 23, 42, 0.18);
+  --tab-active-border: rgba(15, 47, 74, 0.28);
+
+  /* Panel border will match the active tab border for cohesion */
+  --panel-border: var(--tab-active-border);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  background:
+    radial-gradient(900px 450px at 15% 10%, rgba(15, 47, 74, 0.08) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(900px 450px at 85% 15%, rgba(37, 99, 235, 0.07) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(180deg, var(--page-bg-1), var(--page-bg-2));
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Top header (careers page vibe) ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.topbar-inner {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.brand-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brand-title {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  /* IMPORTANT: do NOT force uppercase; ms consultants wants lowercase here */
+  text-transform: none;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.76);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.secure-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.20);
+  color: rgba(22, 163, 74, 0.95);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  flex: 0 0 auto;
+}
+
+.secure-pill svg { width: 16px; height: 16px; }
+
+/* ===== Main shell ===== */
+.page {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 26px 18px 64px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 42px 42px 28px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+  font-size: 15px;
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+/* ===== Form ===== */
+form { margin-top: 26px; }
+
+label {
+  display: block;
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+
+input[type="text"],
+input[type="tel"] {
+  height: 50px;
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #fff;
+  padding: 0 16px;
+  font-size: 15.5px;
+  outline: none;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+}
+
+input.error {
+  border-color: var(--error-border);
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10);
+  background: rgba(220, 38, 38, 0.04);
+}
+
+.primary-btn {
+  height: 50px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 24px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), #0b2438);
+  box-shadow: 0 10px 24px rgba(15, 47, 74, 0.22);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+  white-space: nowrap;
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(15, 47, 74, 0.26);
+}
+
+.primary-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.primary-btn svg { width: 16px; height: 16px; }
+
+.form-meta {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.helper {
+  font-size: 12.8px;
+  color: var(--text-light);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helper.error { color: rgba(220, 38, 38, 0.92); }
+
+.secondary-btn {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #fff;
+  color: rgba(15, 23, 42, 0.84);
+  cursor: pointer;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.secondary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(15, 47, 74, 0.22);
+}
+
+.secondary-btn svg { width: 14px; height: 14px; }
+
+/* Offer button variant */
+.offer-btn {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 47, 74, 0.22);
+  background: rgba(15, 47, 74, 0.03);
+  color: rgba(15, 47, 74, 0.96);
+  cursor: pointer;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.offer-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(15, 47, 74, 0.30);
+  background: rgba(15, 47, 74, 0.06);
+}
+
+.offer-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.offer-btn svg { width: 14px; height: 14px; }
+
+.offer-disclaimer {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.55);
+  line-height: 1.45;
+}
+
+.offer-disclaimer strong {
+  color: rgba(15, 23, 42, 0.70);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+/* ===== Status line ===== */
+#status {
+  margin-top: 18px;
+  min-height: 22px;
+}
+
+.status-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 14px;
+  font-weight: 650;
+  animation: fadeIn var(--transition-base);
+}
+
+.status-info { background: var(--info-bg); border-color: var(--info-border); color: var(--info); }
+.status-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+.status-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); }
+.status-error { background: var(--error-bg); border-color: var(--error-border); color: var(--error); }
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(15, 23, 42, 0.18);
+  border-top-color: rgba(37, 99, 235, 0.65);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Results ===== */
+#result { margin-top: 26px; }
+
+.applications-shell {
+  margin-top: 22px;
+  padding: 22px 0 6px;
+}
+
+.tabs-and-panel { position: relative; }
+
+.tabbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin: 0 0 -1px;
+  position: relative;
+  z-index: 3;
+}
+
+.app-tab {
+  appearance: none;
+  border: 1px solid var(--tab-inactive-border);
+  background: var(--tab-inactive-bg);
+  color: var(--tab-inactive-text);
+  border-bottom-color: transparent;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: 11px 14px 10px;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+  min-width: 320px;
+  max-width: 100%;
+  display: grid;
+  gap: 3px;
+  position: relative;
+  box-shadow: none;
+}
+
+.app-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 47, 74, 0.22);
+}
+
+.app-tab.active {
+  border-color: var(--tab-active-border);
+  color: var(--tab-active-text);
+  background: var(--tab-active-bg);
+  border-bottom-color: var(--tab-active-bg);
+  z-index: 4;
+  box-shadow: none;
+}
+
+.tab-title {
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-subtitle {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-tab.active .tab-subtitle { color: rgba(15, 47, 74, 0.70); }
+
+.panel {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-md);
+  padding: 18px;
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.result-card {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+  padding: 0;
+  overflow: hidden;
+  animation: fadeIn var(--transition-base);
+  min-height: 270px;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.10);
+  background: linear-gradient(180deg, rgba(15, 47, 74, 0.03), rgba(255,255,255,0));
+}
+
+.result-title-wrap { min-width: 0; }
+
+.result-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.pill-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.03);
+  color: rgba(15, 23, 42, 0.70);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-pill {
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.status-pill-active { color: var(--info); border-color: var(--info-border); background: var(--info-bg); }
+.status-pill-hired { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+.status-pill-inactive { color: rgba(15, 23, 42, 0.62); border-color: rgba(15, 23, 42, 0.14); background: rgba(15, 23, 42, 0.03); }
+
+.result-body {
+  padding: 16px 20px 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.result-label {
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.60);
+}
+
+.result-value {
+  color: rgba(15, 23, 42, 0.92);
+  word-break: break-word;
+}
+
+.note {
+  margin: 0 20px 20px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  background: rgba(37, 99, 235, 0.08);
+  color: rgba(37, 99, 235, 0.95);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.note-success {
+  border-color: rgba(22, 163, 74, 0.24);
+  background: rgba(22, 163, 74, 0.08);
+  color: rgba(22, 163, 74, 0.95);
+}
+
+.note-warning {
+  border-color: rgba(180, 83, 9, 0.22);
+  background: rgba(180, 83, 9, 0.08);
+  color: rgba(180, 83, 9, 0.95);
+}
+
+.actions-row {
+  padding: 0 20px 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.offer-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.divider {
+  margin: 26px 0 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.footer-hint {
+  margin: 20px 0 0;
+  padding: 16px 8px 0;
+  text-align: center;
+  color: rgba(15, 23, 42, 0.54);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.footer-hint strong { color: rgba(15, 23, 42, 0.70); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+@media (max-width: 860px) {
+  .card { padding: 30px 20px 22px; }
+  h1 { font-size: 30px; }
+  .row { grid-template-columns: 1fr; }
+  .primary-btn { width: 100%; }
+  .form-meta { justify-content: flex-start; }
+  .tabbar { padding-left: 10px; padding-right: 10px; }
+  .app-tab { min-width: 100%; }
+  .result-row { grid-template-columns: 1fr; }
+  .actions-row { flex-direction: column; align-items: stretch; }
+  .offer-wrap { align-items: stretch; }
+  .offer-btn { width: 100%; justify-content: center; }
+}
+</style>
 </head>
-
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <div class="brand-badge" aria-hidden="true">
-          <img
-            src="ms-logo-Color-Solid-square-transparent_no-text.webp"
-            alt=""
-            loading="lazy"
-            onerror="this.style.display='none'"
-          />
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">ms consultants application portal</div>
-          <div class="brand-subtitle">secure status updates for your application</div>
-        </div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true">
+        <img
+          src="ms-logo-Color-Solid-square-transparent_no-text.webp"
+          alt=""
+          loading="lazy"
+          onerror="this.style.display='none'"
+        />
       </div>
-
-      <div class="secure-pill" title="This is a secured portal experience">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
-        <span>Secure</span>
+      <div class="brand-text">
+        <div class="brand-title">ms consultants application portal</div>
+        <div class="brand-subtitle">secure status updates for your application</div>
       </div>
     </div>
-  </header>
+    <div class="secure-pill" title="This is a secured portal experience">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <span>Secure</span>
+    </div>
+  </div>
+</header>
 
-  <main class="page">
-    <section class="card" role="main">
-      <h1>Check Your Application Status</h1>
-      <p class="subtitle">
-        Enter the last name and phone number from your application to view your current status.
-        This secure page requires the personalized link sent to you by <span style="white-space:nowrap;">ms consultants</span>.
+<main class="page">
+  <section class="card" role="main">
+    <h1>Check Your Application Status</h1>
+    <p class="subtitle">
+      Enter the last name and phone number from your application to view your current status.
+      This secure page requires the personalized link sent to you by <span style="white-space:nowrap;">ms consultants</span>.
+    </p>
+
+    <form id="status-form" novalidate>
+      <label for="lastName">
+        Last name on your application
+        <span class="sr-only">(Required)</span>
+      </label>
+      <div class="row">
+        <input
+          id="lastName"
+          type="text"
+          placeholder="Last name"
+          aria-label="Last name"
+          aria-required="true"
+          autocomplete="off"
+          required
+        />
+        <input
+          id="phone"
+          type="tel"
+          inputmode="numeric"
+          placeholder="10-digit phone (no dashes)"
+          aria-label="Phone number"
+          aria-required="true"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="submit-btn" class="primary-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Check Status</span>
+        </button>
+      </div>
+
+      <div class="form-meta">
+        <div class="helper" id="phone-helper">
+          Must match the last name and 10-digit phone number on your application
+        </div>
+        <a class="secondary-btn" href="https://jobs.lever.co/msconsultants" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>Return to Careers</span>
+        </a>
+      </div>
+    </form>
+
+    <div id="status" role="status" aria-live="polite"></div>
+    <div id="result" role="region" aria-live="polite"></div>
+
+    <div class="divider"></div>
+
+    <footer class="footer-hint">
+      <p>
+        <strong>Important:</strong> This page requires a personalized security token to function.
+        If you accessed this page directly or the link isn't working, please use the exact URL
+        provided by your recruiter.
+        For assistance, contact <span style="white-space:nowrap;">ms consultants</span>.
       </p>
+    </footer>
+  </section>
+</main>
 
-      <form id="status-form" novalidate>
-        <label for="lastName">
-          Last name on your application
-          <span class="sr-only">(Required)</span>
-        </label>
+<script>
+const CONFIG = {
+  EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
+  CAREERS_URL: "https://jobs.lever.co/msconsultants",
+  MAX_ATTEMPTS: 10,
+  RATE_LIMIT_WINDOW: 15 * 60 * 1000,
+  TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/
+};
 
-        <div class="row">
-          <input
-            id="lastName"
-            type="text"
-            placeholder="Last name"
-            aria-label="Last name"
-            aria-required="true"
-            autocomplete="off"
-            required
-          />
+const session = {
+  token: "",
+  lastName: "",
+  phone10: "",
+  verified: false
+};
 
-          <input
-            id="phone"
-            type="tel"
-            inputmode="numeric"
-            placeholder="10-digit phone (no dashes)"
-            aria-label="Phone number"
-            aria-required="true"
-            autocomplete="off"
-            required
-          />
+const rateLimiter = {
+  attempts: [],
+  canAttempt() {
+    const now = Date.now();
+    this.attempts = this.attempts.filter(t => now - t < CONFIG.RATE_LIMIT_WINDOW);
+    if (this.attempts.length >= CONFIG.MAX_ATTEMPTS) {
+      const oldest = this.attempts[0];
+      const timeRemaining = Math.ceil((CONFIG.RATE_LIMIT_WINDOW - (now - oldest)) / 1000);
+      return { allowed: false, timeRemaining };
+    }
+    this.attempts.push(now);
+    return { allowed: true };
+  },
+  reset() { this.attempts = []; }
+};
 
-          <button type="submit" id="submit-btn" class="primary-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Check Status</span>
-          </button>
+const el = {};
+
+function initElements() {
+  el.form = document.getElementById("status-form");
+  el.lastName = document.getElementById("lastName");
+  el.phone = document.getElementById("phone");
+  el.submitBtn = document.getElementById("submit-btn");
+  el.status = document.getElementById("status");
+  el.result = document.getElementById("result");
+  el.helper = document.getElementById("phone-helper");
+}
+
+function sanitizeInput(input) {
+  if (typeof input !== "string") return "";
+  return input.replace(/[^\w\s@.,-]/gi, "").trim();
+}
+
+function setStatus(text, type = "info") {
+  if (!el.status) return;
+  if (!text) {
+    el.status.innerHTML = "";
+    return;
+  }
+  let icon = "";
+  if (type === "loading") icon = '<span class="spinner" aria-hidden="true"></span>';
+  if (type === "info") icon =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' +
+    '</svg>';
+  if (type === "success") icon =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+    '<polyline points="20 6 9 17 4 12"/>' +
+    '</svg>';
+  if (type === "warning") icon =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+    '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>' +
+    '<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' +
+    '</svg>';
+  if (type === "error") icon =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' +
+    '</svg>';
+
+  const classMap = {
+    info: "status-line status-info",
+    success: "status-line status-success",
+    warning: "status-line status-warning",
+    error: "status-line status-error",
+    loading: "status-line status-info"
+  };
+
+  el.status.innerHTML = `
+    <div class="${classMap[type] || classMap.info}">
+      ${icon}
+      <span>${sanitizeInput(text)}</span>
+    </div>
+  `;
+}
+
+function normalizePhone10(raw) {
+  let digits = String(raw || "").replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  return /^\d{10}$/.test(digits) ? digits : "";
+}
+
+function validateInputs(lastName, phoneRaw) {
+  const last = String(lastName || "").trim();
+  const phone = normalizePhone10(phoneRaw);
+  if (!last) return { valid: false, message: "Please enter the last name from your application." };
+  if (!phone) return { valid: false, message: "Please enter a valid 10-digit phone number." };
+  return { valid: true, lastName: last, phone };
+}
+
+function formatDateToLocal(dateString) {
+  if (!dateString) return "Not available";
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "Invalid date";
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    }).format(d);
+  } catch {
+    return "Date unavailable";
+  }
+}
+
+function formatDateShort(dateString) {
+  if (!dateString) return "Unknown";
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "Unknown";
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    }).format(d);
+  } catch {
+    return "Unknown";
+  }
+}
+
+/* NEW: treat past next_interview as "no upcoming interview" */
+function isFutureDate(dateString) {
+  if (!dateString) return false;
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return false;
+  return d.getTime() > Date.now();
+}
+
+function classifyStatus(stageRaw, archived) {
+  const stage = String(stageRaw || "").toLowerCase();
+  const isArchived = !!archived;
+
+  if (isArchived || stage.includes("reject") || stage.includes("declined") ||
+      stage.includes("closed") || stage.includes("not selected")) {
+    return {
+      pillClass: "status-pill-inactive",
+      pillText: "Closed",
+      noteClass: "note note-warning",
+      message: "Thank you for your interest. While this position didn’t work out, we encourage you to apply for future opportunities that match your skills.",
+      showStage: false
+    };
+  }
+
+  if (stage.includes("hire") || stage.includes("hired") || stage.includes("onboard") ||
+      stage.includes("start")) {
+    return {
+      pillClass: "status-pill-hired",
+      pillText: "Hired",
+      noteClass: "note note-success",
+      message: "Congratulations! Please check UKG Pro for onboarding details and next steps.",
+      showStage: false
+    };
+  }
+
+  if (stage.includes("interview") || stage.includes("screen") || stage.includes("assessment") ||
+      stage.includes("meeting") || stage.includes("offer")) {
+    return {
+      pillClass: "status-pill-active",
+      pillText: "In Progress",
+      noteClass: "note",
+      message: null,
+      showStage: true
+    };
+  }
+
+  return {
+    pillClass: "status-pill-active",
+    pillText: "Under Review",
+    noteClass: "note",
+    message: null,
+    showStage: true
+  };
+}
+
+function setPanelBorderToActive() {
+  document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
+}
+
+async function handleOfferDownload() {
+  if (!session.verified || !session.token || !session.lastName || !session.phone10) {
+    setStatus("Please verify your application status first.", "warning");
+    return;
+  }
+  setStatus("Generating your offer letter link...", "loading");
+  try {
+    const qs = new URLSearchParams({
+      token: session.token,
+      lastName: session.lastName,
+      phone: session.phone10
+    });
+    const resp = await fetch(`/api/get-offer-url?${qs.toString()}`, { method: "GET" });
+    const payload = await resp.json().catch(() => null);
+    if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
+      setStatus("Could not generate your offer letter link. Please try again.", "warning");
+      return;
+    }
+    setStatus("Offer letter ready. Opening...", "success");
+    window.open(payload.url, "_blank", "noopener,noreferrer");
+    setTimeout(() => setStatus(""), 2200);
+  } catch (e) {
+    console.error(e);
+    setStatus("Could not generate your offer letter link. Please try again.", "error");
+  }
+}
+
+function renderApplicationsView(payload) {
+  if (!el.result) return;
+
+  const candidate = payload?.candidate || null;
+  const apps = Array.isArray(payload?.applications) ? payload.applications.slice() : [];
+
+  if (!candidate || apps.length === 0) {
+    el.result.innerHTML = "";
+    return;
+  }
+
+  apps.sort((a, b) => {
+    const ad = new Date(a?.created_at || 0).getTime();
+    const bd = new Date(b?.created_at || 0).getTime();
+    return bd - ad;
+  });
+
+  setPanelBorderToActive();
+
+  const tabsHtml = apps.map((a, idx) => {
+    const pos = sanitizeInput(a?.position || "Position");
+    const applied = formatDateShort(a?.created_at);
+    const stage = sanitizeInput(a?.current_stage || "");
+    const subtitle = stage ? stage : "Status";
+    return `
+      <button type="button" class="app-tab ${idx === 0 ? "active" : ""}" data-app-index="${idx}"
+        aria-selected="${idx === 0 ? "true" : "false"}">
+        <div class="tab-title">${pos} &nbsp; ${sanitizeInput(applied).toUpperCase()}</div>
+        <div class="tab-subtitle">${sanitizeInput(subtitle).toUpperCase()}</div>
+      </button>
+    `;
+  }).join("");
+
+  const shellHtml = `
+    <div class="applications-shell">
+      <div class="tabs-and-panel">
+        <div class="tabbar" role="tablist" aria-label="Applications">
+          ${tabsHtml}
+        </div>
+        <div class="panel">
+          <div id="app-panel-inner"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  el.result.innerHTML = shellHtml;
+
+  function renderActiveApp(index) {
+    const active = apps[index] || apps[0];
+
+    const mergedName = sanitizeInput(active?.name || candidate?.name || "Applicant");
+    const mergedPosition = sanitizeInput(active?.position || candidate?.position || "Not specified");
+    const mergedStage = sanitizeInput(active?.current_stage || candidate?.current_stage || "Under Review");
+
+    const appliedShort = formatDateShort(active?.created_at);
+    const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
+
+    const statusInfo = classifyStatus(mergedStage, active?.archived);
+    const offerAccess = !!active?.offer_access;
+
+    const rawNextInterview = active?.next_interview || candidate?.next_interview || null;
+    const showNextInterview = isFutureDate(rawNextInterview);
+    const nextInterviewFormatted = showNextInterview ? formatDateToLocal(rawNextInterview) : null;
+
+    const inner = document.getElementById("app-panel-inner");
+    if (!inner) return;
+
+    inner.innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-title-wrap">
+            <h2 class="result-title">Welcome, ${mergedName}</h2>
+            <div class="pill-row">
+              <span class="chip">Applied: ${sanitizeInput(appliedShort).toUpperCase()}</span>
+              ${updatedShort ? `<span class="chip">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
+            </div>
+          </div>
+          <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
         </div>
 
-        <div class="form-meta">
-          <div class="helper" id="phone-helper">Must match the last name and 10-digit phone number on your application</div>
+        <div class="result-body">
+          <div class="result-row">
+            <div class="result-label">Position:</div>
+            <div class="result-value">${mergedPosition}</div>
+          </div>
 
-          <a class="secondary-btn" href="https://jobs.lever.co/msconsultants" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          ${statusInfo.showStage ? `
+            <div class="result-row">
+              <div class="result-label">Current Stage:</div>
+              <div class="result-value">${mergedStage}</div>
+            </div>
+          ` : ""}
+
+          ${showNextInterview ? `
+            <div class="result-row">
+              <div class="result-label">Next Interview:</div>
+              <div class="result-value">${sanitizeInput(nextInterviewFormatted)}</div>
+            </div>
+          ` : ""}
+        </div>
+
+        ${statusInfo.message ? `
+          <div class="${statusInfo.noteClass}">
+            ${sanitizeInput(statusInfo.message)}
+          </div>
+        ` : ""}
+
+        <div class="actions-row">
+          <button type="button" class="secondary-btn" id="careers-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
             <span>Return to Careers</span>
-          </a>
-        </div>
-      </form>
-
-      <div id="status" role="status" aria-live="polite"></div>
-      <div id="result" role="region" aria-live="polite"></div>
-
-      <div class="divider"></div>
-
-      <footer class="footer-hint">
-        <p>
-          <strong>Important:</strong> This page requires a personalized security token to function.
-          If you accessed this page directly or the link isn't working, please use the exact URL provided by your recruiter.
-          For assistance, contact <span style="white-space:nowrap;">ms consultants</span>.
-        </p>
-      </footer>
-    </section>
-  </main>
-
-  <script>
-    const CONFIG = {
-      EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
-      CAREERS_URL: "https://jobs.lever.co/msconsultants",
-      MAX_ATTEMPTS: 10,
-      RATE_LIMIT_WINDOW: 15 * 60 * 1000,
-      TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/
-    };
-
-    const session = {
-      token: "",
-      lastName: "",
-      phone10: "",
-      verified: false
-    };
-
-    const rateLimiter = {
-      attempts: [],
-      canAttempt() {
-        const now = Date.now();
-        this.attempts = this.attempts.filter(t => now - t < CONFIG.RATE_LIMIT_WINDOW);
-        if (this.attempts.length >= CONFIG.MAX_ATTEMPTS) {
-          const oldest = this.attempts[0];
-          const timeRemaining = Math.ceil((CONFIG.RATE_LIMIT_WINDOW - (now - oldest)) / 1000);
-          return { allowed: false, timeRemaining };
-        }
-        this.attempts.push(now);
-        return { allowed: true };
-      },
-      reset() { this.attempts = []; }
-    };
-
-    const el = {};
-    function initElements() {
-      el.form = document.getElementById("status-form");
-      el.lastName = document.getElementById("lastName");
-      el.phone = document.getElementById("phone");
-      el.submitBtn = document.getElementById("submit-btn");
-      el.status = document.getElementById("status");
-      el.result = document.getElementById("result");
-      el.helper = document.getElementById("phone-helper");
-    }
-
-    function sanitizeInput(input) {
-      if (typeof input !== "string") return "";
-      return input.replace(/[^\w\s@.,-]/gi, "").trim();
-    }
-
-    function setStatus(text, type = "info") {
-      if (!el.status) return;
-
-      if (!text) {
-        el.status.innerHTML = "";
-        return;
-      }
-
-      let icon = "";
-      if (type === "loading") icon = '<span class="spinner" aria-hidden="true"></span>';
-      if (type === "info") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
-      if (type === "success") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
-      if (type === "warning") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-      if (type === "error") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-
-      const classMap = {
-        info: "status-line status-info",
-        success: "status-line status-success",
-        warning: "status-line status-warning",
-        error: "status-line status-error",
-        loading: "status-line status-info"
-      };
-
-      el.status.innerHTML = `
-        <div class="${classMap[type] || classMap.info}">
-          ${icon}
-          <span>${sanitizeInput(text)}</span>
-        </div>
-      `;
-    }
-
-    function normalizePhone10(raw) {
-      let digits = String(raw || "").replace(/\D/g, "");
-      if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
-      return /^\d{10}$/.test(digits) ? digits : "";
-    }
-
-    function validateInputs(lastName, phoneRaw) {
-      const last = String(lastName || "").trim();
-      const phone = normalizePhone10(phoneRaw);
-
-      if (!last) return { valid: false, message: "Please enter the last name from your application." };
-      if (!phone) return { valid: false, message: "Please enter a valid 10-digit phone number." };
-
-      return { valid: true, lastName: last, phone };
-    }
-
-    function formatDateToLocal(dateString) {
-      if (!dateString) return "Not available";
-      try {
-        const d = new Date(dateString);
-        if (isNaN(d.getTime())) return "Invalid date";
-        return new Intl.DateTimeFormat("en-US", {
-          timeZone: "America/New_York",
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true
-        }).format(d);
-      } catch {
-        return "Date unavailable";
-      }
-    }
-
-    function formatDateShort(dateString) {
-      if (!dateString) return "Unknown";
-      try {
-        const d = new Date(dateString);
-        if (isNaN(d.getTime())) return "Unknown";
-        return new Intl.DateTimeFormat("en-US", {
-          timeZone: "America/New_York",
-          year: "numeric",
-          month: "short",
-          day: "numeric"
-        }).format(d);
-      } catch {
-        return "Unknown";
-      }
-    }
-
-    function classifyStatus(stageRaw, archived) {
-      const stage = String(stageRaw || "").toLowerCase();
-      const isArchived = !!archived;
-
-      if (isArchived || stage.includes("reject") || stage.includes("declined") || stage.includes("closed") || stage.includes("not selected")) {
-        return {
-          pillClass: "status-pill-inactive",
-          pillText: "Closed",
-          noteClass: "note note-warning",
-          message: "Thank you for your interest. While this position didn’t work out, we encourage you to apply for future opportunities that match your skills.",
-          showStage: false
-        };
-      }
-
-      if (stage.includes("hire") || stage.includes("hired") || stage.includes("onboard") || stage.includes("start")) {
-        return {
-          pillClass: "status-pill-hired",
-          pillText: "Hired",
-          noteClass: "note note-success",
-          message: "Congratulations! Please check UKG Pro for onboarding details and next steps.",
-          showStage: false
-        };
-      }
-
-      if (stage.includes("interview") || stage.includes("screen") || stage.includes("assessment") || stage.includes("meeting") || stage.includes("offer")) {
-        return {
-          pillClass: "status-pill-active",
-          pillText: "In Progress",
-          noteClass: "note",
-          message: null,
-          showStage: true
-        };
-      }
-
-      return {
-        pillClass: "status-pill-active",
-        pillText: "Under Review",
-        noteClass: "note",
-        message: null,
-        showStage: true
-      };
-    }
-
-    function setPanelBorderToActive() {
-      document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
-    }
-
-    async function handleOfferDownload() {
-      if (!session.verified || !session.token || !session.lastName || !session.phone10) {
-        setStatus("Please verify your application status first.", "warning");
-        return;
-      }
-
-      setStatus("Generating your offer letter link...", "loading");
-
-      try {
-        const qs = new URLSearchParams({
-          token: session.token,
-          lastName: session.lastName,
-          phone: session.phone10
-        });
-
-        const resp = await fetch(`/api/get-offer-url?${qs.toString()}`, { method: "GET" });
-        const payload = await resp.json().catch(() => null);
-
-        if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
-          setStatus("Could not generate your offer letter link. Please try again.", "warning");
-          return;
-        }
-
-        setStatus("Offer letter ready. Opening...", "success");
-        window.open(payload.url, "_blank", "noopener,noreferrer");
-        setTimeout(() => setStatus(""), 2200);
-      } catch (e) {
-        console.error(e);
-        setStatus("Could not generate your offer letter link. Please try again.", "error");
-      }
-    }
-
-    function renderApplicationsView(payload) {
-      if (!el.result) return;
-
-      const candidate = payload?.candidate || null;
-      const apps = Array.isArray(payload?.applications) ? payload.applications.slice() : [];
-
-      if (!candidate || apps.length === 0) {
-        el.result.innerHTML = "";
-        return;
-      }
-
-      apps.sort((a, b) => {
-        const ad = new Date(a?.created_at || 0).getTime();
-        const bd = new Date(b?.created_at || 0).getTime();
-        return bd - ad;
-      });
-
-      setPanelBorderToActive();
-
-      const tabsHtml = apps.map((a, idx) => {
-        const pos = sanitizeInput(a?.position || "Position");
-        const applied = formatDateShort(a?.created_at);
-        const stage = sanitizeInput(a?.current_stage || "");
-        const subtitle = stage ? stage : "Status";
-        return `
-          <button type="button" class="app-tab ${idx === 0 ? "active" : ""}" data-app-index="${idx}" aria-selected="${idx === 0 ? "true" : "false"}">
-            <div class="tab-title">${pos} &nbsp; ${sanitizeInput(applied).toUpperCase()}</div>
-            <div class="tab-subtitle">${sanitizeInput(subtitle).toUpperCase()}</div>
           </button>
-        `;
-      }).join("");
 
-      const shellHtml = `
-        <div class="applications-shell">
-          <div class="tabs-and-panel">
-            <div class="tabbar" role="tablist" aria-label="Applications">
-              ${tabsHtml}
-            </div>
-            <div class="panel">
-              <div id="app-panel-inner"></div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      el.result.innerHTML = shellHtml;
-
-      function renderActiveApp(index) {
-        const active = apps[index] || apps[0];
-
-        const mergedName = sanitizeInput(active?.name || candidate?.name || "Applicant");
-        const mergedPosition = sanitizeInput(active?.position || candidate?.position || "Not specified");
-        const mergedStage = sanitizeInput(active?.current_stage || candidate?.current_stage || "Under Review");
-        const mergedRecruiter = sanitizeInput(active?.recruiter || candidate?.recruiter || "Not assigned");
-        const mergedHiringManager = sanitizeInput(active?.hiring_manager || candidate?.hiring_manager || "Not assigned");
-
-        const nextInterview = active?.next_interview || candidate?.next_interview || null;
-        const nextInterviewFormatted = nextInterview ? formatDateToLocal(nextInterview) : null;
-
-        const appliedShort = formatDateShort(active?.created_at);
-        const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
-
-        const statusInfo = classifyStatus(mergedStage, active?.archived);
-        const offerAccess = !!active?.offer_access;
-
-        const inner = document.getElementById("app-panel-inner");
-        if (!inner) return;
-
-        inner.innerHTML = `
-          <div class="result-card">
-            <div class="result-header">
-              <div class="result-title-wrap">
-                <h2 class="result-title">Welcome, ${mergedName}</h2>
-                <div class="pill-row">
-                  <span class="chip">Applied: ${sanitizeInput(appliedShort).toUpperCase()}</span>
-                  ${updatedShort ? `<span class="chip">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
-                </div>
-              </div>
-              <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
-            </div>
-
-            <div class="result-body">
-              <div class="result-row">
-                <div class="result-label">Position:</div>
-                <div class="result-value">${mergedPosition}</div>
-              </div>
-
-              ${statusInfo.showStage ? `
-                <div class="result-row">
-                  <div class="result-label">Current Stage:</div>
-                  <div class="result-value">${mergedStage}</div>
-                </div>
-              ` : ""}
-
-              ${nextInterview ? `
-                <div class="result-row">
-                  <div class="result-label">Next Interview:</div>
-                  <div class="result-value">${sanitizeInput(nextInterviewFormatted)}</div>
-                </div>
-              ` : ""}
-
-              <div class="result-row">
-                <div class="result-label">Recruiter:</div>
-                <div class="result-value">${mergedRecruiter}</div>
-              </div>
-
-              <div class="result-row">
-                <div class="result-label">Hiring Manager:</div>
-                <div class="result-value">${mergedHiringManager}</div>
-              </div>
-            </div>
-
-            ${statusInfo.message ? `
-              <div class="${statusInfo.noteClass}">
-                ${sanitizeInput(statusInfo.message)}
-              </div>
-            ` : ""}
-
-            <div class="actions-row">
-              <button type="button" class="secondary-btn" id="careers-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="15 18 9 12 15 6"></polyline>
+          ${offerAccess ? `
+            <div class="offer-wrap">
+              <button type="button" class="offer-btn" id="offer-btn" aria-describedby="offer-disclaimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
-                <span>Return to Careers</span>
+                <span>Download Offer Letter</span>
               </button>
-
-              ${offerAccess ? `
-                <div class="offer-wrap">
-                  <button type="button" class="offer-btn" id="offer-btn" aria-describedby="offer-disclaimer">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    <span>Download Offer Letter</span>
-                  </button>
-                  <div class="offer-disclaimer" id="offer-disclaimer">
-                    <strong>*</strong> To sign your offer letter, please use the link sent via email.
-                  </div>
-                </div>
-              ` : ""}
+              <div class="offer-disclaimer" id="offer-disclaimer">
+                <strong>*</strong> To sign your offer letter, please use the link sent via email.
+              </div>
             </div>
-          </div>
-        `;
+          ` : ""}
+        </div>
+      </div>
+    `;
 
-        const careersBtn = document.getElementById("careers-btn");
-        if (careersBtn) {
-          careersBtn.addEventListener("click", () => {
-            window.open(CONFIG.CAREERS_URL, "_blank", "noopener,noreferrer");
-          });
-        }
-
-        const offerBtn = document.getElementById("offer-btn");
-        if (offerBtn) {
-          offerBtn.addEventListener("click", async () => {
-            await handleOfferDownload();
-          });
-        }
-      }
-
-      function setActiveTab(index) {
-        const tabs = Array.from(document.querySelectorAll(".app-tab"));
-        tabs.forEach((t, i) => {
-          const isActive = i === index;
-          t.classList.toggle("active", isActive);
-          t.setAttribute("aria-selected", isActive ? "true" : "false");
-        });
-
-        document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
-        renderActiveApp(index);
-      }
-
-      const tabs = Array.from(document.querySelectorAll(".app-tab"));
-      tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-          const idx = parseInt(tab.getAttribute("data-app-index") || "0", 10);
-          setActiveTab(isNaN(idx) ? 0 : idx);
-        });
+    const careersBtn = document.getElementById("careers-btn");
+    if (careersBtn) {
+      careersBtn.addEventListener("click", () => {
+        window.open(CONFIG.CAREERS_URL, "_blank", "noopener,noreferrer");
       });
-
-      setActiveTab(0);
     }
 
-    async function checkStatus(event) {
-      if (event) event.preventDefault();
+    const offerBtn = document.getElementById("offer-btn");
+    if (offerBtn) {
+      offerBtn.addEventListener("click", async () => {
+        await handleOfferDownload();
+      });
+    }
+  }
 
-      if (el.result) el.result.innerHTML = "";
+  function setActiveTab(index) {
+    const tabs = Array.from(document.querySelectorAll(".app-tab"));
+    tabs.forEach((t, i) => {
+      const isActive = i === index;
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
+    renderActiveApp(index);
+  }
 
-      const rateCheck = rateLimiter.canAttempt();
-      if (!rateCheck.allowed) {
-        setStatus(`Too many attempts. Please wait ${rateCheck.timeRemaining} seconds before trying again.`, "warning");
-        return;
-      }
+  const tabs = Array.from(document.querySelectorAll(".app-tab"));
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const idx = parseInt(tab.getAttribute("data-app-index") || "0", 10);
+      setActiveTab(isNaN(idx) ? 0 : idx);
+    });
+  });
 
-      const params = new URLSearchParams(window.location.search);
-      const token = String(params.get("token") || "").trim();
+  setActiveTab(0);
+}
 
-      session.token = token;
+async function checkStatus(event) {
+  if (event) event.preventDefault();
+  if (el.result) el.result.innerHTML = "";
 
-      if (!token) {
-        setStatus("Missing security token. Please use the personalized link sent by your recruiter.", "error");
-        return;
-      }
+  const rateCheck = rateLimiter.canAttempt();
+  if (!rateCheck.allowed) {
+    setStatus(`Too many attempts. Please wait ${rateCheck.timeRemaining} seconds before trying again.`, "warning");
+    return;
+  }
 
-      if (!CONFIG.TOKEN_REGEX.test(token)) {
-        setStatus("Invalid security token format. Please check your link.", "error");
-        return;
-      }
+  const params = new URLSearchParams(window.location.search);
+  const token = String(params.get("token") || "").trim();
+  session.token = token;
 
-      const lastName = String(el.lastName?.value || "").trim();
-      const phoneRaw = String(el.phone?.value || "").trim();
-      const validation = validateInputs(lastName, phoneRaw);
+  if (!token) {
+    setStatus("Missing security token. Please use the personalized link sent by your recruiter.", "error");
+    return;
+  }
+  if (!CONFIG.TOKEN_REGEX.test(token)) {
+    setStatus("Invalid security token format. Please check your link.", "error");
+    return;
+  }
 
-      if (!validation.valid) {
-        if (el.lastName) el.lastName.classList.toggle("error", !lastName);
-        if (el.phone) el.phone.classList.toggle("error", !normalizePhone10(phoneRaw));
-        if (el.helper) {
-          el.helper.textContent = validation.message;
-          el.helper.classList.add("error");
-        }
-        setStatus(validation.message, "warning");
-        return;
-      }
+  const lastName = String(el.lastName?.value || "").trim();
+  const phoneRaw = String(el.phone?.value || "").trim();
+  const validation = validateInputs(lastName, phoneRaw);
 
-      if (el.lastName) el.lastName.classList.remove("error");
-      if (el.phone) el.phone.classList.remove("error");
+  if (!validation.valid) {
+    if (el.lastName) el.lastName.classList.toggle("error", !lastName);
+    if (el.phone) el.phone.classList.toggle("error", !normalizePhone10(phoneRaw));
+    if (el.helper) {
+      el.helper.textContent = validation.message;
+      el.helper.classList.add("error");
+    }
+    setStatus(validation.message, "warning");
+    return;
+  }
+
+  if (el.lastName) el.lastName.classList.remove("error");
+  if (el.phone) el.phone.classList.remove("error");
+  if (el.helper) {
+    el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
+    el.helper.classList.remove("error");
+  }
+
+  if (el.lastName) el.lastName.disabled = true;
+  if (el.phone) el.phone.disabled = true;
+  if (el.submitBtn) el.submitBtn.disabled = true;
+
+  setStatus("Verifying your information...", "loading");
+
+  try {
+    const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        lastName: validation.lastName,
+        phone: validation.phone
+      })
+    });
+
+    const payload = await resp.json().catch(() => null);
+
+    if (resp.status === 429) {
+      setStatus("Too many attempts. Please try again later.", "warning");
+      return;
+    }
+
+    if (!resp.ok || !payload || payload.ok !== true) {
+      session.verified = false;
+      session.lastName = "";
+      session.phone10 = "";
+      setStatus("No matching record found. Please verify your information and try again.", "warning");
+      return;
+    }
+
+    session.verified = true;
+    session.lastName = validation.lastName;
+    session.phone10 = validation.phone;
+
+    setStatus("Application found successfully!", "success");
+    renderApplicationsView(payload);
+    setTimeout(() => setStatus(""), 2000);
+
+  } catch (err) {
+    console.error(err);
+    session.verified = false;
+    session.lastName = "";
+    session.phone10 = "";
+    setStatus("Connection error. Please refresh and try again.", "error");
+
+  } finally {
+    if (el.lastName) el.lastName.disabled = false;
+    if (el.phone) el.phone.disabled = false;
+    if (el.submitBtn) el.submitBtn.disabled = false;
+    if (el.lastName) el.lastName.focus();
+  }
+}
+
+function setupInputHandlers() {
+  if (el.lastName) {
+    el.lastName.addEventListener("input", () => {
+      if (el.lastName.classList.contains("error")) el.lastName.classList.remove("error");
       if (el.helper) {
-        el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
         el.helper.classList.remove("error");
+        el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
       }
+    });
+  }
 
-      if (el.lastName) el.lastName.disabled = true;
-      if (el.phone) el.phone.disabled = true;
-      if (el.submitBtn) el.submitBtn.disabled = true;
+  if (el.phone) {
+    el.phone.addEventListener("input", (e) => {
+      let value = String(e.target.value || "").replace(/\D/g, "");
+      if (value.length > 11) value = value.slice(0, 11);
+      e.target.value = value;
 
-      setStatus("Verifying your information...", "loading");
-
-      try {
-        const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            token,
-            lastName: validation.lastName,
-            phone: validation.phone
-          })
-        });
-
-        const payload = await resp.json().catch(() => null);
-
-        if (resp.status === 429) {
-          setStatus("Too many attempts. Please try again later.", "warning");
-          return;
-        }
-
-        if (!resp.ok || !payload || payload.ok !== true) {
-          session.verified = false;
-          session.lastName = "";
-          session.phone10 = "";
-          setStatus("No matching record found. Please verify your information and try again.", "warning");
-          return;
-        }
-
-        session.verified = true;
-        session.lastName = validation.lastName;
-        session.phone10 = validation.phone;
-
-        setStatus("Application found successfully!", "success");
-        renderApplicationsView(payload);
-        setTimeout(() => setStatus(""), 2000);
-      } catch (err) {
-        console.error(err);
-        session.verified = false;
-        session.lastName = "";
-        session.phone10 = "";
-        setStatus("Connection error. Please refresh and try again.", "error");
-      } finally {
-        if (el.lastName) el.lastName.disabled = false;
-        if (el.phone) el.phone.disabled = false;
-        if (el.submitBtn) el.submitBtn.disabled = false;
-        if (el.lastName) el.lastName.focus();
-      }
-    }
-
-    function setupInputHandlers() {
-      if (el.lastName) {
-        el.lastName.addEventListener("input", () => {
-          if (el.lastName.classList.contains("error")) el.lastName.classList.remove("error");
-          if (el.helper) {
-            el.helper.classList.remove("error");
-            el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
-          }
-        });
-      }
-
-      if (el.phone) {
-        el.phone.addEventListener("input", (e) => {
-          let value = String(e.target.value || "").replace(/\D/g, "");
-          if (value.length > 11) value = value.slice(0, 11);
-          e.target.value = value;
-
-          if (el.phone.classList.contains("error")) el.phone.classList.remove("error");
-          if (el.helper) {
-            el.helper.classList.remove("error");
-            el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
-          }
-        });
-
-        el.phone.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            checkStatus();
-          }
-        });
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      initElements();
-      if (el.form) el.form.addEventListener("submit", checkStatus);
-      setupInputHandlers();
-
-      if (el.lastName) el.lastName.focus();
-
-      const params = new URLSearchParams(window.location.search);
-      if (!params.get("token")) {
-        setStatus("No security token detected. Please use your personalized status link from your recruiter.", "warning");
+      if (el.phone.classList.contains("error")) el.phone.classList.remove("error");
+      if (el.helper) {
+        el.helper.classList.remove("error");
+        el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
       }
     });
 
-    window.addEventListener("pageshow", (event) => {
-      if (event.persisted && el.result && el.result.innerHTML) {
-        el.result.innerHTML = "";
-        setStatus("For security, please re-enter your information.", "info");
+    el.phone.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkStatus();
       }
     });
-  </script>
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initElements();
+  if (el.form) el.form.addEventListener("submit", checkStatus);
+  setupInputHandlers();
+  if (el.lastName) el.lastName.focus();
+
+  const params = new URLSearchParams(window.location.search);
+  if (!params.get("token")) {
+    setStatus("No security token detected. Please use your personalized status link from your recruiter.", "warning");
+  }
+});
+
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted && el.result && el.result.innerHTML) {
+    el.result.innerHTML = "";
+    setStatus("For security, please re-enter your information.", "info");
+  }
+});
+</script>
 </body>
 </html>
