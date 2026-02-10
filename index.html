@@ -9,74 +9,65 @@
 
   <style>
     :root {
-      --accent: #2563eb;
-      --accent-soft: rgba(37, 99, 235, 0.06);
-      --accent-border: rgba(37, 99, 235, 0.25);
-      --accent-hover: #1d4ed8;
+      /* Brand-ish */
+      --accent: #0f2f4a;             /* deep slate/navy */
+      --accent-2: #1b4f72;           /* hover */
+      --accent-soft: rgba(15, 47, 74, 0.08);
+      --accent-border: rgba(15, 47, 74, 0.25);
 
-      --text-main: #111827;
-      --text-muted: #6b7280;
-      --text-light: #9ca3af;
+      /* Surfaces */
+      --page-bg-1: #f4f6f8;
+      --page-bg-2: #e9eef3;
+      --card-bg: #ffffff;
+      --card-border: rgba(15, 23, 42, 0.10);
 
-      --border-subtle: #e5e7eb;
-      --bg-subtle: #f9fafb;
-      --bg-card: #ffffff;
+      /* Text */
+      --text-main: #0f172a;
+      --text-muted: rgba(15, 23, 42, 0.70);
+      --text-light: rgba(15, 23, 42, 0.55);
 
-      --header-bg: #1e293b;
-      --header-text: #ffffff;
+      /* UI */
+      --line: rgba(15, 23, 42, 0.12);
+      --line-strong: rgba(15, 23, 42, 0.18);
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.10);
+      --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.12);
 
-      --error: #ef4444;
-      --error-bg: #fef2f2;
-      --error-border: #fecaca;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --radius-xl: 22px;
+
+      --transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* Status */
+      --info: #2563eb;
+      --info-bg: rgba(37, 99, 235, 0.08);
+      --info-border: rgba(37, 99, 235, 0.24);
 
       --success: #16a34a;
-      --success-bg: #f0fdf4;
-      --success-border: #bbf7d0;
+      --success-bg: rgba(22, 163, 74, 0.08);
+      --success-border: rgba(22, 163, 74, 0.24);
 
-      --warning: #eab308;
-      --warning-bg: #fefce8;
-      --warning-border: #fde047;
+      --warning: #b45309;
+      --warning-bg: rgba(180, 83, 9, 0.08);
+      --warning-border: rgba(180, 83, 9, 0.22);
 
-      --info: #3b82f6;
-      --info-bg: #eff6ff;
-      --info-border: #bfdbfe;
+      --error: #dc2626;
+      --error-bg: rgba(220, 38, 38, 0.08);
+      --error-border: rgba(220, 38, 38, 0.22);
 
-      --inactive: #6b7280;
-      --hired: #22c55e;
+      /* Tabs + panel */
+      --tab-inactive-bg: #ffffff;
+      --tab-active-bg: #ffffff;
+      --tab-inactive-text: rgba(15, 23, 42, 0.75);
+      --tab-active-text: rgba(15, 47, 74, 1);
+      --tab-inactive-border: rgba(15, 23, 42, 0.18);
+      --tab-active-border: rgba(15, 47, 74, 0.28);
 
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-
-      --radius-sm: 0.375rem;
-      --radius-md: 0.75rem;
-      --radius-lg: 1rem;
-      --radius-full: 999px;
-
-      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text-main: #f9fafb;
-        --text-muted: #d1d5db;
-        --text-light: #9ca3af;
-
-        --bg-subtle: #111827;
-        --bg-card: #0b1220;
-        --border-subtle: rgba(255,255,255,0.12);
-
-        --header-bg: #0f172a;
-
-        --error-bg: rgba(239,68,68,0.12);
-        --success-bg: rgba(34,197,94,0.12);
-        --warning-bg: rgba(234,179,8,0.12);
-        --info-bg: rgba(59,130,246,0.12);
-      }
-
-      body { background: radial-gradient(1100px 600px at 20% 0%, rgba(37,99,235,0.18), transparent 55%), linear-gradient(180deg, #060b16 0%, #0b1220 100%); }
+      /* Panel border will match the active tab border for cohesion */
+      --panel-border: var(--tab-active-border);
     }
 
     * { box-sizing: border-box; }
@@ -85,562 +76,701 @@
       margin: 0;
       min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 20% 0%, rgba(37,99,235,0.12), transparent 55%), linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+      background:
+        radial-gradient(900px 450px at 15% 10%, rgba(15, 47, 74, 0.08) 0%, rgba(255,255,255,0) 55%),
+        radial-gradient(900px 450px at 85% 15%, rgba(37, 99, 235, 0.07) 0%, rgba(255,255,255,0) 60%),
+        linear-gradient(180deg, var(--page-bg-1), var(--page-bg-2));
       color: var(--text-main);
-      line-height: 1.6;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
-    .header-bar {
-      background: var(--header-bg);
-      padding: 1rem 1.5rem;
-      box-shadow: var(--shadow-lg);
+    /* ===== Top header (careers page vibe) ===== */
+    .topbar {
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     }
 
-    .header-content {
-      max-width: 960px;
+    .topbar-inner {
+      max-width: 1020px;
       margin: 0 auto;
+      padding: 16px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 12px;
     }
 
-    .header-brand {
+    .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 12px;
+      min-width: 0;
     }
 
-    .header-logo {
-      width: 40px;
-      height: 40px;
-      background: #ffffff;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
+    .brand-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid rgba(15, 23, 42, 0.10);
       box-shadow: var(--shadow-sm);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      flex: 0 0 auto;
     }
 
-    .header-logo img {
+    .brand-badge img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
     }
 
-    .header-text {
-      color: var(--header-text);
-      font-size: 0.875rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-weight: 700;
-    }
-
-    .security-indicator {
+    .brand-text {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #10b981;
-      font-size: 0.75rem;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 12px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-weight: 700;
-      padding: 0.25rem 0.75rem;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.28);
-      border-radius: var(--radius-full);
+      font-weight: 800;
+      color: rgba(15, 23, 42, 0.76);
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .main-content {
-      padding: 2.25rem 1.25rem;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: calc(100vh - 72px);
+    .brand-subtitle {
+      font-size: 12px;
+      color: rgba(15, 23, 42, 0.55);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .page-shell {
-      width: 100%;
-      max-width: 960px;
+    .secure-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.08);
+      border: 1px solid rgba(22, 163, 74, 0.20);
+      color: rgba(22, 163, 74, 0.95);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      flex: 0 0 auto;
+    }
+
+    .secure-pill svg { width: 16px; height: 16px; }
+
+    /* ===== Main shell ===== */
+    .page {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
     }
 
     .card {
-      background: color-mix(in oklab, var(--bg-card) 92%, transparent);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-subtle);
-      box-shadow: var(--shadow-xl);
-      padding: 2.25rem;
-      position: relative;
-      backdrop-filter: blur(10px);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 42px 42px 28px;
     }
 
-    .card-header { margin-bottom: 1.5rem; }
-
     h1 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.75rem;
+      margin: 0;
+      font-size: 36px;
       font-weight: 800;
       letter-spacing: -0.03em;
+      color: var(--text-main);
     }
 
     .subtitle {
-      margin: 0;
-      font-size: 0.95rem;
+      margin: 12px 0 0;
       color: var(--text-muted);
-      line-height: 1.6;
-      max-width: 70ch;
+      font-size: 15px;
+      max-width: 720px;
+      line-height: 1.7;
     }
 
-    .form-container { margin-bottom: 1rem; }
+    /* ===== Form ===== */
+    form { margin-top: 26px; }
 
     label {
       display: block;
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 0.6rem;
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      color: rgba(15, 23, 42, 0.78);
     }
 
-    .input-button-row {
-      display: flex;
-      gap: 0.75rem;
-      align-items: stretch;
-      flex-wrap: wrap;
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 14px;
+      align-items: center;
     }
 
-    .input-wrapper { flex: 1; min-width: 220px; }
-
-    input[type="tel"],
-    input[type="text"] {
+    input[type="text"],
+    input[type="tel"] {
+      height: 50px;
       width: 100%;
-      height: 52px;
-      padding: 0 1rem;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--border-subtle);
-      background: var(--bg-card);
-      color: var(--text-main);
-      font-size: 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      background: #fff;
+      padding: 0 16px;
+      font-size: 15.5px;
       outline: none;
-      transition: all var(--transition-fast);
+      transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
     }
 
-    input[type="tel"]:focus,
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    input[type="tel"]:disabled,
-    input[type="text"]:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      background: color-mix(in oklab, var(--bg-subtle) 88%, transparent);
+    input[type="text"]:focus,
+    input[type="tel"]:focus {
+      border-color: rgba(37, 99, 235, 0.35);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
 
     input.error {
-      border-color: var(--error);
-      background: var(--error-bg);
+      border-color: var(--error-border);
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10);
+      background: rgba(220, 38, 38, 0.04);
     }
 
-    button {
-      padding: 0 1.4rem;
-      height: 52px;
-      border-radius: var(--radius-md);
+    .primary-btn {
+      height: 50px;
       border: none;
-      font-size: 0.85rem;
-      font-weight: 800;
+      border-radius: 14px;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       cursor: pointer;
-      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
       color: white;
+      background: linear-gradient(135deg, var(--accent), #0b2438);
+      box-shadow: 0 10px 24px rgba(15, 47, 74, 0.22);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      box-shadow: var(--shadow-md);
-      transition: all var(--transition-fast);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      min-width: 170px;
+      gap: 10px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
       white-space: nowrap;
-      flex-shrink: 0;
     }
 
-    button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
+    .primary-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(15, 47, 74, 0.26);
     }
 
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-      transform: none !important;
-    }
+    .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-    .helper-text {
-      font-size: 0.8125rem;
-      color: var(--text-light);
-      margin-top: 0.5rem;
+    .primary-btn svg { width: 16px; height: 16px; }
+
+    .form-meta {
+      margin-top: 12px;
       display: flex;
       align-items: center;
-      gap: 0.375rem;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .helper-text.error { color: var(--error); }
 
-    #status { margin-top: 1.1rem; min-height: 2rem; }
-
-    .status-message {
-      padding: 0.75rem 1rem;
-      border-radius: var(--radius-md);
+    .helper {
+      font-size: 12.8px;
+      color: var(--text-light);
       display: inline-flex;
       align-items: center;
-      gap: 0.625rem;
+      gap: 8px;
+    }
+
+    .helper.error { color: rgba(220, 38, 38, 0.92); }
+
+    .secondary-btn {
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      background: #fff;
+      color: rgba(15, 23, 42, 0.84);
+      cursor: pointer;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .secondary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: rgba(15, 47, 74, 0.22);
+    }
+
+    .secondary-btn svg { width: 14px; height: 14px; }
+
+    /* Offer button variant */
+    .offer-btn {
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 47, 74, 0.22);
+      background: rgba(15, 47, 74, 0.03);
+      color: rgba(15, 47, 74, 0.96);
+      cursor: pointer;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .offer-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: rgba(15, 47, 74, 0.30);
+      background: rgba(15, 47, 74, 0.06);
+    }
+
+    .offer-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .offer-btn svg { width: 14px; height: 14px; }
+
+    /* ===== Status line ===== */
+    #status {
+      margin-top: 18px;
+      min-height: 22px;
+    }
+
+    .status-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
       border: 1px solid;
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 650;
       animation: fadeIn var(--transition-base);
     }
 
     .status-info { background: var(--info-bg); border-color: var(--info-border); color: var(--info); }
     .status-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
-    .status-error { background: var(--error-bg); border-color: var(--error-border); color: var(--error); }
     .status-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); }
+    .status-error { background: var(--error-bg); border-color: var(--error-border); color: var(--error); }
 
     .spinner {
       display: inline-block;
       width: 16px;
       height: 16px;
-      border: 2px solid var(--border-subtle);
-      border-top-color: var(--accent);
+      border: 2px solid rgba(15, 23, 42, 0.18);
+      border-top-color: rgba(37, 99, 235, 0.65);
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    /* ===== Tabs + panel (clean file-folder look) ===== */
-    #result { margin-top: 1.25rem; }
+    /* ===== Results ===== */
+    #result { margin-top: 26px; }
 
-    .tabs-shell { margin-top: 0.75rem; }
+    .applications-shell {
+      margin-top: 22px;
+      padding: 22px 0 6px;
+    }
+
+    .tabs-and-panel {
+      position: relative;
+    }
 
     .tabbar {
       display: flex;
-      gap: 0.35rem;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: flex-end;
-      margin: 0;
-      padding: 0;
+      padding-left: 16px;
+      padding-right: 16px;
+      margin: 0 0 -1px;
+      position: relative;
+      z-index: 3;
     }
 
-    .tab {
+    .app-tab {
       appearance: none;
-      border: 1px solid var(--border-subtle);
-      background: color-mix(in oklab, var(--bg-card) 70%, transparent);
-      color: var(--text-main);
-      border-top-left-radius: 0.6rem;
-      border-top-right-radius: 0.6rem;
+      border: 1px solid var(--tab-inactive-border);
+      background: var(--tab-inactive-bg);
+      color: var(--tab-inactive-text);
+      border-bottom-color: transparent;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-      padding: 0.7rem 0.95rem 0.55rem;
+      padding: 11px 14px 10px;
       cursor: pointer;
-      transition: all var(--transition-fast);
-      min-width: 240px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.18rem;
+      transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+      min-width: 320px;
+      max-width: 100%;
+      display: grid;
+      gap: 3px;
       position: relative;
-      box-shadow: none;
+      box-shadow: none; /* IMPORTANT: no “shadow casting onto the panel” */
     }
 
-    .tab:hover { border-color: var(--accent-border); }
-
-    .tab.active {
-      background: var(--bg-card);
-      border-color: var(--accent-border);
-      color: var(--accent);
-      z-index: 2;
+    .app-tab:hover {
+      transform: translateY(-1px);
+      border-color: rgba(15, 47, 74, 0.22);
     }
 
-    .tab.active::after {
-      content: "";
-      position: absolute;
-      left: -1px;
-      right: -1px;
-      bottom: -1px;
-      height: 2px;
-      background: var(--bg-card);
+    .app-tab.active {
+      border-color: var(--tab-active-border);
+      color: var(--tab-active-text);
+      background: var(--tab-active-bg);
+      border-bottom-color: var(--tab-active-bg);
+      z-index: 4;
+      box-shadow: none; /* IMPORTANT: active tab should not shade what's below */
     }
 
     .tab-title {
-      font-size: 0.82rem;
-      font-weight: 900;
-      letter-spacing: 0.02em;
+      font-size: 13px;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: inherit;
-      text-transform: uppercase;
     }
 
     .tab-subtitle {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      color: rgba(15, 23, 42, 0.55);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .panel {
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      background: var(--bg-card);
-      padding: 1rem;
-      margin-top: -1px;
-      box-shadow: none;
-    }
+    .app-tab.active .tab-subtitle { color: rgba(15, 47, 74, 0.70); }
 
-    .panel.active-border {
-      border-color: var(--accent-border);
+    .panel {
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      background: #fff;
+      box-shadow: var(--shadow-md);
+      padding: 18px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
     }
 
     .result-card {
       border-radius: var(--radius-md);
-      border: 1px solid var(--border-subtle);
-      background: color-mix(in oklab, var(--bg-subtle) 82%, transparent);
-      padding: 1.35rem;
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      background: #ffffff;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+      padding: 0;
+      overflow: hidden;
       animation: fadeIn var(--transition-base);
+      min-height: 270px; /* less squashed */
     }
 
     .result-header {
       display: flex;
       justify-content: space-between;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1.1rem;
-      padding-bottom: 0.9rem;
-      border-bottom: 1px solid var(--border-subtle);
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.10);
+      background: linear-gradient(180deg, rgba(15, 47, 74, 0.03), rgba(255,255,255,0));
     }
+
+    .result-title-wrap { min-width: 0; }
 
     .result-title {
       margin: 0;
-      font-size: 1.25rem;
-      font-weight: 800;
+      font-size: 19px;
+      font-weight: 850;
       letter-spacing: -0.02em;
+      color: rgba(15, 23, 42, 0.92);
+    }
+
+    .pill-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: rgba(15, 23, 42, 0.03);
+      color: rgba(15, 23, 42, 0.70);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .status-pill {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.375rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid;
+      margin-top: 2px;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       white-space: nowrap;
-      font-weight: 900;
+      flex: 0 0 auto;
     }
 
     .status-pill-active { color: var(--info); border-color: var(--info-border); background: var(--info-bg); }
-    .status-pill-hired { color: var(--hired); border-color: var(--success-border); background: var(--success-bg); }
-    .status-pill-inactive { color: var(--inactive); border-color: var(--border-subtle); background: var(--bg-card); }
+    .status-pill-hired { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+    .status-pill-inactive { color: rgba(15, 23, 42, 0.62); border-color: rgba(15, 23, 42, 0.14); background: rgba(15, 23, 42, 0.03); }
 
-    .result-body { display: grid; gap: 0.65rem; }
+    .result-body {
+      padding: 16px 20px 20px;
+      display: grid;
+      gap: 12px;
+    }
 
     .result-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
       align-items: baseline;
-      gap: 0.5rem;
-      font-size: 0.98rem;
+      font-size: 14.5px;
       line-height: 1.5;
     }
 
     .result-label {
       font-weight: 800;
-      color: var(--text-muted);
-      min-width: 180px;
-      flex-shrink: 0;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 0.78rem;
+      color: rgba(15, 23, 42, 0.60);
     }
 
-    .result-value { color: var(--text-main); word-break: break-word; font-weight: 600; }
+    .result-value {
+      color: rgba(15, 23, 42, 0.92);
+      word-break: break-word;
+    }
 
-    .portal-actions {
+    .note {
+      margin: 0 20px 20px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(37, 99, 235, 0.24);
+      background: rgba(37, 99, 235, 0.08);
+      color: rgba(37, 99, 235, 0.95);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .note-success {
+      border-color: rgba(22, 163, 74, 0.24);
+      background: rgba(22, 163, 74, 0.08);
+      color: rgba(22, 163, 74, 0.95);
+    }
+
+    .note-warning {
+      border-color: rgba(180, 83, 9, 0.22);
+      background: rgba(180, 83, 9, 0.08);
+      color: rgba(180, 83, 9, 0.95);
+    }
+
+    .actions-row {
+      padding: 0 20px 20px;
       display: flex;
-      gap: 0.75rem;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border-subtle);
+      align-items: center;
       justify-content: flex-start;
     }
 
-    .secondary-btn {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent-border);
-      box-shadow: none;
-    }
-
-    .secondary-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
-      background: var(--accent-soft);
+    .divider {
+      margin: 26px 0 0;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
     }
 
     .footer-hint {
-      margin-top: 1.75rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--border-subtle);
-      font-size: 0.8125rem;
-      color: var(--text-light);
+      margin: 20px 0 0;
+      padding: 16px 8px 0;
       text-align: center;
-      line-height: 1.6;
+      color: rgba(15, 23, 42, 0.54);
+      font-size: 12.5px;
+      line-height: 1.7;
     }
 
-    .footer-hint p { margin: 0; }
+    .footer-hint strong { color: rgba(15, 23, 42, 0.70); }
 
     .sr-only {
       position: absolute;
       width: 1px;
       height: 1px;
       padding: 0;
-      margin: 0;
+      margin: -1px;
       overflow: hidden;
       clip: rect(0, 0, 0, 0);
       white-space: nowrap;
       border: 0;
     }
 
-    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    :focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.35);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
 
-    @media (max-width: 640px) {
-      .header-bar { padding: 0.75rem 1rem; }
-      .header-content { flex-direction: column; gap: 0.75rem; }
-      .main-content { padding: 1.6rem 1rem; }
-      .card { padding: 1.6rem 1.15rem; }
-      h1 { font-size: 1.45rem; }
-      .input-button-row { flex-direction: column; }
-      button { width: 100%; min-width: unset; }
-      .result-row { flex-direction: column; gap: 0.25rem; }
-      .result-label { min-width: unset; }
-      .tab { min-width: 100%; }
-      .portal-actions { justify-content: stretch; }
+    @media (max-width: 860px) {
+      .card { padding: 30px 20px 22px; }
+      h1 { font-size: 30px; }
+      .row { grid-template-columns: 1fr; }
+      .primary-btn { width: 100%; }
+      .form-meta { justify-content: flex-start; }
+      .tabbar { padding-left: 10px; padding-right: 10px; }
+      .app-tab { min-width: 100%; }
+      .result-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-  <header class="header-bar">
-    <div class="header-content">
-      <div class="header-brand">
-        <div class="header-logo">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">
           <img
             src="ms-logo-Color-Solid-square-transparent_no-text.webp"
-            alt="ms consultants"
+            alt=""
             loading="lazy"
             onerror="this.style.display='none'"
           />
         </div>
-        <div class="header-text">ms consultants application portal</div>
+        <div class="brand-text">
+          <div class="brand-title">ms consultants application portal</div>
+          <div class="brand-subtitle">secure status updates for your application</div>
+        </div>
       </div>
 
-      <div class="security-indicator">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="secure-pill" title="This is a secured portal experience">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
-        <span>secure</span>
+        <span>Secure</span>
       </div>
     </div>
   </header>
 
-  <div class="main-content">
-    <div class="page-shell">
-      <main class="card" role="main">
-        <div class="card-header">
-          <h1>Check your application status</h1>
-          <p class="subtitle">
-            Enter the last name and phone number from your application to view your current status.
-            This link only works using the personalized URL sent by your recruiter.
-          </p>
+  <main class="page">
+    <section class="card" role="main">
+      <h1>Check Your Application Status</h1>
+      <p class="subtitle">
+        Enter the last name and phone number from your application to view your current status.
+        This secure page requires the personalized link sent to you by <span style="white-space:nowrap;">ms consultants</span>.
+      </p>
+
+      <form id="status-form" novalidate>
+        <label for="lastName">
+          Last name on your application
+          <span class="sr-only">(Required)</span>
+        </label>
+
+        <div class="row">
+          <input
+            id="lastName"
+            type="text"
+            placeholder="Last name"
+            aria-label="Last name"
+            aria-required="true"
+            autocomplete="off"
+            required
+          />
+
+          <input
+            id="phone"
+            type="tel"
+            inputmode="numeric"
+            placeholder="10-digit phone (no dashes)"
+            aria-label="Phone number"
+            aria-required="true"
+            autocomplete="off"
+            required
+          />
+
+          <button type="submit" id="submit-btn" class="primary-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Check Status</span>
+          </button>
         </div>
 
-        <form id="status-form" class="form-container" novalidate>
-          <label for="lastName">
-            Last name on your application
-            <span class="sr-only">(Required)</span>
-          </label>
+        <div class="form-meta">
+          <div class="helper" id="phone-helper">Must match the last name and 10-digit phone number on your application</div>
 
-          <div class="input-button-row">
-            <div class="input-wrapper">
-              <input
-                id="lastName"
-                type="text"
-                placeholder="Last name"
-                aria-label="Last name"
-                aria-required="true"
-                autocomplete="off"
-                required
-              />
-            </div>
+          <a class="secondary-btn" href="https://jobs.lever.co/msconsultants" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Return to Careers</span>
+          </a>
+        </div>
+      </form>
 
-            <div class="input-wrapper">
-              <input
-                id="phone"
-                type="tel"
-                inputmode="numeric"
-                placeholder="10-digit phone (no dashes)"
-                aria-label="Phone number"
-                aria-required="true"
-                autocomplete="off"
-                required
-              />
-            </div>
+      <div id="status" role="status" aria-live="polite"></div>
+      <div id="result" role="region" aria-live="polite"></div>
 
-            <button type="submit" id="submit-btn">
-              <span class="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              </span>
-              <span>Check status</span>
-            </button>
-          </div>
+      <div class="divider"></div>
 
-          <div class="helper-text" id="phone-helper">
-            Must match the last name and 10-digit phone number on your application
-          </div>
-        </form>
-
-        <div id="status" role="status" aria-live="polite"></div>
-        <div id="result" role="region" aria-live="polite"></div>
-
-        <footer class="footer-hint">
-          <p>
-            <strong>Important:</strong> This page requires a personalized security token to function.
-            If you accessed this page directly or the link isn't working, please use the exact URL
-            provided by your recruiter. For assistance, contact your recruiter directly.
-          </p>
-        </footer>
-      </main>
-    </div>
-  </div>
+      <footer class="footer-hint">
+        <p>
+          <strong>Important:</strong> This page requires a personalized security token to function.
+          If you accessed this page directly or the link isn't working, please use the exact URL provided by your recruiter.
+          For assistance, contact <span style="white-space:nowrap;">ms consultants</span>.
+        </p>
+      </footer>
+    </section>
+  </main>
 
   <script>
     const CONFIG = {
@@ -674,312 +804,158 @@
       reset() { this.attempts = []; }
     };
 
-    const elements = {};
-    function initializeElements() {
-      elements.form = document.getElementById('status-form');
-      elements.lastNameInput = document.getElementById('lastName');
-      elements.phoneInput = document.getElementById('phone');
-      elements.submitBtn = document.getElementById('submit-btn');
-      elements.statusEl = document.getElementById('status');
-      elements.resultEl = document.getElementById('result');
-      elements.phoneHelper = document.getElementById('phone-helper');
+    const el = {};
+    function initElements() {
+      el.form = document.getElementById("status-form");
+      el.lastName = document.getElementById("lastName");
+      el.phone = document.getElementById("phone");
+      el.submitBtn = document.getElementById("submit-btn");
+      el.status = document.getElementById("status");
+      el.result = document.getElementById("result");
+      el.helper = document.getElementById("phone-helper");
     }
 
     function sanitizeInput(input) {
-      if (typeof input !== 'string') return '';
-      return input.replace(/[^\w\s@.,-]/gi, '').trim();
+      if (typeof input !== "string") return "";
+      return input.replace(/[^\w\s@.,-]/gi, "").trim();
     }
 
-    function setStatus(text, type = 'info') {
-      if (!elements.statusEl) return;
+    function setStatus(text, type = "info") {
+      if (!el.status) return;
 
       if (!text) {
-        elements.statusEl.innerHTML = '';
-        elements.statusEl.className = '';
+        el.status.innerHTML = "";
         return;
       }
 
-      const icons = {
-        info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
-        success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
-        error: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-        warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-        loading: '<span class="spinner"></span>'
+      let icon = "";
+      if (type === "loading") icon = '<span class="spinner" aria-hidden="true"></span>';
+      if (type === "info") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+      if (type === "success") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+      if (type === "warning") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+      if (type === "error") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
+      const classMap = {
+        info: "status-line status-info",
+        success: "status-line status-success",
+        warning: "status-line status-warning",
+        error: "status-line status-error",
+        loading: "status-line status-info"
       };
 
-      const icon = type === 'loading' ? icons.loading : (icons[type] || icons.info);
-
-      elements.statusEl.className = `status-message status-${type}`;
-      elements.statusEl.innerHTML = `
-        <span class="status-icon">${icon}</span>
-        <span>${sanitizeInput(text)}</span>
+      el.status.innerHTML = `
+        <div class="${classMap[type] || classMap.info}">
+          ${icon}
+          <span>${sanitizeInput(text)}</span>
+        </div>
       `;
     }
 
     function normalizePhone10(raw) {
-      let digits = String(raw || '').replace(/\D/g, '');
-      if (digits.length === 11 && digits.startsWith('1')) digits = digits.slice(1);
-      if (/^\d{10}$/.test(digits)) return digits;
-      return '';
+      let digits = String(raw || "").replace(/\D/g, "");
+      if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+      return /^\d{10}$/.test(digits) ? digits : "";
     }
 
     function validateInputs(lastName, phoneRaw) {
-      const last = String(lastName || '').trim();
+      const last = String(lastName || "").trim();
       const phone = normalizePhone10(phoneRaw);
 
-      if (!last) return { valid: false, message: 'Please enter the last name from your application.' };
-      if (!phone) return { valid: false, message: 'Please enter a valid 10-digit phone number.' };
+      if (!last) return { valid: false, message: "Please enter the last name from your application." };
+      if (!phone) return { valid: false, message: "Please enter a valid 10-digit phone number." };
 
       return { valid: true, lastName: last, phone };
     }
 
     function formatDateToLocal(dateString) {
-      if (!dateString) return 'Not available';
+      if (!dateString) return "Not available";
       try {
         const d = new Date(dateString);
-        if (isNaN(d.getTime())) return 'Invalid date';
-        return new Intl.DateTimeFormat('en-US', {
-          timeZone: 'America/New_York',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        }).format(d);
-      } catch {
-        return 'Date unavailable';
-      }
-    }
-
-    function formatDateTimeToLocal(dateString) {
-      if (!dateString) return 'Not available';
-      try {
-        const d = new Date(dateString);
-        if (isNaN(d.getTime())) return 'Invalid date';
-        return new Intl.DateTimeFormat('en-US', {
-          timeZone: 'America/New_York',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
+        if (isNaN(d.getTime())) return "Invalid date";
+        return new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
           hour12: true
         }).format(d);
       } catch {
-        return 'Date unavailable';
+        return "Date unavailable";
+      }
+    }
+
+    function formatDateShort(dateString) {
+      if (!dateString) return "Unknown";
+      try {
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return "Unknown";
+        return new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        }).format(d);
+      } catch {
+        return "Unknown";
       }
     }
 
     function classifyStatus(stageRaw, archived) {
-      const stage = (stageRaw || '').toLowerCase();
+      const stage = String(stageRaw || "").toLowerCase();
       const isArchived = !!archived;
 
-      if (isArchived || stage.includes('reject') || stage.includes('declined') || stage.includes('not selected') || stage.includes('closed')) {
+      if (isArchived || stage.includes("reject") || stage.includes("declined") || stage.includes("closed") || stage.includes("not selected")) {
         return {
-          pillClass: 'status-pill-inactive',
-          pillText: 'Application Closed',
-          message: 'Thank you for your interest. We encourage you to apply for future opportunities that match your skills.',
+          pillClass: "status-pill-inactive",
+          pillText: "Closed",
+          noteClass: "note note-warning",
+          message: "Thank you for your interest. While this position didn’t work out, we encourage you to apply for future opportunities that match your skills.",
           showStage: false
         };
       }
 
-      if (stage.includes('hire') || stage.includes('hired') || stage.includes('onboard') || stage.includes('start')) {
+      if (stage.includes("hire") || stage.includes("hired") || stage.includes("onboard") || stage.includes("start")) {
         return {
-          pillClass: 'status-pill-hired',
-          pillText: 'Hired',
-          message: 'Congratulations! Please check for onboarding details and next steps.',
+          pillClass: "status-pill-hired",
+          pillText: "Hired",
+          noteClass: "note note-success",
+          message: "Congratulations! Please check UKG Pro for onboarding details and next steps.",
           showStage: false
         };
       }
 
-      if (stage.includes('interview') || stage.includes('screen') || stage.includes('assessment') || stage.includes('meeting')) {
+      if (stage.includes("interview") || stage.includes("screen") || stage.includes("assessment") || stage.includes("meeting") || stage.includes("offer")) {
         return {
-          pillClass: 'status-pill-active',
-          pillText: 'In Progress',
+          pillClass: "status-pill-active",
+          pillText: "In Progress",
+          noteClass: "note",
           message: null,
           showStage: true
         };
       }
 
       return {
-        pillClass: 'status-pill-active',
-        pillText: 'Under Review',
+        pillClass: "status-pill-active",
+        pillText: "Under Review",
+        noteClass: "note",
         message: null,
         showStage: true
       };
     }
 
-    function escapeHtml(s) {
-      return String(s ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function renderTabbedApplications(personName, applications) {
-      if (!elements.resultEl) return;
-
-      const apps = Array.isArray(applications) ? applications.slice() : [];
-      apps.sort((a, b) => {
-        const aT = new Date(a.created_at || a.stage_updated || 0).getTime();
-        const bT = new Date(b.created_at || b.stage_updated || 0).getTime();
-        return bT - aT;
-      });
-
-      if (apps.length === 0) {
-        elements.resultEl.innerHTML = '';
-        return;
-      }
-
-      let activeIndex = 0;
-
-      function tabLabel(app) {
-        const pos = sanitizeInput(app.position || "Position");
-        const date = app.created_at ? formatDateToLocal(app.created_at) : "Date unavailable";
-        return { title: pos, subtitle: `Applied ${date}` };
-      }
-
-      function renderTabs() {
-        const tabsHtml = apps.map((app, idx) => {
-          const lbl = tabLabel(app);
-          const active = idx === activeIndex ? "active" : "";
-          return `
-            <button class="tab ${active}" type="button" data-idx="${idx}">
-              <span class="tab-title">${escapeHtml(lbl.title)}</span>
-              <span class="tab-subtitle">${escapeHtml(lbl.subtitle)}</span>
-            </button>
-          `;
-        }).join("");
-
-        const panelHtml = renderPanel(apps[activeIndex]);
-
-        elements.resultEl.innerHTML = `
-          <div class="tabs-shell">
-            <div class="tabbar" role="tablist" aria-label="Applications">
-              ${tabsHtml}
-            </div>
-            <div class="panel active-border">
-              ${panelHtml}
-            </div>
-          </div>
-        `;
-
-        const btns = elements.resultEl.querySelectorAll(".tab");
-        btns.forEach(btn => {
-          btn.addEventListener("click", () => {
-            const i = parseInt(btn.getAttribute("data-idx"), 10);
-            if (!Number.isNaN(i)) {
-              activeIndex = i;
-              renderTabs();
-            }
-          });
-        });
-
-        const offerBtn = elements.resultEl.querySelector("#offer-btn");
-        if (offerBtn) {
-          offerBtn.addEventListener("click", async () => {
-            await handleOfferDownload();
-          });
-        }
-
-        const careersBtn = elements.resultEl.querySelector("#careers-btn");
-        if (careersBtn) {
-          careersBtn.addEventListener("click", () => {
-            window.open(CONFIG.CAREERS_URL, "_blank", "noopener,noreferrer");
-          });
-        }
-      }
-
-      function renderPanel(app) {
-        const statusInfo = classifyStatus(app.current_stage, app.archived);
-
-        const safeValues = {
-          person: sanitizeInput(personName || 'Applicant'),
-          position: sanitizeInput(app.position || 'Not specified'),
-          stage: sanitizeInput(app.current_stage || 'Under Review'),
-          recruiter: sanitizeInput(app.recruiter || 'Not assigned'),
-          hiringManager: sanitizeInput(app.hiring_manager || 'Not assigned'),
-          stageUpdated: app.stage_updated ? formatDateTimeToLocal(app.stage_updated) : 'Not available'
-        };
-
-        const nextInterviewFormatted = app.next_interview
-          ? formatDateTimeToLocal(app.next_interview)
-          : null;
-
-        const offerAccess = !!app.offer_access;
-
-        return `
-          <div class="result-card">
-            <div class="result-header">
-              <h2 class="result-title">Welcome, ${escapeHtml(safeValues.person)}</h2>
-              <span class="status-pill ${statusInfo.pillClass}">${escapeHtml(statusInfo.pillText)}</span>
-            </div>
-
-            <div class="result-body">
-              <div class="result-row">
-                <span class="result-label">Position:</span>
-                <span class="result-value">${escapeHtml(safeValues.position)}</span>
-              </div>
-
-              ${statusInfo.showStage ? `
-                <div class="result-row">
-                  <span class="result-label">Current stage:</span>
-                  <span class="result-value">${escapeHtml(safeValues.stage)}</span>
-                </div>
-              ` : ''}
-
-              <div class="result-row">
-                <span class="result-label">Applied:</span>
-                <span class="result-value">${escapeHtml(app.created_at ? formatDateToLocal(app.created_at) : 'Not available')}</span>
-              </div>
-
-              <div class="result-row">
-                <span class="result-label">Stage updated:</span>
-                <span class="result-value">${escapeHtml(safeValues.stageUpdated)}</span>
-              </div>
-
-              ${nextInterviewFormatted ? `
-                <div class="result-row">
-                  <span class="result-label">Next interview:</span>
-                  <span class="result-value">${escapeHtml(nextInterviewFormatted)}</span>
-                </div>
-              ` : ''}
-
-              <div class="result-row">
-                <span class="result-label">Recruiter:</span>
-                <span class="result-value">${escapeHtml(safeValues.recruiter)}</span>
-              </div>
-
-              <div class="result-row">
-                <span class="result-label">Hiring manager:</span>
-                <span class="result-value">${escapeHtml(safeValues.hiringManager)}</span>
-              </div>
-            </div>
-
-            ${statusInfo.message ? `
-              <div class="helper-text" style="margin-top: 0.9rem; font-weight: 700;">
-                ${escapeHtml(statusInfo.message)}
-              </div>
-            ` : ''}
-
-            <div class="portal-actions">
-              <button class="secondary-btn" id="careers-btn" type="button">Return to careers</button>
-              ${offerAccess ? `<button id="offer-btn" type="button">Download offer letter</button>` : ``}
-            </div>
-          </div>
-        `;
-      }
-
-      renderTabs();
+    function setPanelBorderToActive() {
+      document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
     }
 
     async function handleOfferDownload() {
       if (!session.verified || !session.token || !session.lastName || !session.phone10) {
-        setStatus('Please verify your application status first.', 'warning');
+        setStatus("Please verify your application status first.", "warning");
         return;
       }
 
-      setStatus('Generating your offer letter link...', 'loading');
+      setStatus("Generating your offer letter link...", "loading");
 
       try {
         const qs = new URLSearchParams({
@@ -992,80 +968,279 @@
         const payload = await resp.json().catch(() => null);
 
         if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
-          setStatus('Could not generate your offer letter link. Please try again.', 'warning');
+          setStatus("Could not generate your offer letter link. Please try again.", "warning");
           return;
         }
 
-        setStatus('Offer letter ready. Opening...', 'success');
+        setStatus("Offer letter ready. Opening...", "success");
         window.open(payload.url, "_blank", "noopener,noreferrer");
-        setTimeout(() => setStatus(''), 2200);
+        setTimeout(() => setStatus(""), 2200);
       } catch (e) {
         console.error(e);
-        setStatus('Could not generate your offer letter link. Please try again.', 'error');
+        setStatus("Could not generate your offer letter link. Please try again.", "error");
       }
+    }
+
+    function renderApplicationsView(payload) {
+      if (!el.result) return;
+
+      const candidate = payload?.candidate || null;
+      const apps = Array.isArray(payload?.applications) ? payload.applications.slice() : [];
+
+      if (!candidate || apps.length === 0) {
+        el.result.innerHTML = "";
+        return;
+      }
+
+      apps.sort((a, b) => {
+        const ad = new Date(a?.created_at || 0).getTime();
+        const bd = new Date(b?.created_at || 0).getTime();
+        return bd - ad;
+      });
+
+      setPanelBorderToActive();
+
+      const tabsHtml = apps.map((a, idx) => {
+        const pos = sanitizeInput(a?.position || "Position");
+        const applied = formatDateShort(a?.created_at);
+        const stage = sanitizeInput(a?.current_stage || "");
+        const subtitle = stage ? stage : "Status";
+        return `
+          <button type="button" class="app-tab ${idx === 0 ? "active" : ""}" data-app-index="${idx}" aria-selected="${idx === 0 ? "true" : "false"}">
+            <div class="tab-title">${pos} &nbsp; ${sanitizeInput(applied).toUpperCase()}</div>
+            <div class="tab-subtitle">${sanitizeInput(subtitle).toUpperCase()}</div>
+          </button>
+        `;
+      }).join("");
+
+      const shellHtml = `
+        <div class="applications-shell">
+          <div class="tabs-and-panel">
+            <div class="tabbar" role="tablist" aria-label="Applications">
+              ${tabsHtml}
+            </div>
+            <div class="panel">
+              <div id="app-panel-inner"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      el.result.innerHTML = shellHtml;
+
+      function renderActiveApp(index) {
+        const active = apps[index] || apps[0];
+
+        const mergedName = sanitizeInput(active?.name || candidate?.name || "Applicant");
+        const mergedPosition = sanitizeInput(active?.position || candidate?.position || "Not specified");
+        const mergedStage = sanitizeInput(active?.current_stage || candidate?.current_stage || "Under Review");
+        const mergedRecruiter = sanitizeInput(active?.recruiter || candidate?.recruiter || "Not assigned");
+        const mergedHiringManager = sanitizeInput(active?.hiring_manager || candidate?.hiring_manager || "Not assigned");
+
+        const nextInterview = active?.next_interview || candidate?.next_interview || null;
+        const nextInterviewFormatted = nextInterview ? formatDateToLocal(nextInterview) : null;
+
+        const appliedShort = formatDateShort(active?.created_at);
+        const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
+
+        const statusInfo = classifyStatus(mergedStage, active?.archived);
+
+        const showStageRow = statusInfo.showStage;
+        const showNextInterviewRow = !!nextInterview;
+
+        const offerAccess = !!active?.offer_access;
+
+        const inner = document.getElementById("app-panel-inner");
+        if (!inner) return;
+
+        inner.innerHTML = `
+          <div class="result-card">
+            <div class="result-header">
+              <div class="result-title-wrap">
+                <h2 class="result-title">Welcome, ${mergedName}</h2>
+                <div class="pill-row">
+                  <span class="chip">Applied: ${sanitizeInput(appliedShort).toUpperCase()}</span>
+                  ${updatedShort ? `<span class="chip">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
+                </div>
+              </div>
+              <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
+            </div>
+
+            <div class="result-body">
+              <div class="result-row">
+                <div class="result-label">Position:</div>
+                <div class="result-value">${mergedPosition}</div>
+              </div>
+
+              ${showStageRow ? `
+                <div class="result-row">
+                  <div class="result-label">Current Stage:</div>
+                  <div class="result-value">${mergedStage}</div>
+                </div>
+              ` : ""}
+
+              ${showNextInterviewRow ? `
+                <div class="result-row">
+                  <div class="result-label">Next Interview:</div>
+                  <div class="result-value">${sanitizeInput(nextInterviewFormatted)}</div>
+                </div>
+              ` : ""}
+
+              <div class="result-row">
+                <div class="result-label">Recruiter:</div>
+                <div class="result-value">${mergedRecruiter}</div>
+              </div>
+
+              <div class="result-row">
+                <div class="result-label">Hiring Manager:</div>
+                <div class="result-value">${mergedHiringManager}</div>
+              </div>
+            </div>
+
+            ${statusInfo.message ? `
+              <div class="${statusInfo.noteClass}">
+                ${sanitizeInput(statusInfo.message)}
+              </div>
+            ` : ""}
+
+            <div class="actions-row">
+              <button type="button" class="secondary-btn" id="careers-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Return to Careers</span>
+              </button>
+
+              ${offerAccess ? `
+                <button type="button" class="offer-btn" id="offer-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>Download Offer Letter</span>
+                </button>
+              ` : ""}
+
+            </div>
+          </div>
+        `;
+
+        const careersBtn = document.getElementById("careers-btn");
+        if (careersBtn) {
+          careersBtn.addEventListener("click", () => {
+            window.open(CONFIG.CAREERS_URL, "_blank", "noopener,noreferrer");
+          });
+        }
+
+        const offerBtn = document.getElementById("offer-btn");
+        if (offerBtn) {
+          offerBtn.addEventListener("click", async () => {
+            await handleOfferDownload();
+          });
+        }
+      }
+
+      function setActiveTab(index) {
+        const tabs = Array.from(document.querySelectorAll(".app-tab"));
+        tabs.forEach((t, i) => {
+          const isActive = i === index;
+          t.classList.toggle("active", isActive);
+          t.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+
+        document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
+        renderActiveApp(index);
+      }
+
+      const tabs = Array.from(document.querySelectorAll(".app-tab"));
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          const idx = parseInt(tab.getAttribute("data-app-index") || "0", 10);
+          setActiveTab(isNaN(idx) ? 0 : idx);
+        });
+      });
+
+      setActiveTab(0);
     }
 
     async function checkStatus(event) {
       if (event) event.preventDefault();
-      if (elements.resultEl) elements.resultEl.innerHTML = '';
+
+      if (el.result) el.result.innerHTML = "";
 
       const rateCheck = rateLimiter.canAttempt();
       if (!rateCheck.allowed) {
-        setStatus(`Too many attempts. Please wait ${rateCheck.timeRemaining} seconds before trying again.`, 'warning');
+        setStatus(`Too many attempts. Please wait ${rateCheck.timeRemaining} seconds before trying again.`, "warning");
         return;
       }
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = (urlParams.get('token') || '').trim();
+      const params = new URLSearchParams(window.location.search);
+      const token = String(params.get("token") || "").trim();
+
       session.token = token;
 
       if (!token) {
-        setStatus('Missing security token. Please use the personalized link sent by your recruiter.', 'error');
+        setStatus("Missing security token. Please use the personalized link sent by your recruiter.", "error");
         return;
       }
 
       if (!CONFIG.TOKEN_REGEX.test(token)) {
-        setStatus('Invalid security token format. Please check your link.', 'error');
+        setStatus("Invalid security token format. Please check your link.", "error");
         return;
       }
 
-      const lastName = (elements.lastNameInput.value || '').trim();
-      const phoneRaw = (elements.phoneInput.value || '').trim();
+      const lastName = String(el.lastName?.value || "").trim();
+      const phoneRaw = String(el.phone?.value || "").trim();
       const validation = validateInputs(lastName, phoneRaw);
 
       if (!validation.valid) {
-        elements.lastNameInput.classList.toggle('error', !lastName);
-        elements.phoneInput.classList.toggle('error', !normalizePhone10(phoneRaw));
-        elements.phoneHelper.textContent = validation.message;
-        elements.phoneHelper.classList.add('error');
-        setStatus(validation.message, 'warning');
+        if (el.lastName) el.lastName.classList.toggle("error", !lastName);
+        if (el.phone) el.phone.classList.toggle("error", !normalizePhone10(phoneRaw));
+        if (el.helper) {
+          el.helper.textContent = validation.message;
+          el.helper.classList.add("error");
+        }
+        setStatus(validation.message, "warning");
         return;
       }
 
-      elements.lastNameInput.classList.remove('error');
-      elements.phoneInput.classList.remove('error');
-      elements.phoneHelper.textContent = 'Must match the last name and 10-digit phone number on your application';
-      elements.phoneHelper.classList.remove('error');
+      if (el.lastName) el.lastName.classList.remove("error");
+      if (el.phone) el.phone.classList.remove("error");
+      if (el.helper) {
+        el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
+        el.helper.classList.remove("error");
+      }
 
-      elements.lastNameInput.disabled = true;
-      elements.phoneInput.disabled = true;
-      elements.submitBtn.disabled = true;
-      setStatus('Verifying your information...', 'loading');
+      if (el.lastName) el.lastName.disabled = true;
+      if (el.phone) el.phone.disabled = true;
+      if (el.submitBtn) el.submitBtn.disabled = true;
+
+      setStatus("Verifying your information...", "loading");
 
       try {
         const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, lastName: validation.lastName, phone: validation.phone })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token,
+            lastName: validation.lastName,
+            phone: validation.phone
+          })
         });
 
         const payload = await resp.json().catch(() => null);
+
+        if (resp.status === 429) {
+          setStatus("Too many attempts. Please try again later.", "warning");
+          return;
+        }
 
         if (!resp.ok || !payload || payload.ok !== true) {
           session.verified = false;
           session.lastName = "";
           session.phone10 = "";
-          setStatus('No matching record found. Please verify your information and try again.', 'warning');
+          setStatus("No matching record found. Please verify your information and try again.", "warning");
           return;
         }
 
@@ -1073,76 +1248,73 @@
         session.lastName = validation.lastName;
         session.phone10 = validation.phone;
 
-        setStatus('Application found successfully!', 'success');
-
-        const personName =
-          payload?.person?.name ||
-          payload?.candidate?.name ||
-          "Applicant";
-
-        const apps = payload?.applications ? payload.applications : [payload.candidate].filter(Boolean);
-
-        renderTabbedApplications(personName, apps);
-        setTimeout(() => setStatus(''), 2500);
-
+        setStatus("Application found successfully!", "success");
+        renderApplicationsView(payload);
+        setTimeout(() => setStatus(""), 2000);
       } catch (err) {
         console.error(err);
         session.verified = false;
         session.lastName = "";
         session.phone10 = "";
-        setStatus('Connection error. Please refresh and try again.', 'error');
+        setStatus("Connection error. Please refresh and try again.", "error");
       } finally {
-        elements.lastNameInput.disabled = false;
-        elements.phoneInput.disabled = false;
-        elements.submitBtn.disabled = false;
-        elements.lastNameInput.focus();
+        if (el.lastName) el.lastName.disabled = false;
+        if (el.phone) el.phone.disabled = false;
+        if (el.submitBtn) el.submitBtn.disabled = false;
+        if (el.lastName) el.lastName.focus();
       }
     }
 
     function setupInputHandlers() {
-      if (elements.lastNameInput) {
-        elements.lastNameInput.addEventListener('input', (e) => {
-          if (e.target.classList.contains('error')) {
-            e.target.classList.remove('error');
-            elements.phoneHelper.classList.remove('error');
-            elements.phoneHelper.textContent = 'Must match the last name and 10-digit phone number on your application';
+      if (el.lastName) {
+        el.lastName.addEventListener("input", () => {
+          if (el.lastName.classList.contains("error")) el.lastName.classList.remove("error");
+          if (el.helper) {
+            el.helper.classList.remove("error");
+            el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
           }
         });
       }
 
-      if (elements.phoneInput) {
-        elements.phoneInput.addEventListener('input', (e) => {
-          let value = e.target.value.replace(/\D/g, '');
+      if (el.phone) {
+        el.phone.addEventListener("input", (e) => {
+          let value = String(e.target.value || "").replace(/\D/g, "");
           if (value.length > 11) value = value.slice(0, 11);
           e.target.value = value;
 
-          if (e.target.classList.contains('error')) {
-            e.target.classList.remove('error');
-            elements.phoneHelper.classList.remove('error');
-            elements.phoneHelper.textContent = 'Must match the last name and 10-digit phone number on your application';
+          if (el.phone.classList.contains("error")) el.phone.classList.remove("error");
+          if (el.helper) {
+            el.helper.classList.remove("error");
+            el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
+          }
+        });
+
+        el.phone.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            checkStatus();
           }
         });
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeElements();
-
-      if (elements.form) elements.form.addEventListener('submit', checkStatus);
+    document.addEventListener("DOMContentLoaded", () => {
+      initElements();
+      if (el.form) el.form.addEventListener("submit", checkStatus);
       setupInputHandlers();
 
-      if (elements.lastNameInput) elements.lastNameInput.focus();
+      if (el.lastName) el.lastName.focus();
 
-      const urlParams = new URLSearchParams(window.location.search);
-      if (!urlParams.get('token')) {
-        setStatus('No security token detected. Please use your personalized status link from your recruiter.', 'warning');
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get("token")) {
+        setStatus("No security token detected. Please use your personalized status link from your recruiter.", "warning");
       }
     });
 
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted && elements.resultEl && elements.resultEl.innerHTML) {
-        elements.resultEl.innerHTML = '';
-        setStatus('For security, please re-enter your information.', 'info');
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted && el.result && el.result.innerHTML) {
+        el.result.innerHTML = "";
+        setStatus("For security, please re-enter your information.", "info");
       }
     });
   </script>
