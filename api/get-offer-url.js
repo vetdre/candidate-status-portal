@@ -187,6 +187,11 @@ async function signOfferKey(key, SUPABASE_URL, SERVICE_ROLE) {
   return `${SUPABASE_URL}/storage/v1${signedURL}`;
 }
 
+// NEW: helper to create a stable "now" ISO with seconds precision (matches portal-status)
+function nowIsoUtcSeconds() {
+  return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
 module.exports = async (req, res) => {
   try {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -255,6 +260,32 @@ module.exports = async (req, res) => {
     clearTokenFailures(token);
 
     const personKey = String(tokenRow.person_key).trim();
+
+    // NEW: optional hygiene — clear stale next_interview for this person.
+    // (Keeps Bulk Refresh and Interview flow clean separation; this is read-side cleanup only.)
+    try {
+      const nowIso = nowIsoUtcSeconds();
+      const clearUrl =
+        `${SUPABASE_URL}/rest/v1/Candidates` +
+        `?person_key=eq.${encodeURIComponent(personKey)}` +
+        `&next_interview=lt.${encodeURIComponent(nowIso)}`;
+
+      await supaFetch(
+        clearUrl,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({ next_interview: null }),
+        },
+        SUPABASE_URL,
+        SERVICE_ROLE
+      );
+    } catch {
+      // Do not block offer downloads on cleanup failures.
+    }
 
     // 2) Pull all applications for this person_key and choose best offer row.
     const appsUrl =
