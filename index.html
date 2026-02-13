@@ -52,15 +52,23 @@
   --error-bg: rgba(220, 38, 38, 0.08);
   --error-border: rgba(220, 38, 38, 0.22);
 
-  /* Tabs + panel */
-  --tab-inactive-bg: #ffffff;
-  --tab-active-bg: #ffffff;
-  --tab-inactive-text: rgba(15, 23, 42, 0.75);
-  --tab-active-text: rgba(15, 47, 74, 1);
-  --tab-inactive-border: rgba(15, 23, 42, 0.18);
-  --tab-active-border: rgba(15, 47, 74, 0.28);
+  /* Stage progression colors */
+  --stage-interviewing: #8b5cf6;
+  --stage-interviewing-bg: rgba(139, 92, 246, 0.06);
+  --stage-interviewing-border: rgba(139, 92, 246, 0.30);
+  --stage-decision: #7c3aed;
+  --stage-decision-bg: rgba(124, 58, 237, 0.06);
+  --stage-decision-border: rgba(124, 58, 237, 0.30);
 
-  --panel-border: var(--tab-active-border);
+  /* Tabs */
+  --tab-inactive-bg: rgba(255, 255, 255, 0.65);
+  --tab-active-bg: #ffffff;
+  --tab-inactive-text: rgba(15, 23, 42, 0.70);
+  --tab-active-text: rgba(15, 23, 42, 0.92);
+  --tab-inactive-border: rgba(15, 23, 42, 0.16);
+  --tab-active-border: rgba(15, 23, 42, 0.18);
+
+  --panel-border: rgba(15, 23, 42, 0.18);
 }
 
 * { box-sizing: border-box; }
@@ -414,80 +422,118 @@ input.error {
   padding: 22px 0 6px;
 }
 
-.tabs-and-panel { position: relative; }
+.tabs-and-panel { 
+  position: relative;
+}
 
+/* ===== BROWSER-STYLE TABS (like Chrome/Windows 11) ===== */
 .tabbar {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
   align-items: flex-end;
   padding-left: 16px;
   padding-right: 16px;
-  margin: 0 0 -1px;
+  margin-bottom: -1px; /* KEY: Overlap the panel border */
   position: relative;
   z-index: 3;
 }
 
-/* FIX: make tabs flex instead of "squashing" */
 .app-tab {
   appearance: none;
+  /* Inactive tabs: fully bordered, sitting back */
   border: 1px solid var(--tab-inactive-border);
   background: var(--tab-inactive-bg);
   color: var(--tab-inactive-text);
-  border-bottom-color: transparent;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  padding: 11px 14px 10px;
+  padding: 12px 16px 10px;
   cursor: pointer;
-  transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
-  min-width: 280px;
-  flex: 1 1 360px;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), 
+              color var(--transition-fast), background var(--transition-fast),
+              box-shadow var(--transition-fast);
+  min-width: 240px;
+  flex: 1 1 320px;
   max-width: 100%;
-  display: grid;
-  gap: 3px;
   position: relative;
-  box-shadow: none;
+  z-index: 1; /* Behind everything */
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  
+  /* Single line layout */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.app-tab:hover {
+.app-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(15, 23, 42, 0.22);
   transform: translateY(-1px);
-  border-color: rgba(15, 47, 74, 0.22);
 }
 
 .app-tab.active {
-  border-color: var(--tab-active-border);
+  /* Active tab: punches through to panel */
+  border: 1px solid var(--tab-active-border);
+  border-bottom: 1px solid var(--tab-active-bg); /* KEY: Matches panel background to "erase" border */
   color: var(--tab-active-text);
   background: var(--tab-active-bg);
-  border-bottom-color: var(--tab-active-bg);
-  z-index: 4;
-  box-shadow: none;
+  z-index: 4; /* In front of everything */
+  padding-bottom: 12px; /* 2px taller than inactive to emphasize elevation */
+  box-shadow: 
+    0 -2px 8px rgba(15, 23, 42, 0.08),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  transform: translateY(0);
 }
 
-.tab-title {
+.tab-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tab-position {
   font-size: 13px;
-  font-weight: 950;
-  letter-spacing: 0.10em;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
-.tab-subtitle {
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.10em;
+.tab-separator {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.35);
+  flex-shrink: 0;
+}
+
+.app-tab.active .tab-separator {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.tab-date {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(15, 23, 42, 0.55);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
-.app-tab.active .tab-subtitle { color: rgba(15, 47, 74, 0.70); }
+.app-tab.active .tab-date {
+  color: rgba(15, 23, 42, 0.70);
+}
 
+/* Panel connects seamlessly to active tab */
 .panel {
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
@@ -495,7 +541,7 @@ input.error {
   box-shadow: var(--shadow-md);
   padding: 18px;
   position: relative;
-  z-index: 2;
+  z-index: 2; /* Between inactive tabs and active tab */
   overflow: hidden;
 }
 
@@ -552,6 +598,12 @@ input.error {
   letter-spacing: 0.10em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.chip.updated {
+  background: rgba(15, 23, 42, 0.02);
+  border-color: rgba(15, 23, 42, 0.10);
+  color: rgba(15, 23, 42, 0.60);
 }
 
 .status-pill {
@@ -774,14 +826,32 @@ input.error {
 .stage-step.done .step-text { color: rgba(15, 47, 74, 0.86); }
 .stage-step.done .step-fill { width: 100%; background: rgba(15, 47, 74, 0.70); }
 
-/* current */
+/* current - default blue for orders 10-20 */
 .stage-step.current {
   border-color: rgba(37, 99, 235, 0.30);
   background: rgba(37, 99, 235, 0.06);
 }
 .stage-step.current .stage-dot { background: rgba(37, 99, 235, 0.95); }
 .stage-step.current .step-text { color: rgba(37, 99, 235, 0.95); }
-.stage-step.current .step-fill { width: 78%; background: rgba(37, 99, 235, 0.75); }
+.stage-step.current .step-fill { width: 65%; background: rgba(37, 99, 235, 0.75); }
+
+/* current - purple for interviewing (order 30) */
+.stage-step.current.interviewing {
+  border-color: var(--stage-interviewing-border);
+  background: var(--stage-interviewing-bg);
+}
+.stage-step.current.interviewing .stage-dot { background: var(--stage-interviewing); }
+.stage-step.current.interviewing .step-text { color: var(--stage-interviewing); }
+.stage-step.current.interviewing .step-fill { width: 65%; background: var(--stage-interviewing); }
+
+/* current - deeper purple for decision/offer (orders 40-50) */
+.stage-step.current.decision {
+  border-color: var(--stage-decision-border);
+  background: var(--stage-decision-bg);
+}
+.stage-step.current.decision .stage-dot { background: var(--stage-decision); }
+.stage-step.current.decision .step-text { color: var(--stage-decision); }
+.stage-step.current.decision .step-fill { width: 65%; background: var(--stage-decision); }
 
 /* terminal styling on container */
 .stagebar.terminal-success {
@@ -800,7 +870,16 @@ input.error {
   .primary-btn { width: 100%; }
   .form-meta { justify-content: flex-start; }
   .tabbar { padding-left: 10px; padding-right: 10px; }
-  .app-tab { min-width: 100%; flex: 1 1 100%; }
+  .app-tab { 
+    min-width: 100%; 
+    flex: 1 1 100%;
+  }
+  .tab-position {
+    font-size: 12px;
+  }
+  .tab-date {
+    font-size: 11px;
+  }
   .result-row { grid-template-columns: 1fr; }
   .actions-row { flex-direction: column; align-items: stretch; }
   .offer-wrap { align-items: stretch; }
@@ -1183,7 +1262,15 @@ function renderPortalStageBar(app, candidate) {
   const stepsHtml = PORTAL_STEPS.map((s) => {
     const isDone = (currentOrder !== null && s.order < currentOrder);
     const isCurrent = (currentOrder !== null && s.order === currentOrder);
-    const cls = ["stage-step", isDone ? "done" : "", isCurrent ? "current" : ""].filter(Boolean).join(" ");
+    
+    // Add stage-specific classes for color variations
+    let stageClass = "";
+    if (isCurrent) {
+      if (currentOrder === 30) stageClass = "interviewing";
+      else if (currentOrder >= 40) stageClass = "decision";
+    }
+    
+    const cls = ["stage-step", isDone ? "done" : "", isCurrent ? "current" : "", stageClass].filter(Boolean).join(" ");
     return `
       <div class="${cls}">
         <div class="step-top">
@@ -1268,14 +1355,14 @@ function renderApplicationsView(payload) {
     const pos = sanitizeInput(a?.position || "Position");
     const applied = formatDateShort(a?.created_at);
 
-    const stageText = resolvePortalStage(a, candidate);
-    const subtitle = stageText ? stageText : "Status";
-
     return `
       <button type="button" class="app-tab ${idx === 0 ? "active" : ""}" data-app-index="${idx}"
         aria-selected="${idx === 0 ? "true" : "false"}">
-        <div class="tab-title">${pos} &nbsp; ${sanitizeInput(applied).toUpperCase()}</div>
-        <div class="tab-subtitle">${sanitizeInput(subtitle).toUpperCase()}</div>
+        <div class="tab-content">
+          <span class="tab-position">${pos}</span>
+          <span class="tab-separator">•</span>
+          <span class="tab-date">${sanitizeInput(applied).toUpperCase()}</span>
+        </div>
       </button>
     `;
   }).join("");
@@ -1309,7 +1396,6 @@ function renderApplicationsView(payload) {
     const statusInfo = classifyFromPortal(portalStageText, portalOrder, portalTerminal);
     const offerAccess = !!active?.offer_access;
 
-    /* FIX: next interview should be per-application only (NO candidate fallback) */
     const rawNextInterview = active?.next_interview || null;
     const showNextInterview = isFutureDate(rawNextInterview);
     const nextInterviewFormatted = showNextInterview ? formatDateToLocal(rawNextInterview) : null;
@@ -1324,7 +1410,7 @@ function renderApplicationsView(payload) {
             <h2 class="result-title">Welcome, ${mergedName}</h2>
             <div class="pill-row">
               <span class="chip">Applied: ${sanitizeInput(appliedShort).toUpperCase()}</span>
-              ${updatedShort ? `<span class="chip">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
+              ${updatedShort ? `<span class="chip updated">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
             </div>
           </div>
           <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
@@ -1410,7 +1496,6 @@ function renderApplicationsView(payload) {
       t.classList.toggle("active", isActive);
       t.setAttribute("aria-selected", isActive ? "true" : "false");
     });
-    document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
     renderActiveApp(index);
   }
 
