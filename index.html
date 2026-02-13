@@ -851,7 +851,7 @@ input.error {
 .stage-step.current.interviewing .step-text { color: var(--stage-interviewing); }
 .stage-step.current.interviewing .step-fill { width: 65%; background: var(--stage-interviewing); }
 
-/* current - deeper purple for decision/offer (orders 40-50) */
+/* current - deeper purple for decision (order 40) */
 .stage-step.current.decision {
   border-color: var(--stage-decision-border);
   background: var(--stage-decision-bg);
@@ -859,6 +859,15 @@ input.error {
 .stage-step.current.decision .stage-dot { background: var(--stage-decision); }
 .stage-step.current.decision .step-text { color: var(--stage-decision); }
 .stage-step.current.decision .step-fill { width: 65%; background: var(--stage-decision); }
+
+/* current - green for offer extended (order 50) */
+.stage-step.current.offer {
+  border-color: rgba(22, 163, 74, 0.30);
+  background: rgba(22, 163, 74, 0.06);
+}
+.stage-step.current.offer .stage-dot { background: rgba(22, 163, 74, 0.95); }
+.stage-step.current.offer .step-text { color: rgba(22, 163, 74, 0.95); }
+.stage-step.current.offer .step-fill { width: 65%; background: rgba(22, 163, 74, 0.75); }
 
 /* terminal styling on container */
 .stagebar.terminal-success {
@@ -1308,7 +1317,8 @@ function renderPortalStageBar(app, candidate) {
     let stageClass = "";
     if (isCurrent) {
       if (currentOrder === 30) stageClass = "interviewing";
-      else if (currentOrder >= 40) stageClass = "decision";
+      else if (currentOrder === 40) stageClass = "decision";
+      else if (currentOrder === 50) stageClass = "offer";
     }
     
     const cls = ["stage-step", isDone ? "done" : "", isCurrent ? "current" : "", stageClass].filter(Boolean).join(" ");
@@ -1523,7 +1533,7 @@ function renderApplicationsView(payload) {
                 <span>Download Offer Letter</span>
               </button>
               <div class="offer-disclaimer" id="offer-disclaimer">
-                <strong>*</strong> To sign your offer letter, please use the Docusign link sent via email.
+                <strong>*</strong> To sign your offer letter, please use the link sent via email.
               </div>
             </div>
           ` : ""}
