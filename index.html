@@ -9,8 +9,8 @@
 <style>
 :root {
   /* Brand-ish */
-  --accent: #0f2f4a;             /* deep slate/navy */
-  --accent-2: #1b4f72;           /* hover */
+  --accent: #0f2f4a;
+  --accent-2: #1b4f72;
   --accent-soft: rgba(15, 47, 74, 0.08);
   --accent-border: rgba(15, 47, 74, 0.25);
 
@@ -60,7 +60,6 @@
   --tab-inactive-border: rgba(15, 23, 42, 0.18);
   --tab-active-border: rgba(15, 47, 74, 0.28);
 
-  /* Panel border will match the active tab border for cohesion */
   --panel-border: var(--tab-active-border);
 }
 
@@ -81,7 +80,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===== Top header (careers page vibe) ===== */
+/* ===== Top header ===== */
 .topbar {
   position: sticky;
   top: 0;
@@ -108,7 +107,6 @@ body {
   min-width: 0;
 }
 
-/* FIX: badge stays square, but image is NOT stretched */
 .brand-badge {
   width: 44px;
   height: 44px;
@@ -140,7 +138,7 @@ body {
 .brand-title {
   font-size: 12px;
   letter-spacing: 0.12em;
-  text-transform: none; /* keep ms consultants lowercase */
+  text-transform: none;
   font-weight: 800;
   color: rgba(15, 23, 42, 0.76);
   white-space: nowrap;
@@ -420,7 +418,7 @@ input.error {
 
 .tabbar {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
   align-items: flex-end;
   padding-left: 16px;
@@ -430,6 +428,7 @@ input.error {
   z-index: 3;
 }
 
+/* FIX: make tabs flex instead of “squashing” */
 .app-tab {
   appearance: none;
   border: 1px solid var(--tab-inactive-border);
@@ -443,7 +442,8 @@ input.error {
   padding: 11px 14px 10px;
   cursor: pointer;
   transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
-  min-width: 320px;
+  min-width: 280px;
+  flex: 1 1 360px;
   max-width: 100%;
   display: grid;
   gap: 3px;
@@ -765,7 +765,7 @@ input.error {
   transition: width var(--transition-base);
 }
 
-/* filled/completed */
+/* done */
 .stage-step.done {
   border-color: rgba(15, 47, 74, 0.22);
   background: rgba(15, 47, 74, 0.03);
@@ -783,7 +783,7 @@ input.error {
 .stage-step.current .step-text { color: rgba(37, 99, 235, 0.95); }
 .stage-step.current .step-fill { width: 78%; background: rgba(37, 99, 235, 0.75); }
 
-/* terminal (hired/closed) */
+/* terminal styling on container */
 .stagebar.terminal-success {
   border-color: rgba(22, 163, 74, 0.22);
   background: rgba(22, 163, 74, 0.05);
@@ -800,7 +800,7 @@ input.error {
   .primary-btn { width: 100%; }
   .form-meta { justify-content: flex-start; }
   .tabbar { padding-left: 10px; padding-right: 10px; }
-  .app-tab { min-width: 100%; }
+  .app-tab { min-width: 100%; flex: 1 1 100%; }
   .result-row { grid-template-columns: 1fr; }
   .actions-row { flex-direction: column; align-items: stretch; }
   .offer-wrap { align-items: stretch; }
@@ -1036,10 +1036,6 @@ function isFutureDate(dateString) {
   return d.getTime() > Date.now();
 }
 
-/**
- * Canonical portal steps (order is what matters for the bar).
- * These are display steps; the "current" step is driven by portal_stage_order.
- */
 const PORTAL_STEPS = [
   { order: 1, label: "Application Received" },
   { order: 2, label: "Under Review" },
@@ -1049,13 +1045,13 @@ const PORTAL_STEPS = [
 ];
 
 function coerceInt(v) {
+  if (v === null || v === undefined) return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
 
 function normalizeStageText(v) {
-  const s = String(v ?? "").trim();
-  return s;
+  return String(v ?? "").trim();
 }
 
 function resolvePortalStage(app, candidate) {
@@ -1068,24 +1064,34 @@ function resolvePortalStage(app, candidate) {
   return "Under Review";
 }
 
-function resolvePortalOrder(app, candidate) {
-  const n = coerceInt(app?.portal_stage_order ?? candidate?.portal_stage_order);
-  if (n !== null) return n;
+/* HARD FALLBACK: infer order from stage text so the bar ALWAYS highlights */
+function inferOrderFromStageText(stageText) {
+  const s = String(stageText || "").toLowerCase();
 
-  // Fallback heuristic when order is missing (should be rare post-backfill)
-  const stage = resolvePortalStage(app, candidate).toLowerCase();
-  if (stage.includes("received")) return 1;
-  if (stage.includes("review")) return 2;
-  if (stage.includes("interview")) return 3;
-  if (stage.includes("decision")) return 4;
-  if (stage.includes("offer")) return 5;
+  if (s.includes("hired")) return 0;
+  if (s.includes("closed") || s.includes("declin") || s.includes("reject")) return 0;
 
-  // For terminal states or unknowns, return null (bar will still render)
+  if (s.includes("application received") || s.includes("received")) return 1;
+  if (s.includes("under review") || s.includes("review")) return 2;
+  if (s.includes("interview")) return 3;
+  if (s.includes("decision")) return 4;
+  if (s.includes("offer")) return 5;
+
   return null;
 }
 
+function resolvePortalOrder(app, candidate) {
+  const raw = (app?.portal_stage_order ?? candidate?.portal_stage_order);
+  const n = coerceInt(raw);
+
+  if (n !== null) return n;
+
+  const stage = resolvePortalStage(app, candidate);
+  return inferOrderFromStageText(stage);
+}
+
 function resolvePortalTerminal(app, candidate) {
-  const t = app?.portal_stage_terminal ?? candidate?.portal_stage_terminal;
+  const t = (app?.portal_stage_terminal ?? candidate?.portal_stage_terminal);
   if (typeof t === "boolean") return t;
   if (t === 0 || t === 1) return !!t;
   return null;
@@ -1094,7 +1100,6 @@ function resolvePortalTerminal(app, candidate) {
 function classifyFromPortal(stageText, order, terminal) {
   const stageLower = String(stageText || "").toLowerCase();
 
-  // Terminal overrides (the bar + UI should reflect terminal strongly)
   if (terminal === true || order === 0) {
     if (stageLower.includes("hired")) {
       return {
@@ -1116,44 +1121,10 @@ function classifyFromPortal(stageText, order, terminal) {
     };
   }
 
-  // Non-terminal, ordered
-  if (order === 5 || stageLower.includes("offer")) {
+  if (order === 3 || stageLower.includes("interview") || order === 4 || stageLower.includes("decision") || order === 5 || stageLower.includes("offer")) {
     return {
       pillClass: "status-pill-active",
       pillText: "In Progress",
-      noteClass: "note",
-      message: null,
-      showStage: true,
-      terminalType: null
-    };
-  }
-
-  if (order === 4 || stageLower.includes("decision")) {
-    return {
-      pillClass: "status-pill-active",
-      pillText: "In Progress",
-      noteClass: "note",
-      message: null,
-      showStage: true,
-      terminalType: null
-    };
-  }
-
-  if (order === 3 || stageLower.includes("interview")) {
-    return {
-      pillClass: "status-pill-active",
-      pillText: "In Progress",
-      noteClass: "note",
-      message: null,
-      showStage: true,
-      terminalType: null
-    };
-  }
-
-  if (order === 2 || stageLower.includes("review")) {
-    return {
-      pillClass: "status-pill-active",
-      pillText: "Under Review",
       noteClass: "note",
       message: null,
       showStage: true,
@@ -1177,14 +1148,12 @@ function renderPortalStageBar(app, candidate) {
   const terminal = resolvePortalTerminal(app, candidate);
   const info = classifyFromPortal(stageText, order, terminal);
 
-  // Terminal styling on container
   let barClass = "stagebar";
   if (info.terminalType === "success") barClass += " terminal-success";
   if (info.terminalType === "warning") barClass += " terminal-warning";
 
   const safeStageText = sanitizeInput(stageText).toUpperCase();
 
-  // Determine current step: clamp to [1..5] if possible
   const currentOrder = (typeof order === "number" && order >= 1 && order <= 5) ? order : null;
 
   const stepsHtml = PORTAL_STEPS.map((s) => {
@@ -1202,7 +1171,6 @@ function renderPortalStageBar(app, candidate) {
     `;
   }).join("");
 
-  // If terminal, keep steps but currentOrder may be 0; render without current highlight.
   return `
     <div class="${barClass}" role="group" aria-label="Application progress">
       <div class="stagebar-title">
@@ -1276,7 +1244,6 @@ function renderApplicationsView(payload) {
     const pos = sanitizeInput(a?.position || "Position");
     const applied = formatDateShort(a?.created_at);
 
-    // FRONT END SWITCH: prefer portal_stage; fallback to current_stage
     const stageText = resolvePortalStage(a, candidate);
     const subtitle = stageText ? stageText : "Status";
 
@@ -1308,7 +1275,6 @@ function renderApplicationsView(payload) {
     const mergedName = sanitizeInput(active?.name || candidate?.name || "Applicant");
     const mergedPosition = sanitizeInput(active?.position || candidate?.position || "Not specified");
 
-    // FRONT END SWITCH: prefer portal_stage for what we show
     const portalStageText = resolvePortalStage(active, candidate);
     const portalOrder = resolvePortalOrder(active, candidate);
     const portalTerminal = resolvePortalTerminal(active, candidate);
@@ -1319,7 +1285,8 @@ function renderApplicationsView(payload) {
     const statusInfo = classifyFromPortal(portalStageText, portalOrder, portalTerminal);
     const offerAccess = !!active?.offer_access;
 
-    const rawNextInterview = active?.next_interview || candidate?.next_interview || null;
+    /* FIX: next interview should be per-application only (NO candidate fallback) */
+    const rawNextInterview = active?.next_interview || null;
     const showNextInterview = isFutureDate(rawNextInterview);
     const nextInterviewFormatted = showNextInterview ? formatDateToLocal(rawNextInterview) : null;
 
@@ -1339,7 +1306,6 @@ function renderApplicationsView(payload) {
           <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
         </div>
 
-        <!-- STATUS BAR SWITCH: driven by portal_stage_order/terminal -->
         ${renderPortalStageBar(active, candidate)}
 
         <div class="result-body">
