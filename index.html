@@ -428,7 +428,7 @@ input.error {
   z-index: 3;
 }
 
-/* FIX: make tabs flex instead of “squashing” */
+/* FIX: make tabs flex instead of "squashing" */
 .app-tab {
   appearance: none;
   border: 1px solid var(--tab-inactive-border);
@@ -1037,11 +1037,11 @@ function isFutureDate(dateString) {
 }
 
 const PORTAL_STEPS = [
-  { order: 1, label: "Application Received" },
-  { order: 2, label: "Under Review" },
-  { order: 3, label: "Interviewing" },
-  { order: 4, label: "Decision in Progress" },
-  { order: 5, label: "Offer Extended" }
+  { order: 10, label: "Application Received" },
+  { order: 20, label: "Under Review" },
+  { order: 30, label: "Interviewing" },
+  { order: 40, label: "Decision in Progress" },
+  { order: 50, label: "Offer Extended" }
 ];
 
 function coerceInt(v) {
@@ -1064,18 +1064,17 @@ function resolvePortalStage(app, candidate) {
   return "Under Review";
 }
 
-/* HARD FALLBACK: infer order from stage text so the bar ALWAYS highlights */
 function inferOrderFromStageText(stageText) {
   const s = String(stageText || "").toLowerCase();
 
-  if (s.includes("hired")) return 0;
+  if (s.includes("hired")) return 99;
   if (s.includes("closed") || s.includes("declin") || s.includes("reject")) return 0;
 
-  if (s.includes("application received") || s.includes("received")) return 1;
-  if (s.includes("under review") || s.includes("review")) return 2;
-  if (s.includes("interview")) return 3;
-  if (s.includes("decision")) return 4;
-  if (s.includes("offer")) return 5;
+  if (s.includes("application received") || s.includes("received")) return 10;
+  if (s.includes("under review") || s.includes("review")) return 20;
+  if (s.includes("interview")) return 30;
+  if (s.includes("decision")) return 40;
+  if (s.includes("offer")) return 50;
 
   return null;
 }
@@ -1100,8 +1099,9 @@ function resolvePortalTerminal(app, candidate) {
 function classifyFromPortal(stageText, order, terminal) {
   const stageLower = String(stageText || "").toLowerCase();
 
-  if (terminal === true || order === 0) {
-    if (stageLower.includes("hired")) {
+  // Terminal states
+  if (terminal === true || order === 0 || order === 99) {
+    if (order === 99 || stageLower.includes("hired")) {
       return {
         pillClass: "status-pill-hired",
         pillText: "Hired",
@@ -1115,13 +1115,36 @@ function classifyFromPortal(stageText, order, terminal) {
       pillClass: "status-pill-inactive",
       pillText: "Closed",
       noteClass: "note note-warning",
-      message: "Thank you for your interest. While this position didn’t work out, we encourage you to apply for future opportunities that match your skills.",
+      message: "Thank you for your interest. While this position didn't work out, we encourage you to apply for future opportunities that match your skills.",
       showStage: false,
       terminalType: "warning"
     };
   }
 
-  if (order === 3 || stageLower.includes("interview") || order === 4 || stageLower.includes("decision") || order === 5 || stageLower.includes("offer")) {
+  // Active applications
+  if (order === 10) {
+    return {
+      pillClass: "status-pill-active",
+      pillText: "Under Review",
+      noteClass: "note",
+      message: null,
+      showStage: true,
+      terminalType: null
+    };
+  }
+
+  if (order === 20) {
+    return {
+      pillClass: "status-pill-active",
+      pillText: "Under Review",
+      noteClass: "note",
+      message: null,
+      showStage: true,
+      terminalType: null
+    };
+  }
+
+  if (order >= 30) {
     return {
       pillClass: "status-pill-active",
       pillText: "In Progress",
@@ -1132,6 +1155,7 @@ function classifyFromPortal(stageText, order, terminal) {
     };
   }
 
+  // Fallback
   return {
     pillClass: "status-pill-active",
     pillText: "Under Review",
@@ -1154,7 +1178,7 @@ function renderPortalStageBar(app, candidate) {
 
   const safeStageText = sanitizeInput(stageText).toUpperCase();
 
-  const currentOrder = (typeof order === "number" && order >= 1 && order <= 5) ? order : null;
+  const currentOrder = (typeof order === "number" && order >= 10 && order <= 50) ? order : null;
 
   const stepsHtml = PORTAL_STEPS.map((s) => {
     const isDone = (currentOrder !== null && s.order < currentOrder);
