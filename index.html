@@ -651,6 +651,13 @@ input.error {
   word-break: break-word;
 }
 
+.tz-hint {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.50);
+  margin-left: 2px;
+}
+
 .note {
   margin: 0 20px 20px;
   padding: 12px 14px;
@@ -992,12 +999,16 @@ input.error {
 const CONFIG = {
   EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
   CAREERS_URL: "https://jobs.lever.co/msconsultants",
+  ALLOWED_OFFER_ORIGIN: "nnauvyublclfeqizpawr.supabase.co",
   MAX_ATTEMPTS: 10,
   RATE_LIMIT_WINDOW: 15 * 60 * 1000,
   TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/
 };
 
 const session = { token: "", lastName: "", phone10: "", verified: false };
+
+/* ===== FIX #4: AbortController for in-flight fetch cancellation ===== */
+let activeController = null;
 
 const rateLimiter = {
   attempts: [],
@@ -1027,9 +1038,15 @@ function initElements() {
   el.helper = document.getElementById("phone-helper");
 }
 
-function sanitizeInput(input) {
-  if (typeof input !== "string") return "";
-  return input.replace(/[^\w\s@.,-]/gi, "").trim();
+/* ===== FIX #1: Proper HTML escaping (replaces old sanitizeInput) ===== */
+function escapeHtml(str) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function setStatus(text, type = "info") {
@@ -1054,7 +1071,7 @@ function setStatus(text, type = "info") {
   el.status.innerHTML = `
     <div class="${classMap[type] || classMap.info}">
       ${icon}
-      <span>${sanitizeInput(text)}</span>
+      <span>${escapeHtml(text)}</span>
     </div>
   `;
 }
@@ -1073,13 +1090,37 @@ function validateInputs(lastName, phoneRaw) {
   return { valid: true, lastName: last, phone };
 }
 
+/* ===== FIX #6: Timezone-aware date formatting ===== */
+
+/** Detect viewer's short timezone abbreviation, e.g. "EST", "PST", "CST" */
+function getViewerTzAbbr() {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZoneName: "short"
+    }).formatToParts(new Date());
+    const tzPart = parts.find(p => p.type === "timeZoneName");
+    return tzPart ? tzPart.value : "";
+  } catch {
+    return "";
+  }
+}
+
+/** Get the viewer's IANA timezone, e.g. "America/New_York" */
+function getViewerTz() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
+  } catch {
+    return "America/New_York";
+  }
+}
+
 function formatDateToLocal(dateString) {
   if (!dateString) return "Not available";
   try {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return "Invalid date";
     return new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/New_York",
+      timeZone: getViewerTz(),
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -1098,7 +1139,7 @@ function formatDateShort(dateString) {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return "Unknown";
     return new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/New_York",
+      timeZone: getViewerTz(),
       year: "numeric",
       month: "short",
       day: "numeric"
@@ -1255,7 +1296,7 @@ function renderPortalStageBar(app, candidate) {
   if (info.terminalType === "success") barClass += " terminal-success";
   if (info.terminalType === "warning") barClass += " terminal-warning";
 
-  const safeStageText = sanitizeInput(stageText).toUpperCase();
+  const safeStageText = escapeHtml(stageText).toUpperCase();
 
   const currentOrder = (typeof order === "number" && order >= 10 && order <= 50) ? order : null;
 
@@ -1275,7 +1316,7 @@ function renderPortalStageBar(app, candidate) {
       <div class="${cls}">
         <div class="step-top">
           <span class="stage-dot" aria-hidden="true"></span>
-          <div class="step-text">${sanitizeInput(s.label)}</div>
+          <div class="step-text">${escapeHtml(s.label)}</div>
         </div>
         <div class="step-sub" aria-hidden="true"><div class="step-fill"></div></div>
       </div>
@@ -1299,6 +1340,7 @@ function setPanelBorderToActive() {
   document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
 }
 
+/* ===== FIX #3: Offer URL origin validation ===== */
 async function handleOfferDownload() {
   if (!session.verified || !session.token || !session.lastName || !session.phone10) {
     setStatus("Please verify your application status first.", "warning");
@@ -1319,6 +1361,18 @@ async function handleOfferDownload() {
 
     if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
       setStatus("Could not generate your offer letter link. Please try again.", "warning");
+      return;
+    }
+
+    // Validate that the signed URL points to our Supabase instance
+    try {
+      const parsed = new URL(payload.url);
+      if (!parsed.hostname.endsWith(CONFIG.ALLOWED_OFFER_ORIGIN)) {
+        setStatus("Unexpected offer URL origin. Please contact your recruiter.", "error");
+        return;
+      }
+    } catch {
+      setStatus("Invalid offer URL returned. Please contact your recruiter.", "error");
       return;
     }
 
@@ -1352,7 +1406,7 @@ function renderApplicationsView(payload) {
   setPanelBorderToActive();
 
   const tabsHtml = apps.map((a, idx) => {
-    const pos = sanitizeInput(a?.position || "Position");
+    const pos = escapeHtml(a?.position || "Position");
     const applied = formatDateShort(a?.created_at);
 
     return `
@@ -1361,7 +1415,7 @@ function renderApplicationsView(payload) {
         <div class="tab-content">
           <span class="tab-position">${pos}</span>
           <span class="tab-separator">•</span>
-          <span class="tab-date">${sanitizeInput(applied).toUpperCase()}</span>
+          <span class="tab-date">${escapeHtml(applied).toUpperCase()}</span>
         </div>
       </button>
     `;
@@ -1383,8 +1437,8 @@ function renderApplicationsView(payload) {
   function renderActiveApp(index) {
     const active = apps[index] || apps[0];
 
-    const mergedName = sanitizeInput(active?.name || candidate?.name || "Applicant");
-    const mergedPosition = sanitizeInput(active?.position || candidate?.position || "Not specified");
+    const mergedName = escapeHtml(active?.name || candidate?.name || "Applicant");
+    const mergedPosition = escapeHtml(active?.position || candidate?.position || "Not specified");
 
     const portalStageText = resolvePortalStage(active, candidate);
     const portalOrder = resolvePortalOrder(active, candidate);
@@ -1399,6 +1453,7 @@ function renderApplicationsView(payload) {
     const rawNextInterview = active?.next_interview || null;
     const showNextInterview = isFutureDate(rawNextInterview);
     const nextInterviewFormatted = showNextInterview ? formatDateToLocal(rawNextInterview) : null;
+    const tzAbbr = getViewerTzAbbr();
 
     const inner = document.getElementById("app-panel-inner");
     if (!inner) return;
@@ -1409,11 +1464,11 @@ function renderApplicationsView(payload) {
           <div class="result-title-wrap">
             <h2 class="result-title">Welcome, ${mergedName}</h2>
             <div class="pill-row">
-              <span class="chip">Applied: ${sanitizeInput(appliedShort).toUpperCase()}</span>
-              ${updatedShort ? `<span class="chip updated">Updated: ${sanitizeInput(updatedShort).toUpperCase()}</span>` : ``}
+              <span class="chip">Applied: ${escapeHtml(appliedShort).toUpperCase()}</span>
+              ${updatedShort ? `<span class="chip updated">Updated: ${escapeHtml(updatedShort).toUpperCase()}</span>` : ``}
             </div>
           </div>
-          <span class="status-pill ${statusInfo.pillClass}">${sanitizeInput(statusInfo.pillText)}</span>
+          <span class="status-pill ${statusInfo.pillClass}">${escapeHtml(statusInfo.pillText)}</span>
         </div>
 
         ${renderPortalStageBar(active, candidate)}
@@ -1427,21 +1482,23 @@ function renderApplicationsView(payload) {
           ${statusInfo.showStage ? `
             <div class="result-row">
               <div class="result-label">Current Stage:</div>
-              <div class="result-value">${sanitizeInput(portalStageText)}</div>
+              <div class="result-value">${escapeHtml(portalStageText)}</div>
             </div>
           ` : ""}
 
           ${showNextInterview ? `
             <div class="result-row">
               <div class="result-label">Next Interview:</div>
-              <div class="result-value">${sanitizeInput(nextInterviewFormatted)}</div>
+              <div class="result-value">
+                ${escapeHtml(nextInterviewFormatted)}${tzAbbr ? ` <span class="tz-hint">${escapeHtml(tzAbbr)}</span>` : ""}
+              </div>
             </div>
           ` : ""}
         </div>
 
         ${statusInfo.message ? `
           <div class="${statusInfo.noteClass}">
-            ${sanitizeInput(statusInfo.message)}
+            ${escapeHtml(statusInfo.message)}
           </div>
         ` : ""}
 
@@ -1514,6 +1571,15 @@ async function checkStatus(event) {
   if (event) event.preventDefault();
   if (el.result) el.result.innerHTML = "";
 
+  /* ===== FIX #5: Clear verified state at start of every check ===== */
+  session.verified = false;
+
+  /* ===== FIX #4: Abort any in-flight request ===== */
+  if (activeController) {
+    activeController.abort();
+    activeController = null;
+  }
+
   const rateCheck = rateLimiter.canAttempt();
   if (!rateCheck.allowed) {
     setStatus(`Too many attempts. Please wait ${rateCheck.timeRemaining} seconds before trying again.`, "warning");
@@ -1521,7 +1587,7 @@ async function checkStatus(event) {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const token = String(params.get("token") || "").trim();
+  const token = String(params.get("token") || session.token || "").trim();
   session.token = token;
 
   if (!token) {
@@ -1562,6 +1628,8 @@ async function checkStatus(event) {
   setStatus("Verifying your information...", "loading");
 
   try {
+    activeController = new AbortController();
+
     const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1569,7 +1637,8 @@ async function checkStatus(event) {
         token,
         lastName: validation.lastName,
         phone: validation.phone
-      })
+      }),
+      signal: activeController.signal
     });
 
     const payload = await resp.json().catch(() => null);
@@ -1596,6 +1665,9 @@ async function checkStatus(event) {
     setTimeout(() => setStatus(""), 2000);
 
   } catch (err) {
+    // Silently ignore aborted requests (user re-submitted)
+    if (err?.name === "AbortError") return;
+
     console.error(err);
     session.verified = false;
     session.lastName = "";
@@ -1603,6 +1675,7 @@ async function checkStatus(event) {
     setStatus("Connection error. Please refresh and try again.", "error");
 
   } finally {
+    activeController = null;
     if (el.lastName) el.lastName.disabled = false;
     if (el.phone) el.phone.disabled = false;
     if (el.submitBtn) el.submitBtn.disabled = false;
@@ -1650,8 +1723,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (el.lastName) el.lastName.focus();
 
   const params = new URLSearchParams(window.location.search);
-  if (!params.get("token")) {
+  const token = params.get("token");
+
+  if (!token) {
     setStatus("No security token detected. Please use your personalized status link from your recruiter.", "warning");
+  } else {
+    /* ===== FIX #2: Strip token from URL bar after reading it ===== */
+    session.token = String(token).trim();
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }
 });
 
