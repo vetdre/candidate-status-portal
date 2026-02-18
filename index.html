@@ -14,16 +14,19 @@
   --accent-soft: rgba(15, 47, 74, 0.08);
   --accent-border: rgba(15, 47, 74, 0.25);
 
+
   /* Surfaces */
   --page-bg-1: #f4f6f8;
   --page-bg-2: #e9eef3;
   --card-bg: #ffffff;
   --card-border: rgba(15, 23, 42, 0.10);
 
+
   /* Text */
   --text-main: #0f172a;
   --text-muted: rgba(15, 23, 42, 0.70);
   --text-light: rgba(15, 23, 42, 0.55);
+
 
   /* UI */
   --line: rgba(15, 23, 42, 0.12);
@@ -37,6 +40,7 @@
   --radius-xl: 22px;
   --transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
 
   /* Status */
   --info: #2563eb;
@@ -52,6 +56,7 @@
   --error-bg: rgba(220, 38, 38, 0.08);
   --error-border: rgba(220, 38, 38, 0.22);
 
+
   /* Stage progression colors */
   --stage-interviewing: #8b5cf6;
   --stage-interviewing-bg: rgba(139, 92, 246, 0.06);
@@ -59,6 +64,7 @@
   --stage-decision: #7c3aed;
   --stage-decision-bg: rgba(124, 58, 237, 0.06);
   --stage-decision-border: rgba(124, 58, 237, 0.30);
+
 
   /* Tabs */
   --tab-inactive-bg: rgba(255, 255, 255, 0.65);
@@ -68,10 +74,13 @@
   --tab-inactive-border: rgba(15, 23, 42, 0.16);
   --tab-active-border: rgba(15, 23, 42, 0.18);
 
+
   --panel-border: rgba(15, 23, 42, 0.18);
 }
 
+
 * { box-sizing: border-box; }
+
 
 body {
   margin: 0;
@@ -88,6 +97,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 /* ===== Top header ===== */
 .topbar {
   position: sticky;
@@ -97,6 +107,7 @@ body {
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
+
 
 .topbar-inner {
   max-width: 1020px;
@@ -108,12 +119,14 @@ body {
   gap: 12px;
 }
 
+
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
 }
+
 
 .brand-badge {
   width: 44px;
@@ -129,6 +142,7 @@ body {
   padding: 6px;
 }
 
+
 .brand-badge img {
   width: 100%;
   height: 100%;
@@ -136,12 +150,14 @@ body {
   display: block;
 }
 
+
 .brand-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
+
 
 .brand-title {
   font-size: 12px;
@@ -154,6 +170,7 @@ body {
   text-overflow: ellipsis;
 }
 
+
 .brand-subtitle {
   font-size: 12px;
   color: rgba(15, 23, 42, 0.55);
@@ -161,6 +178,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 
 .secure-pill {
   display: inline-flex;
@@ -178,7 +196,9 @@ body {
   flex: 0 0 auto;
 }
 
+
 .secure-pill svg { width: 16px; height: 16px; }
+
 
 /* ===== Main shell ===== */
 .page {
@@ -186,6 +206,7 @@ body {
   margin: 0 auto;
   padding: 26px 18px 64px;
 }
+
 
 .card {
   background: var(--card-bg);
@@ -195,6 +216,7 @@ body {
   padding: 42px 42px 28px;
 }
 
+
 h1 {
   margin: 0;
   font-size: 36px;
@@ -202,6 +224,7 @@ h1 {
   letter-spacing: -0.03em;
   color: var(--text-main);
 }
+
 
 .subtitle {
   margin: 12px 0 0;
@@ -211,8 +234,10 @@ h1 {
   line-height: 1.7;
 }
 
+
 /* ===== Form ===== */
 form { margin-top: 26px; }
+
 
 label {
   display: block;
@@ -224,12 +249,14 @@ label {
   color: rgba(15, 23, 42, 0.78);
 }
 
+
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 14px;
   align-items: center;
 }
+
 
 input[type="text"],
 input[type="tel"] {
@@ -244,17 +271,20 @@ input[type="tel"] {
   transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
+
 input[type="text"]:focus,
 input[type="tel"]:focus {
   border-color: rgba(37, 99, 235, 0.35);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
 }
 
+
 input.error {
   border-color: var(--error-border);
   box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10);
   background: rgba(220, 38, 38, 0.04);
 }
+
 
 .primary-btn {
   height: 50px;
@@ -277,13 +307,16 @@ input.error {
   white-space: nowrap;
 }
 
+
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 14px 30px rgba(15, 47, 74, 0.26);
 }
 
+
 .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .primary-btn svg { width: 16px; height: 16px; }
+
 
 .form-meta {
   margin-top: 12px;
@@ -294,6 +327,7 @@ input.error {
   flex-wrap: wrap;
 }
 
+
 .helper {
   font-size: 12.8px;
   color: var(--text-light);
@@ -302,7 +336,9 @@ input.error {
   gap: 8px;
 }
 
+
 .helper.error { color: rgba(220, 38, 38, 0.92); }
+
 
 .secondary-btn {
   height: 42px;
@@ -325,13 +361,16 @@ input.error {
   text-decoration: none;
 }
 
+
 .secondary-btn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
   border-color: rgba(15, 47, 74, 0.22);
 }
 
+
 .secondary-btn svg { width: 14px; height: 14px; }
+
 
 /* Offer button variant */
 .offer-btn {
@@ -354,6 +393,7 @@ input.error {
   white-space: nowrap;
 }
 
+
 .offer-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
@@ -361,8 +401,10 @@ input.error {
   background: rgba(15, 47, 74, 0.06);
 }
 
+
 .offer-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .offer-btn svg { width: 14px; height: 14px; }
+
 
 .offer-disclaimer {
   margin-top: 6px;
@@ -371,17 +413,20 @@ input.error {
   line-height: 1.45;
 }
 
+
 .offer-disclaimer strong {
   color: rgba(15, 23, 42, 0.70);
   font-weight: 900;
   letter-spacing: 0.02em;
 }
 
+
 /* ===== Status line ===== */
 #status {
   margin-top: 18px;
   min-height: 22px;
 }
+
 
 .status-line {
   display: inline-flex;
@@ -394,6 +439,7 @@ input.error {
   font-weight: 650;
   animation: fadeIn var(--transition-base);
 }
+
 
 .status-info { background: var(--info-bg); border-color: var(--info-border); color: var(--info); }
 .status-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
@@ -414,17 +460,21 @@ input.error {
   to { opacity: 1; transform: translateY(0); }
 }
 
+
 /* ===== Results ===== */
 #result { margin-top: 26px; }
+
 
 .applications-shell {
   margin-top: 22px;
   padding: 22px 0 6px;
 }
 
-.tabs-and-panel { 
+
+.tabs-and-panel {
   position: relative;
 }
+
 
 /* ===== BROWSER-STYLE TABS (like Chrome/Windows 11) ===== */
 .tabbar {
@@ -439,6 +489,7 @@ input.error {
   z-index: 3;
 }
 
+
 .app-tab {
   appearance: none;
   /* Inactive tabs: fully bordered, sitting back */
@@ -451,7 +502,7 @@ input.error {
   border-bottom-right-radius: 0;
   padding: 12px 16px 10px;
   cursor: pointer;
-  transition: transform var(--transition-fast), border-color var(--transition-fast), 
+  transition: transform var(--transition-fast), border-color var(--transition-fast),
               color var(--transition-fast), background var(--transition-fast),
               box-shadow var(--transition-fast);
   min-width: 240px;
@@ -460,7 +511,7 @@ input.error {
   position: relative;
   z-index: 1; /* Behind everything */
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
-  
+
   /* Single line layout */
   display: flex;
   align-items: center;
@@ -469,11 +520,13 @@ input.error {
   overflow: hidden;
 }
 
+
 .app-tab:hover:not(.active) {
   background: rgba(255, 255, 255, 0.85);
   border-color: rgba(15, 23, 42, 0.22);
   transform: translateY(-1px);
 }
+
 
 .app-tab.active {
   /* Active tab: punches through to panel */
@@ -483,11 +536,12 @@ input.error {
   background: var(--tab-active-bg);
   z-index: 4; /* In front of everything */
   padding-bottom: 12px; /* 2px taller than inactive to emphasize elevation */
-  box-shadow: 
+  box-shadow:
     0 -2px 8px rgba(15, 23, 42, 0.08),
     0 4px 12px rgba(15, 23, 42, 0.04);
   transform: translateY(0);
 }
+
 
 .tab-content {
   display: flex;
@@ -496,6 +550,7 @@ input.error {
   min-width: 0;
   flex: 1;
 }
+
 
 .tab-position {
   font-size: 13px;
@@ -508,6 +563,7 @@ input.error {
   flex-shrink: 1;
 }
 
+
 .tab-separator {
   font-size: 13px;
   font-weight: 700;
@@ -515,9 +571,11 @@ input.error {
   flex-shrink: 0;
 }
 
+
 .app-tab.active .tab-separator {
   color: rgba(15, 23, 42, 0.45);
 }
+
 
 .tab-date {
   font-size: 12px;
@@ -529,9 +587,11 @@ input.error {
   flex-shrink: 0;
 }
 
+
 .app-tab.active .tab-date {
   color: rgba(15, 23, 42, 0.70);
 }
+
 
 /* Panel connects seamlessly to active tab */
 .panel {
@@ -545,6 +605,7 @@ input.error {
   overflow: hidden;
 }
 
+
 .result-card {
   border-radius: var(--radius-md);
   border: 1px solid rgba(15, 23, 42, 0.14);
@@ -556,6 +617,7 @@ input.error {
   min-height: 270px;
 }
 
+
 .result-header {
   display: flex;
   justify-content: space-between;
@@ -566,7 +628,9 @@ input.error {
   background: linear-gradient(180deg, rgba(15, 47, 74, 0.03), rgba(255,255,255,0));
 }
 
+
 .result-title-wrap { min-width: 0; }
+
 
 .result-title {
   margin: 0;
@@ -576,6 +640,7 @@ input.error {
   color: rgba(15, 23, 42, 0.92);
 }
 
+
 .pill-row {
   margin-top: 12px;
   display: flex;
@@ -583,6 +648,7 @@ input.error {
   flex-wrap: wrap;
   align-items: center;
 }
+
 
 .chip {
   display: inline-flex;
@@ -600,11 +666,13 @@ input.error {
   white-space: nowrap;
 }
 
+
 .chip.updated {
   background: rgba(15, 23, 42, 0.02);
   border-color: rgba(15, 23, 42, 0.10);
   color: rgba(15, 23, 42, 0.60);
 }
+
 
 .status-pill {
   margin-top: 2px;
@@ -622,15 +690,18 @@ input.error {
   flex: 0 0 auto;
 }
 
+
 .status-pill-active { color: var(--info); border-color: var(--info-border); background: var(--info-bg); }
 .status-pill-hired { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
 .status-pill-inactive { color: rgba(15, 23, 42, 0.62); border-color: rgba(15, 23, 42, 0.14); background: rgba(15, 23, 42, 0.03); }
+
 
 .result-body {
   padding: 16px 20px 20px;
   display: grid;
   gap: 12px;
 }
+
 
 .result-row {
   display: grid;
@@ -641,15 +712,18 @@ input.error {
   line-height: 1.5;
 }
 
+
 .result-label {
   font-weight: 800;
   color: rgba(15, 23, 42, 0.60);
 }
 
+
 .result-value {
   color: rgba(15, 23, 42, 0.92);
   word-break: break-word;
 }
+
 
 .tz-hint {
   font-size: 12px;
@@ -657,6 +731,7 @@ input.error {
   color: rgba(15, 23, 42, 0.50);
   margin-left: 2px;
 }
+
 
 .note {
   margin: 0 20px 20px;
@@ -669,17 +744,20 @@ input.error {
   line-height: 1.55;
 }
 
+
 .note-success {
   border-color: rgba(22, 163, 74, 0.24);
   background: rgba(22, 163, 74, 0.08);
   color: rgba(22, 163, 74, 0.95);
 }
 
+
 .note-warning {
   border-color: rgba(180, 83, 9, 0.22);
   background: rgba(180, 83, 9, 0.08);
   color: rgba(180, 83, 9, 0.95);
 }
+
 
 .actions-row {
   padding: 0 20px 20px;
@@ -690,6 +768,7 @@ input.error {
   justify-content: flex-start;
 }
 
+
 .offer-wrap {
   display: flex;
   flex-direction: column;
@@ -697,10 +776,12 @@ input.error {
   align-items: flex-start;
 }
 
+
 .divider {
   margin: 26px 0 0;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
 }
+
 
 .footer-hint {
   margin: 20px 0 0;
@@ -711,7 +792,9 @@ input.error {
   line-height: 1.7;
 }
 
+
 .footer-hint strong { color: rgba(15, 23, 42, 0.70); }
+
 
 .sr-only {
   position: absolute;
@@ -725,11 +808,13 @@ input.error {
   border: 0;
 }
 
+
 :focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.35);
   outline-offset: 2px;
   border-radius: 10px;
 }
+
 
 /* ===== Portal Stage Bar ===== */
 .stagebar {
@@ -740,6 +825,7 @@ input.error {
   background: rgba(15, 23, 42, 0.02);
 }
 
+
 .stagebar-title {
   display: flex;
   align-items: baseline;
@@ -748,6 +834,7 @@ input.error {
   margin-bottom: 10px;
 }
 
+
 .stagebar-title .label {
   font-size: 12px;
   font-weight: 950;
@@ -755,6 +842,7 @@ input.error {
   text-transform: uppercase;
   color: rgba(15, 23, 42, 0.65);
 }
+
 
 .stagebar-title .value {
   font-size: 12px;
@@ -767,11 +855,14 @@ input.error {
   text-overflow: ellipsis;
 }
 
+
+/* CHANGE 1: 6 columns now to accommodate Hired step */
 .stage-steps {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
 }
+
 
 .stage-step {
   position: relative;
@@ -783,11 +874,13 @@ input.error {
   overflow: hidden;
 }
 
+
 .stage-step .step-top {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 
 .stage-dot {
   width: 10px;
@@ -796,6 +889,7 @@ input.error {
   background: rgba(15, 23, 42, 0.22);
   flex: 0 0 auto;
 }
+
 
 .stage-step .step-text {
   font-size: 11px;
@@ -808,6 +902,7 @@ input.error {
   text-overflow: ellipsis;
 }
 
+
 .stage-step .step-sub {
   margin-top: 7px;
   height: 6px;
@@ -816,6 +911,7 @@ input.error {
   overflow: hidden;
 }
 
+
 .stage-step .step-fill {
   height: 100%;
   width: 0%;
@@ -823,6 +919,7 @@ input.error {
   background: rgba(15, 47, 74, 0.65);
   transition: width var(--transition-base);
 }
+
 
 /* done */
 .stage-step.done {
@@ -833,6 +930,7 @@ input.error {
 .stage-step.done .step-text { color: rgba(15, 47, 74, 0.86); }
 .stage-step.done .step-fill { width: 100%; background: rgba(15, 47, 74, 0.70); }
 
+
 /* current - default blue for orders 10-20 */
 .stage-step.current {
   border-color: rgba(37, 99, 235, 0.30);
@@ -841,6 +939,7 @@ input.error {
 .stage-step.current .stage-dot { background: rgba(37, 99, 235, 0.95); }
 .stage-step.current .step-text { color: rgba(37, 99, 235, 0.95); }
 .stage-step.current .step-fill { width: 65%; background: rgba(37, 99, 235, 0.75); }
+
 
 /* current - purple for interviewing (order 30) */
 .stage-step.current.interviewing {
@@ -851,6 +950,7 @@ input.error {
 .stage-step.current.interviewing .step-text { color: var(--stage-interviewing); }
 .stage-step.current.interviewing .step-fill { width: 65%; background: var(--stage-interviewing); }
 
+
 /* current - deeper purple for decision (order 40) */
 .stage-step.current.decision {
   border-color: var(--stage-decision-border);
@@ -860,6 +960,7 @@ input.error {
 .stage-step.current.decision .step-text { color: var(--stage-decision); }
 .stage-step.current.decision .step-fill { width: 65%; background: var(--stage-decision); }
 
+
 /* current - green for offer extended (order 50) */
 .stage-step.current.offer {
   border-color: rgba(22, 163, 74, 0.30);
@@ -868,6 +969,17 @@ input.error {
 .stage-step.current.offer .stage-dot { background: rgba(22, 163, 74, 0.95); }
 .stage-step.current.offer .step-text { color: rgba(22, 163, 74, 0.95); }
 .stage-step.current.offer .step-fill { width: 65%; background: rgba(22, 163, 74, 0.75); }
+
+
+/* CHANGE 3: current - green for hired (order 99), full fill bar since it's the finish line */
+.stage-step.current.hired {
+  border-color: rgba(22, 163, 74, 0.30);
+  background: rgba(22, 163, 74, 0.08);
+}
+.stage-step.current.hired .stage-dot { background: rgba(22, 163, 74, 0.95); }
+.stage-step.current.hired .step-text { color: rgba(22, 163, 74, 0.95); }
+.stage-step.current.hired .step-fill { width: 100%; background: rgba(22, 163, 74, 0.75); }
+
 
 /* terminal styling on container */
 .stagebar.terminal-success {
@@ -879,6 +991,7 @@ input.error {
   background: rgba(180, 83, 9, 0.05);
 }
 
+
 @media (max-width: 860px) {
   .card { padding: 30px 20px 22px; }
   h1 { font-size: 30px; }
@@ -886,8 +999,8 @@ input.error {
   .primary-btn { width: 100%; }
   .form-meta { justify-content: flex-start; }
   .tabbar { padding-left: 10px; padding-right: 10px; }
-  .app-tab { 
-    min-width: 100%; 
+  .app-tab {
+    min-width: 100%;
     flex: 1 1 100%;
   }
   .tab-position {
@@ -900,6 +1013,7 @@ input.error {
   .actions-row { flex-direction: column; align-items: stretch; }
   .offer-wrap { align-items: stretch; }
   .offer-btn { width: 100%; justify-content: center; }
+  /* CHANGE 1 (mobile): stack all 6 steps vertically on small screens */
   .stage-steps { grid-template-columns: 1fr; }
 }
 </style>
@@ -932,6 +1046,7 @@ input.error {
   </div>
 </header>
 
+
 <main class="page">
   <section class="card" role="main">
     <h1>Check Your Application Status</h1>
@@ -939,6 +1054,7 @@ input.error {
       Enter the last name and phone number from your application to view your current status.
       This secure page requires the personalized link sent to you by <span style="white-space:nowrap;">ms consultants</span>.
     </p>
+
 
     <form id="status-form" novalidate>
       <label for="lastName">
@@ -974,6 +1090,7 @@ input.error {
         </button>
       </div>
 
+
       <div class="form-meta">
         <div class="helper" id="phone-helper">
           Must match the last name and 10-digit phone number on your application
@@ -988,10 +1105,13 @@ input.error {
       </div>
     </form>
 
+
     <div id="status" role="status" aria-live="polite"></div>
     <div id="result" role="region" aria-live="polite"></div>
 
+
     <div class="divider"></div>
+
 
     <footer class="footer-hint">
       <p>
@@ -1004,6 +1124,7 @@ input.error {
   </section>
 </main>
 
+
 <script>
 const CONFIG = {
   EDGE_FUNCTION_URL: "https://nnauvyublclfeqizpawr.supabase.co/functions/v1/portal-status",
@@ -1014,10 +1135,12 @@ const CONFIG = {
   TOKEN_REGEX: /^[0-9a-fA-F-]{36}$/
 };
 
+
 const session = { token: "", lastName: "", phone10: "", verified: false };
 
-/* ===== FIX #4: AbortController for in-flight fetch cancellation ===== */
+
 let activeController = null;
+
 
 const rateLimiter = {
   attempts: [],
@@ -1035,7 +1158,9 @@ const rateLimiter = {
   reset() { this.attempts = []; }
 };
 
+
 const el = {};
+
 
 function initElements() {
   el.form = document.getElementById("status-form");
@@ -1047,7 +1172,7 @@ function initElements() {
   el.helper = document.getElementById("phone-helper");
 }
 
-/* ===== FIX #1: Proper HTML escaping (replaces old sanitizeInput) ===== */
+
 function escapeHtml(str) {
   if (typeof str !== "string") return "";
   return str
@@ -1058,9 +1183,11 @@ function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
+
 function setStatus(text, type = "info") {
   if (!el.status) return;
   if (!text) { el.status.innerHTML = ""; return; }
+
 
   let icon = "";
   if (type === "loading") icon = '<span class="spinner" aria-hidden="true"></span>';
@@ -1068,6 +1195,7 @@ function setStatus(text, type = "info") {
   if (type === "success") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
   if (type === "warning") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
   if (type === "error") icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
 
   const classMap = {
     info: "status-line status-info",
@@ -1077,6 +1205,7 @@ function setStatus(text, type = "info") {
     loading: "status-line status-info"
   };
 
+
   el.status.innerHTML = `
     <div class="${classMap[type] || classMap.info}">
       ${icon}
@@ -1085,11 +1214,13 @@ function setStatus(text, type = "info") {
   `;
 }
 
+
 function normalizePhone10(raw) {
   let digits = String(raw || "").replace(/\D/g, "");
   if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
   return /^\d{10}$/.test(digits) ? digits : "";
 }
+
 
 function validateInputs(lastName, phoneRaw) {
   const last = String(lastName || "").trim();
@@ -1099,14 +1230,10 @@ function validateInputs(lastName, phoneRaw) {
   return { valid: true, lastName: last, phone };
 }
 
-/* ===== FIX #6: Timezone-aware date formatting ===== */
 
-/** Detect viewer's short timezone abbreviation, e.g. "EST", "PST", "CST" */
 function getViewerTzAbbr() {
   try {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZoneName: "short"
-    }).formatToParts(new Date());
+    const parts = new Intl.DateTimeFormat("en-US", { timeZoneName: "short" }).formatToParts(new Date());
     const tzPart = parts.find(p => p.type === "timeZoneName");
     return tzPart ? tzPart.value : "";
   } catch {
@@ -1114,7 +1241,7 @@ function getViewerTzAbbr() {
   }
 }
 
-/** Get the viewer's IANA timezone, e.g. "America/New_York" */
+
 function getViewerTz() {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
@@ -1122,6 +1249,7 @@ function getViewerTz() {
     return "America/New_York";
   }
 }
+
 
 function formatDateToLocal(dateString) {
   if (!dateString) return "Not available";
@@ -1142,6 +1270,7 @@ function formatDateToLocal(dateString) {
   }
 }
 
+
 function formatDateShort(dateString) {
   if (!dateString) return "Unknown";
   try {
@@ -1158,6 +1287,7 @@ function formatDateShort(dateString) {
   }
 }
 
+
 function isFutureDate(dateString) {
   if (!dateString) return false;
   const d = new Date(dateString);
@@ -1165,13 +1295,17 @@ function isFutureDate(dateString) {
   return d.getTime() > Date.now();
 }
 
+
+/* CHANGE 1: Added Hired as the 6th step at order 99 */
 const PORTAL_STEPS = [
   { order: 10, label: "Application Received" },
   { order: 20, label: "Under Review" },
   { order: 30, label: "Interviewing" },
   { order: 40, label: "Decision in Progress" },
-  { order: 50, label: "Offer Extended" }
+  { order: 50, label: "Offer Extended" },
+  { order: 99, label: "Hired" }
 ];
+
 
 function coerceInt(v) {
   if (v === null || v === undefined) return null;
@@ -1179,25 +1313,32 @@ function coerceInt(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+
 function normalizeStageText(v) {
   return String(v ?? "").trim();
 }
+
 
 function resolvePortalStage(app, candidate) {
   const p = normalizeStageText(app?.portal_stage ?? candidate?.portal_stage);
   if (p) return p;
 
+
   const c = normalizeStageText(app?.current_stage ?? candidate?.current_stage);
   if (c) return c;
+
 
   return "Under Review";
 }
 
+
 function inferOrderFromStageText(stageText) {
   const s = String(stageText || "").toLowerCase();
 
+
   if (s.includes("hired")) return 99;
   if (s.includes("closed") || s.includes("declin") || s.includes("reject")) return 0;
+
 
   if (s.includes("application received") || s.includes("received")) return 10;
   if (s.includes("under review") || s.includes("review")) return 20;
@@ -1205,18 +1346,23 @@ function inferOrderFromStageText(stageText) {
   if (s.includes("decision")) return 40;
   if (s.includes("offer")) return 50;
 
+
   return null;
 }
+
 
 function resolvePortalOrder(app, candidate) {
   const raw = (app?.portal_stage_order ?? candidate?.portal_stage_order);
   const n = coerceInt(raw);
 
+
   if (n !== null) return n;
+
 
   const stage = resolvePortalStage(app, candidate);
   return inferOrderFromStageText(stage);
 }
+
 
 function resolvePortalTerminal(app, candidate) {
   const t = (app?.portal_stage_terminal ?? candidate?.portal_stage_terminal);
@@ -1225,8 +1371,10 @@ function resolvePortalTerminal(app, candidate) {
   return null;
 }
 
+
 function classifyFromPortal(stageText, order, terminal) {
   const stageLower = String(stageText || "").toLowerCase();
+
 
   // Terminal states
   if (terminal === true || order === 0 || order === 99) {
@@ -1236,7 +1384,7 @@ function classifyFromPortal(stageText, order, terminal) {
         pillText: "Hired",
         noteClass: "note note-success",
         message: "Congratulations! Please check UKG Pro for onboarding details and next steps.",
-        showStage: false,
+        showStage: true,   /* CHANGE 5: show stage bar for hired so pipeline renders */
         terminalType: "success"
       };
     }
@@ -1250,6 +1398,7 @@ function classifyFromPortal(stageText, order, terminal) {
     };
   }
 
+
   // Active applications
   if (order === 10) {
     return {
@@ -1262,6 +1411,7 @@ function classifyFromPortal(stageText, order, terminal) {
     };
   }
 
+
   if (order === 20) {
     return {
       pillClass: "status-pill-active",
@@ -1272,6 +1422,7 @@ function classifyFromPortal(stageText, order, terminal) {
       terminalType: null
     };
   }
+
 
   if (order >= 30) {
     return {
@@ -1284,6 +1435,7 @@ function classifyFromPortal(stageText, order, terminal) {
     };
   }
 
+
   // Fallback
   return {
     pillClass: "status-pill-active",
@@ -1295,32 +1447,39 @@ function classifyFromPortal(stageText, order, terminal) {
   };
 }
 
+
 function renderPortalStageBar(app, candidate) {
   const stageText = resolvePortalStage(app, candidate);
   const order = resolvePortalOrder(app, candidate);
   const terminal = resolvePortalTerminal(app, candidate);
   const info = classifyFromPortal(stageText, order, terminal);
 
+
   let barClass = "stagebar";
   if (info.terminalType === "success") barClass += " terminal-success";
   if (info.terminalType === "warning") barClass += " terminal-warning";
 
+
   const safeStageText = escapeHtml(stageText).toUpperCase();
 
-  const currentOrder = (typeof order === "number" && order >= 10 && order <= 50) ? order : null;
+
+  /* CHANGE 2: Allow order 99 (Hired) through to light up on the bar */
+  const currentOrder = (typeof order === "number" && (order >= 10 && order <= 50 || order === 99)) ? order : null;
+
 
   const stepsHtml = PORTAL_STEPS.map((s) => {
     const isDone = (currentOrder !== null && s.order < currentOrder);
     const isCurrent = (currentOrder !== null && s.order === currentOrder);
-    
-    // Add stage-specific classes for color variations
+
+    /* CHANGE 4: Wire up "hired" CSS class for order 99 */
     let stageClass = "";
     if (isCurrent) {
       if (currentOrder === 30) stageClass = "interviewing";
       else if (currentOrder === 40) stageClass = "decision";
       else if (currentOrder === 50) stageClass = "offer";
+      else if (currentOrder === 99) stageClass = "hired";
     }
-    
+
     const cls = ["stage-step", isDone ? "done" : "", isCurrent ? "current" : "", stageClass].filter(Boolean).join(" ");
     return `
       <div class="${cls}">
@@ -1332,6 +1491,7 @@ function renderPortalStageBar(app, candidate) {
       </div>
     `;
   }).join("");
+
 
   return `
     <div class="${barClass}" role="group" aria-label="Application progress">
@@ -1346,18 +1506,21 @@ function renderPortalStageBar(app, candidate) {
   `;
 }
 
+
 function setPanelBorderToActive() {
   document.documentElement.style.setProperty("--panel-border", "var(--tab-active-border)");
 }
 
-/* ===== FIX #3: Offer URL origin validation ===== */
+
 async function handleOfferDownload() {
   if (!session.verified || !session.token || !session.lastName || !session.phone10) {
     setStatus("Please verify your application status first.", "warning");
     return;
   }
 
+
   setStatus("Generating your offer letter link...", "loading");
+
 
   try {
     const qs = new URLSearchParams({
@@ -1366,13 +1529,16 @@ async function handleOfferDownload() {
       phone: session.phone10
     });
 
+
     const resp = await fetch(`/api/get-offer-url?${qs.toString()}`, { method: "GET" });
     const payload = await resp.json().catch(() => null);
+
 
     if (!resp.ok || !payload || payload.ok !== true || !payload.url) {
       setStatus("Could not generate your offer letter link. Please try again.", "warning");
       return;
     }
+
 
     // Validate that the signed URL points to our Supabase instance
     try {
@@ -1386,9 +1552,11 @@ async function handleOfferDownload() {
       return;
     }
 
+
     setStatus("Offer letter ready. Opening...", "success");
     window.open(payload.url, "_blank", "noopener,noreferrer");
     setTimeout(() => setStatus(""), 2200);
+
 
   } catch (e) {
     console.error(e);
@@ -1396,16 +1564,20 @@ async function handleOfferDownload() {
   }
 }
 
+
 function renderApplicationsView(payload) {
   if (!el.result) return;
 
+
   const candidate = payload?.candidate || null;
   const apps = Array.isArray(payload?.applications) ? payload.applications.slice() : [];
+
 
   if (!candidate || apps.length === 0) {
     el.result.innerHTML = "";
     return;
   }
+
 
   apps.sort((a, b) => {
     const ad = new Date(a?.created_at || 0).getTime();
@@ -1413,11 +1585,14 @@ function renderApplicationsView(payload) {
     return bd - ad;
   });
 
+
   setPanelBorderToActive();
+
 
   const tabsHtml = apps.map((a, idx) => {
     const pos = escapeHtml(a?.position || "Position");
     const applied = formatDateShort(a?.created_at);
+
 
     return `
       <button type="button" class="app-tab ${idx === 0 ? "active" : ""}" data-app-index="${idx}"
@@ -1430,6 +1605,7 @@ function renderApplicationsView(payload) {
       </button>
     `;
   }).join("");
+
 
   el.result.innerHTML = `
     <div class="applications-shell">
@@ -1444,29 +1620,37 @@ function renderApplicationsView(payload) {
     </div>
   `;
 
+
   function renderActiveApp(index) {
     const active = apps[index] || apps[0];
 
+
     const mergedName = escapeHtml(active?.name || candidate?.name || "Applicant");
     const mergedPosition = escapeHtml(active?.position || candidate?.position || "Not specified");
+
 
     const portalStageText = resolvePortalStage(active, candidate);
     const portalOrder = resolvePortalOrder(active, candidate);
     const portalTerminal = resolvePortalTerminal(active, candidate);
 
+
     const appliedShort = formatDateShort(active?.created_at);
     const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
 
+
     const statusInfo = classifyFromPortal(portalStageText, portalOrder, portalTerminal);
     const offerAccess = !!active?.offer_access;
+
 
     const rawNextInterview = active?.next_interview || null;
     const showNextInterview = isFutureDate(rawNextInterview);
     const nextInterviewFormatted = showNextInterview ? formatDateToLocal(rawNextInterview) : null;
     const tzAbbr = getViewerTzAbbr();
 
+
     const inner = document.getElementById("app-panel-inner");
     if (!inner) return;
+
 
     inner.innerHTML = `
       <div class="result-card">
@@ -1481,7 +1665,9 @@ function renderApplicationsView(payload) {
           <span class="status-pill ${statusInfo.pillClass}">${escapeHtml(statusInfo.pillText)}</span>
         </div>
 
+
         ${renderPortalStageBar(active, candidate)}
+
 
         <div class="result-body">
           <div class="result-row">
@@ -1489,12 +1675,14 @@ function renderApplicationsView(payload) {
             <div class="result-value">${mergedPosition}</div>
           </div>
 
+
           ${statusInfo.showStage ? `
             <div class="result-row">
               <div class="result-label">Current Stage:</div>
               <div class="result-value">${escapeHtml(portalStageText)}</div>
             </div>
           ` : ""}
+
 
           ${showNextInterview ? `
             <div class="result-row">
@@ -1506,11 +1694,13 @@ function renderApplicationsView(payload) {
           ` : ""}
         </div>
 
+
         ${statusInfo.message ? `
           <div class="${statusInfo.noteClass}">
             ${escapeHtml(statusInfo.message)}
           </div>
         ` : ""}
+
 
         <div class="actions-row">
           <button type="button" class="secondary-btn" id="careers-btn">
@@ -1520,6 +1710,7 @@ function renderApplicationsView(payload) {
             </svg>
             <span>Return to Careers</span>
           </button>
+
 
           ${offerAccess ? `
             <div class="offer-wrap">
@@ -1541,12 +1732,14 @@ function renderApplicationsView(payload) {
       </div>
     `;
 
+
     const careersBtn = document.getElementById("careers-btn");
     if (careersBtn) {
       careersBtn.addEventListener("click", () => {
         window.open(CONFIG.CAREERS_URL, "_blank", "noopener,noreferrer");
       });
     }
+
 
     const offerBtn = document.getElementById("offer-btn");
     if (offerBtn) {
@@ -1555,6 +1748,7 @@ function renderApplicationsView(payload) {
       });
     }
   }
+
 
   function setActiveTab(index) {
     const tabs = Array.from(document.querySelectorAll(".app-tab"));
@@ -1566,6 +1760,7 @@ function renderApplicationsView(payload) {
     renderActiveApp(index);
   }
 
+
   const tabs = Array.from(document.querySelectorAll(".app-tab"));
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
@@ -1574,21 +1769,24 @@ function renderApplicationsView(payload) {
     });
   });
 
+
   setActiveTab(0);
 }
+
 
 async function checkStatus(event) {
   if (event) event.preventDefault();
   if (el.result) el.result.innerHTML = "";
 
-  /* ===== FIX #5: Clear verified state at start of every check ===== */
+
   session.verified = false;
 
-  /* ===== FIX #4: Abort any in-flight request ===== */
+
   if (activeController) {
     activeController.abort();
     activeController = null;
   }
+
 
   const rateCheck = rateLimiter.canAttempt();
   if (!rateCheck.allowed) {
@@ -1596,9 +1794,11 @@ async function checkStatus(event) {
     return;
   }
 
+
   const params = new URLSearchParams(window.location.search);
   const token = String(params.get("token") || session.token || "").trim();
   session.token = token;
+
 
   if (!token) {
     setStatus("Missing security token. Please use the personalized link sent by your recruiter.", "error");
@@ -1609,9 +1809,11 @@ async function checkStatus(event) {
     return;
   }
 
+
   const lastName = String(el.lastName?.value || "").trim();
   const phoneRaw = String(el.phone?.value || "").trim();
   const validation = validateInputs(lastName, phoneRaw);
+
 
   if (!validation.valid) {
     if (el.lastName) el.lastName.classList.toggle("error", !lastName);
@@ -1624,6 +1826,7 @@ async function checkStatus(event) {
     return;
   }
 
+
   if (el.lastName) el.lastName.classList.remove("error");
   if (el.phone) el.phone.classList.remove("error");
   if (el.helper) {
@@ -1631,14 +1834,18 @@ async function checkStatus(event) {
     el.helper.classList.remove("error");
   }
 
+
   if (el.lastName) el.lastName.disabled = true;
   if (el.phone) el.phone.disabled = true;
   if (el.submitBtn) el.submitBtn.disabled = true;
 
+
   setStatus("Verifying your information...", "loading");
+
 
   try {
     activeController = new AbortController();
+
 
     const resp = await fetch(CONFIG.EDGE_FUNCTION_URL, {
       method: "POST",
@@ -1651,12 +1858,15 @@ async function checkStatus(event) {
       signal: activeController.signal
     });
 
+
     const payload = await resp.json().catch(() => null);
+
 
     if (resp.status === 429) {
       setStatus("Too many attempts. Please try again later.", "warning");
       return;
     }
+
 
     if (!resp.ok || !payload || payload.ok !== true) {
       session.verified = false;
@@ -1666,23 +1876,27 @@ async function checkStatus(event) {
       return;
     }
 
+
     session.verified = true;
     session.lastName = validation.lastName;
     session.phone10 = validation.phone;
+
 
     setStatus("Application found successfully!", "success");
     renderApplicationsView(payload);
     setTimeout(() => setStatus(""), 2000);
 
+
   } catch (err) {
-    // Silently ignore aborted requests (user re-submitted)
     if (err?.name === "AbortError") return;
+
 
     console.error(err);
     session.verified = false;
     session.lastName = "";
     session.phone10 = "";
     setStatus("Connection error. Please refresh and try again.", "error");
+
 
   } finally {
     activeController = null;
@@ -1692,6 +1906,7 @@ async function checkStatus(event) {
     if (el.lastName) el.lastName.focus();
   }
 }
+
 
 function setupInputHandlers() {
   if (el.lastName) {
@@ -1704,11 +1919,13 @@ function setupInputHandlers() {
     });
   }
 
+
   if (el.phone) {
     el.phone.addEventListener("input", (e) => {
       let value = String(e.target.value || "").replace(/\D/g, "");
       if (value.length > 11) value = value.slice(0, 11);
       e.target.value = value;
+
 
       if (el.phone.classList.contains("error")) el.phone.classList.remove("error");
       if (el.helper) {
@@ -1716,6 +1933,7 @@ function setupInputHandlers() {
         el.helper.textContent = "Must match the last name and 10-digit phone number on your application";
       }
     });
+
 
     el.phone.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
@@ -1726,25 +1944,28 @@ function setupInputHandlers() {
   }
 }
 
+
 document.addEventListener("DOMContentLoaded", () => {
   initElements();
   if (el.form) el.form.addEventListener("submit", checkStatus);
   setupInputHandlers();
   if (el.lastName) el.lastName.focus();
 
+
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
+
 
   if (!token) {
     setStatus("No security token detected. Please use your personalized status link received via email.", "warning");
   } else {
-    /* ===== FIX #2: Strip token from URL bar after reading it ===== */
     session.token = String(token).trim();
     if (window.history && window.history.replaceState) {
       window.history.replaceState(null, "", window.location.pathname);
     }
   }
 });
+
 
 window.addEventListener("pageshow", (event) => {
   if (event.persisted && el.result && el.result.innerHTML) {
