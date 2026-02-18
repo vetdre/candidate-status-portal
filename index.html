@@ -1736,7 +1736,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = params.get("token");
 
   if (!token) {
-    setStatus("No security token detected. Please use your personalized status link from your recruiter.", "warning");
+    setStatus("No security token detected. Please use your personalized status link received via email.", "warning");
   } else {
     /* ===== FIX #2: Strip token from URL bar after reading it ===== */
     session.token = String(token).trim();
