@@ -1335,17 +1335,36 @@ function resolvePortalStage(app, candidate) {
 function inferOrderFromStageText(stageText) {
   const s = String(stageText || "").toLowerCase();
 
-
+  // Terminal-ish
   if (s.includes("hired")) return 99;
   if (s.includes("closed") || s.includes("declin") || s.includes("reject")) return 0;
 
+  // Buckets
+  if (s.includes("application received") || s.includes("new applicant") || s.includes("received")) return 10;
 
-  if (s.includes("application received") || s.includes("received")) return 10;
-  if (s.includes("under review") || s.includes("review")) return 20;
-  if (s.includes("interview")) return 30;
-  if (s.includes("decision")) return 40;
-  if (s.includes("offer")) return 50;
+  // Under review bucket
+  if (
+    s.includes("under review") ||
+    s === "review" ||
+    s.includes("request phone screen") ||
+    s.includes("request a phone screen")
+  ) return 20;
 
+  // Interviewing bucket (IMPORTANT: include phone screen)
+  if (
+    s.includes("phone screen") ||
+    s.includes("virtual interview") ||
+    s.includes("interview") ||
+    s.includes("first interview") ||
+    s.includes("second interview") ||
+    s.includes("third interview")
+  ) return 30;
+
+  // Decision bucket
+  if (s.includes("decision") || s.includes("reference check") || s.includes("requisition")) return 40;
+
+  // Offer bucket
+  if (s.includes("offer") || s.includes("background check")) return 50;
 
   return null;
 }
