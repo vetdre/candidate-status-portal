@@ -1,0 +1,38 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+**/coverage/
+
+# Env files (keep templates)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Backend local secrets
+backend/.env.local
+backend/.env.*.local
+
+# Runtime temp
+tmp/
+*.tmp
+
+# Supabase local artifacts (if used later)
+.supabase/
