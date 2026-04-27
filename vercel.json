@@ -1,4 +1,22 @@
 {
+  "rewrites": [
+    {
+      "source": "/lever-webhooks/interviews",
+      "destination": "/api/webhooks/lever/interviews"
+    },
+    {
+      "source": "/lever-webhooks/archive-state-change",
+      "destination": "/api/webhooks/lever/archive-state-change"
+    },
+    {
+      "source": "/lever-webhooks/application-created",
+      "destination": "/api/webhooks/lever/application-created"
+    },
+    {
+      "source": "/lever-webhooks/candidate-stage-change",
+      "destination": "/api/webhooks/lever/candidate-stage-change"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

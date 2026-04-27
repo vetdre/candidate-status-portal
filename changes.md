@@ -12,3 +12,5 @@
 - Updated api/webhooks/lever/_lib/env.js default LEVER_WEBHOOK_VERIFY_MODE from token_equals_secret to hmac_sha256.
 - Updated api/webhooks/lever/_lib/verify.js to implement Lever HMAC-SHA256 signature validation (token + triggeredAt), with constant-time signature comparison and legacy-mode fallback.
 - Updated api/webhooks/lever/application-created.js, api/webhooks/lever/candidate-stage-change.js, api/webhooks/lever/archive-state-change.js, and api/webhooks/lever/interviews.js to return HTTP 200 for signed Lever connection-test payloads that omit data.opportunityId.
+- Updated api/webhooks/lever/_lib/env.js to make LEVER_API_KEY optional at config load time so signed connection-test pings can pass without Lever API fetch dependencies.
+- Updated vercel.json with /lever-webhooks/* rewrites to existing /api/webhooks/lever/* routes so webhook URLs can be configured without exposing /api in the external path.

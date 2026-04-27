@@ -45,7 +45,7 @@ function config() {
     supabaseUrl: required("SUPABASE_URL"),
     serviceRole: required("SUPABASE_SERVICE_ROLE_KEY"),
     leverApiBaseUrl: required("LEVER_API_BASE_URL"),
-    leverApiKey: required("LEVER_API_KEY"),
+    leverApiKey: optional("LEVER_API_KEY"),
     webhookVerifyMode: verifyMode(),
   };
 }

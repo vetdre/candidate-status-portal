@@ -10,3 +10,4 @@
 - Expanded ingest event type constraints so new webhook routes can write ingest_events without runtime constraint failures.
 - Lever webhook verification must use HMAC-SHA256 over token+triggeredAt with the configured webhook secret; token-equals-secret mode is only legacy fallback.
 - Lever "Verify connection" sends a signed test payload that can omit opportunityId; routes should return 2xx for that signed ping.
+- External webhook URLs can avoid the /api prefix by using Vercel rewrites under /lever-webhooks/* mapped to /api/webhooks/lever/*.
