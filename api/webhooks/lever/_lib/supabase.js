@@ -93,6 +93,17 @@ async function getLegacyCandidateByLeverId(leverId, cfg) {
 
 async function upsertApplicationNormalized(app, cfg) {
   if (!app || !app.lever_opportunity_id || !app.person_key) return;
+
+  // Guard: only write to applications if the person_key already exists in people.
+  // In Phase 1 the people table is empty, so this will always skip — that is correct.
+  const checkResp = await supaFetch(
+    `/rest/v1/people?person_key=eq.${encodeURIComponent(app.person_key)}&select=person_key&limit=1`,
+    { method: "GET" },
+    cfg
+  );
+  const checkRows = await checkResp.json().catch(() => []);
+  if (!Array.isArray(checkRows) || checkRows.length === 0) return;
+
   const q = `/rest/v1/applications?on_conflict=lever_opportunity_id`;
   await supaFetch(
     q,
