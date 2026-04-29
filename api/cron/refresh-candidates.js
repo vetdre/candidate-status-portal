@@ -314,7 +314,7 @@ module.exports = async (req, res) => {
       if (stopReason === "runtime_cap" || stopReason === "record_cap") break;
     }
 
-    return res.status(200).json({
+    const result = {
       ok: true,
       processed,
       failed,
@@ -336,7 +336,16 @@ module.exports = async (req, res) => {
         skippedImportTagCounts,
       },
       errors: errors.length ? errors.slice(0, 5) : undefined,
-    });
+    };
+
+    console.log("[refresh-candidates] summary", JSON.stringify({
+      processed: result.processed,
+      failed: result.failed,
+      stopReason: result.stopReason,
+      tagTelemetry: result.tagTelemetry,
+    }));
+
+    return res.status(200).json(result);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return res.status(500).json({ ok: false, error: msg });
