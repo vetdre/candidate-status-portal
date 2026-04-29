@@ -114,6 +114,8 @@ module.exports = async (req, res) => {
           lever_id: opportunityId,
           person_key: legacy?.person_key || null,
           name: legacy?.name || null,
+          email: legacy?.email || null,
+          phone: legacy?.phone || null,
           position: legacy?.position || null,
           current_stage: opp?.stage || null,
           archived,

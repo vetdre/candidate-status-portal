@@ -82,7 +82,7 @@ async function updateIngestStatus(id, status, errorText, cfg) {
 async function getLegacyCandidateByLeverId(leverId, cfg) {
   const q =
     `/rest/v1/Candidates` +
-    `?select=lever_id,name,position,person_key,magic_token,application_phone,application_last_name,application_last_name_norm,identity_confidence` +
+    `?select=lever_id,name,email,phone,position,person_key,magic_token,application_phone,application_last_name,application_last_name_norm,identity_confidence` +
     `&lever_id=eq.${encodeURIComponent(leverId)}` +
     `&limit=1`;
 
