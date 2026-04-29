@@ -37,73 +37,109 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Fetch one page of non-archived opportunities, most recently updated first.
-    // Free tier 10s limit — 50 records is a safe batch size.
-    const { data: opportunities } = await listOpportunities({ limit: 50, archived: false }, cfg);
+    const pageSize = Math.max(1, Number(process.env.CRON_REFRESH_PAGE_SIZE || 50));
+    const maxRecords = Math.max(pageSize, Number(process.env.CRON_REFRESH_MAX_RECORDS || 500));
+    const maxRuntimeMs = Math.max(30000, Number(process.env.CRON_REFRESH_MAX_RUNTIME_MS || 270000));
+    const startedAt = Date.now();
 
     let processed = 0;
     let failed = 0;
+    let fetched = 0;
+    let pages = 0;
+    let cursor = null;
+    let hasNext = true;
     const errors = [];
+    let stopReason = "exhausted";
 
-    for (const opp of opportunities) {
-      try {
-        const opportunityId = opp?.id ? String(opp.id) : null;
-        if (!opportunityId) continue;
-
-        const archived = opp?.archived != null;
-        const archiveReason = archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
-        const stageFields = resolvePortalStageFields({
-          currentStage: opp?.stage || null,
-          archived,
-          archiveReason,
-        });
-
-        // Contact info is expanded inline via expand[]=contact.
-        const contact = opp?.contact || {};
-        const candidateEmail = contact?.emails?.[0]?.value || null;
-        const candidatePhone = contact?.phones?.[0]?.value || null;
-        const candidateName = contact?.name || null;
-
-        // Legacy carry-forward fields (magic_token, person_key, etc).
-        const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
-
-        await upsertCandidateShadow(
-          {
-            lever_id: opportunityId,
-            person_key: legacy?.person_key || null,
-            name: candidateName || legacy?.name || null,
-            email: candidateEmail || legacy?.email || null,
-            phone: candidatePhone || legacy?.phone || null,
-            position: opp?.position?.text || legacy?.position || null,
-            current_stage: opp?.stage || null,
-            archived,
-            archive_reason: archiveReason,
-            portal_stage: stageFields.portal_stage,
-            portal_stage_order: stageFields.portal_stage_order,
-            portal_stage_terminal: stageFields.portal_stage_terminal,
-            stage_updated: nowIsoUtcSeconds(),
-
-            magic_token: legacy?.magic_token || null,
-            application_phone: legacy?.application_phone || null,
-            application_last_name: legacy?.application_last_name || null,
-            application_last_name_norm: legacy?.application_last_name_norm || null,
-            identity_confidence: legacy?.identity_confidence || null,
-          },
-          cfg
-        );
-
-        processed++;
-      } catch (err) {
-        failed++;
-        errors.push(err instanceof Error ? err.message : String(err));
+    while (hasNext) {
+      if (Date.now() - startedAt >= maxRuntimeMs) {
+        stopReason = "runtime_cap";
+        break;
       }
+      if (processed + failed >= maxRecords) {
+        stopReason = "record_cap";
+        break;
+      }
+
+      const page = await listOpportunities({ limit: pageSize, archived: false, cursor }, cfg);
+      const opportunities = Array.isArray(page?.data) ? page.data : [];
+      fetched += opportunities.length;
+      pages++;
+
+      for (const opp of opportunities) {
+        if (Date.now() - startedAt >= maxRuntimeMs) {
+          stopReason = "runtime_cap";
+          break;
+        }
+        if (processed + failed >= maxRecords) {
+          stopReason = "record_cap";
+          break;
+        }
+
+        try {
+          const opportunityId = opp?.id ? String(opp.id) : null;
+          if (!opportunityId) continue;
+
+          const archived = opp?.archived != null;
+          const archiveReason = archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
+          const stageFields = resolvePortalStageFields({
+            currentStage: opp?.stage || null,
+            archived,
+            archiveReason,
+          });
+
+          const contact = opp?.contact || {};
+          const candidateEmail = contact?.emails?.[0]?.value || null;
+          const candidatePhone = contact?.phones?.[0]?.value || null;
+          const candidateName = contact?.name || null;
+
+          const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
+
+          await upsertCandidateShadow(
+            {
+              lever_id: opportunityId,
+              person_key: legacy?.person_key || null,
+              name: candidateName || legacy?.name || null,
+              email: candidateEmail || legacy?.email || null,
+              phone: candidatePhone || legacy?.phone || null,
+              position: opp?.position?.text || legacy?.position || null,
+              current_stage: opp?.stage || null,
+              archived,
+              archive_reason: archiveReason,
+              portal_stage: stageFields.portal_stage,
+              portal_stage_order: stageFields.portal_stage_order,
+              portal_stage_terminal: stageFields.portal_stage_terminal,
+              stage_updated: nowIsoUtcSeconds(),
+
+              magic_token: legacy?.magic_token || null,
+              application_phone: legacy?.application_phone || null,
+              application_last_name: legacy?.application_last_name || null,
+              application_last_name_norm: legacy?.application_last_name_norm || null,
+              identity_confidence: legacy?.identity_confidence || null,
+            },
+            cfg
+          );
+
+          processed++;
+        } catch (err) {
+          failed++;
+          errors.push(err instanceof Error ? err.message : String(err));
+        }
+      }
+
+      if (stopReason === "runtime_cap" || stopReason === "record_cap") break;
+      hasNext = !!page?.hasNext && !!page?.next;
+      cursor = hasNext ? String(page.next) : null;
     }
 
     return res.status(200).json({
       ok: true,
       processed,
       failed,
-      total: opportunities.length,
+      fetched,
+      pages,
+      stopReason,
+      elapsedMs: Date.now() - startedAt,
       errors: errors.length ? errors.slice(0, 5) : undefined,
     });
   } catch (err) {
