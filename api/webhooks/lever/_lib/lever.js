@@ -35,12 +35,13 @@ async function getOpportunityInterviews(opportunityId, cfg) {
   return Array.isArray(payload?.data) ? payload.data : [];
 }
 
-async function listOpportunities({ limit = 50, cursor, archived } = {}, cfg) {
+async function listOpportunities({ limit = 50, offset, archived, confidentiality = "all" } = {}, cfg) {
   const qs = new URLSearchParams();
   qs.set("limit", String(limit));
   qs.append("expand[]", "contact");
-  if (cursor) qs.set("cursor", cursor);
+  if (offset) qs.set("offset", offset);
   if (archived !== undefined) qs.set("archived", String(archived));
+  if (confidentiality) qs.set("confidentiality", confidentiality);
 
   const payload = await leverGet(`/opportunities?${qs.toString()}`, cfg);
   return {

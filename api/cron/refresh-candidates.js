@@ -48,13 +48,13 @@ module.exports = async (req, res) => {
     let failed = 0;
     let fetched = 0;
     let pages = 0;
-    let cursor = null;
+    let offset = null;
     let hasNext = true;
     const errors = [];
     let stopReason = "exhausted";
 
     for (const archivedFilter of archivedFilters) {
-      cursor = null;
+      offset = null;
       hasNext = true;
 
       while (hasNext) {
@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
         }
 
         const page = await listOpportunities(
-          { limit: pageSize, archived: archivedFilter, cursor },
+          { limit: pageSize, archived: archivedFilter, offset, confidentiality: "all" },
           cfg
         );
         const opportunities = Array.isArray(page?.data) ? page.data : [];
@@ -139,7 +139,7 @@ module.exports = async (req, res) => {
 
         if (stopReason === "runtime_cap" || stopReason === "record_cap") break;
         hasNext = !!page?.hasNext && !!page?.next;
-        cursor = hasNext ? String(page.next) : null;
+        offset = hasNext ? String(page.next) : null;
       }
 
       if (stopReason === "runtime_cap" || stopReason === "record_cap") break;
