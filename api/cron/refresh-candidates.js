@@ -26,8 +26,18 @@ function asPositiveInt(value, fallback) {
 }
 
 function getQueryParams(req) {
-  const url = new URL(req.url || "", "http://localhost");
-  return url.searchParams;
+  if (req && req.query && typeof req.query === "object") {
+    const entries = Object.entries(req.query).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]);
+    return new URLSearchParams(entries);
+  }
+
+  try {
+    const rawUrl = req && typeof req.url === "string" ? req.url : "";
+    const url = new URL(rawUrl, "http://localhost");
+    return url.searchParams;
+  } catch {
+    return new URLSearchParams();
+  }
 }
 
 module.exports = async (req, res) => {
@@ -81,6 +91,7 @@ module.exports = async (req, res) => {
     let offset = null;
     let hasNext = true;
     const errors = [];
+    let fatalError = null;
     let stopReason = "exhausted";
 
     for (const archivedFilter of archivedFilters) {
@@ -97,10 +108,18 @@ module.exports = async (req, res) => {
           break;
         }
 
-        const page = await listOpportunities(
-          { limit: pageSize, archived: archivedFilter, offset, confidentiality: "all" },
-          cfg
-        );
+        let page;
+        try {
+          page = await listOpportunities(
+            { limit: pageSize, archived: archivedFilter, offset, confidentiality: "all" },
+            cfg
+          );
+        } catch (err) {
+          stopReason = "page_fetch_error";
+          fatalError = err instanceof Error ? err.message : String(err);
+          errors.push(`page fetch failed (archived=${archivedFilter}, offset=${offset || "start"}): ${fatalError}`);
+          break;
+        }
         const opportunities = Array.isArray(page?.data) ? page.data : [];
         fetched += opportunities.length;
         pages++;
@@ -186,6 +205,7 @@ module.exports = async (req, res) => {
       failed,
       fetched,
       pages,
+      fatalError,
       scope,
       pageSize,
       maxRecords,
