@@ -25,3 +25,7 @@
 - Remediation direction: add persisted checkpoint state (offset + phase) so each run resumes instead of restarting.
 - Implemented persisted checkpoint state in Supabase (public.cron_refresh_state) and wired cron to resume active/archived offsets across invocations.
 - Applied migration cron_refresh_checkpoint to Supabase project nnauvyublclfeqizpawr.
+- Investigating position data anomalies for lever_id 3ddda344-94da-4546-8b77-48c7007e1b05 and null-field clusters for lever_id 9a4fe54c-7921-4215-b75c-17898f1fe748 / 47648caa-1049-46a0-b1ff-4abec1ff81a4.
+- Confirmed root cause for bad position sample: legacy fallback value in public.Candidates.position contained a tag-like token (Additional+EDU+Alias+Fed), which was being reused when Lever position was absent.
+- Implemented guard to block legacy-position fallback when it matches opportunity tags; applied across cron and all active webhook handlers.
+- Verified null identity fields on provided Kaushik samples are due to no matching legacy candidate row by lever_id/email/name (not overwrite regression).

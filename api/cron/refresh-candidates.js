@@ -11,6 +11,7 @@ const {
   resolveContactPhone,
   resolveOpportunityTags,
   getExcludedImportTags,
+  resolveSafeLegacyPosition,
 } = require("../webhooks/lever/_lib/rules");
 const { upsertCandidateShadow, getLegacyCandidateByLeverId } = require("../webhooks/lever/_lib/supabase");
 const CRON_CHECKPOINT_JOB = "candidates_shadow_refresh";
@@ -376,6 +377,7 @@ module.exports = async (req, res) => {
             const position = resolvePositionLabel(opp?.position);
 
             const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
+            const safeLegacyPosition = resolveSafeLegacyPosition(legacy?.position, tags);
             const nextInterview = resolveNextInterviewUtc(
               await getOpportunityInterviews(opportunityId, cfg).catch(() => []),
               Date.now()
@@ -395,7 +397,7 @@ module.exports = async (req, res) => {
               ...(candidateName || legacy?.name ? { name: candidateName || legacy.name } : {}),
               ...(candidateEmail || legacy?.email ? { email: candidateEmail || legacy.email } : {}),
               ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
-              ...(position || legacy?.position ? { position: position || legacy.position } : {}),
+              ...(position || safeLegacyPosition ? { position: position || safeLegacyPosition } : {}),
               ...(currentStage ? { current_stage: currentStage } : {}),
               ...(offer.offerAccess ? { offer_access: true } : {}),
               ...(offer.offerLetterKey ? { offer_letter_key: offer.offerLetterKey } : {}),

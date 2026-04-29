@@ -31,3 +31,7 @@
 - Added backend/migrations/0008_cron_refresh_checkpoint.sql to create public.cron_refresh_state and service_role policy.
 - Updated api/cron/refresh-candidates.js to load/save checkpoint state, resume offsets across runs, and report checkpoint status in run output.
 - Applied Supabase migration cron_refresh_checkpoint to project nnauvyublclfeqizpawr.
+- Began targeted investigation of position/tag contamination and null identity-field clusters for specific lever_id samples provided by user.
+- Updated api/webhooks/lever/_lib/rules.js with resolveSafeLegacyPosition() to reject legacy position fallback when it collides with opportunity tags.
+- Updated cron and all active webhook handlers to use safe legacy position fallback guard.
+- Confirmed sample null identity fields for lever_id 9a4fe54c-7921-4215-b75c-17898f1fe748 and 47648caa-1049-46a0-b1ff-4abec1ff81a4 are due to absent legacy source rows.

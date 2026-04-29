@@ -12,6 +12,7 @@ const {
   resolveContactPhone,
   resolveOpportunityTags,
   getExcludedImportTags,
+  resolveSafeLegacyPosition,
 } = require("./_lib/rules");
 const {
   json,
@@ -82,7 +83,8 @@ module.exports = async (req, res) => {
 
     try {
       const opp = await getOpportunity(opportunityId, cfg);
-      const matchedImportTags = getExcludedImportTags(resolveOpportunityTags(opp));
+      const opportunityTags = resolveOpportunityTags(opp);
+      const matchedImportTags = getExcludedImportTags(opportunityTags);
       if (matchedImportTags.length) {
         await updateIngestStatus(ingest.id, "processed", "Skipped by import tag", cfg);
         return json(res, 200, {
@@ -110,6 +112,7 @@ module.exports = async (req, res) => {
       });
 
       const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg);
+      const safeLegacyPosition = resolveSafeLegacyPosition(legacy?.position, opportunityTags);
       
       // Fetch candidate details directly from Lever for contact info.
       const candidate = candidateId ? await getCandidate(candidateId, cfg).catch(() => ({})) : {};
@@ -121,7 +124,7 @@ module.exports = async (req, res) => {
           lever_opportunity_id: opportunityId,
           person_key: legacy?.person_key || null,
           candidate_name: legacy?.name || null,
-          position: position || legacy?.position || null,
+          position: position || safeLegacyPosition || null,
           current_stage: currentStage,
           archived,
           archive_reason: archiveReason,
@@ -148,7 +151,7 @@ module.exports = async (req, res) => {
         ...(legacy?.name ? { name: legacy.name } : {}),
         ...(candidateEmail || legacy?.email ? { email: candidateEmail || legacy.email } : {}),
         ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
-        ...(position || legacy?.position ? { position: position || legacy.position } : {}),
+        ...(position || safeLegacyPosition ? { position: position || safeLegacyPosition } : {}),
         ...(currentStage ? { current_stage: currentStage } : {}),
         ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
         ...(legacy?.application_phone ? { application_phone: legacy.application_phone } : {}),

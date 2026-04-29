@@ -37,3 +37,7 @@
 - Planned fix: persist checkpoint state (phase + offsets) and resume on subsequent runs.
 - Fix: implemented persisted checkpoint state in public.cron_refresh_state and resume-aware cron traversal in api/cron/refresh-candidates.js.
 - Fix validation path: migration cron_refresh_checkpoint applied to project nnauvyublclfeqizpawr; cron output now includes checkpoint state/warnings.
+- New investigation: suspected position field contamination (tag-like value in position) and missing identity carry-forward fields for specific lever_id records.
+- Defect: legacy fallback could write tag-like values into position when Lever position payload was empty/missing.
+- Fix: added tag-collision guard for legacy position fallback and applied it in cron + webhook upsert paths.
+- Investigation result: missing person_key/application_phone/magic_token on provided Kaushik samples are explained by missing legacy candidate source rows, not by null-clobber regression.

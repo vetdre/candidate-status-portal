@@ -173,6 +173,34 @@ function getExcludedImportTags(tags) {
   return [...new Set(matches)];
 }
 
+function normalizeTagToken(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function resolveSafeLegacyPosition(legacyPosition, tags) {
+  const position = asNonEmptyString(legacyPosition);
+  if (!position) return null;
+
+  const candidates = new Set();
+  for (const tag of Array.isArray(tags) ? tags : []) {
+    const token = normalizeTagToken(tag);
+    if (!token) continue;
+    candidates.add(token);
+    candidates.add(token.replace(/\+/g, " "));
+  }
+
+  const normalizedPosition = normalizeTagToken(position);
+  const normalizedPositionSpace = normalizedPosition.replace(/\+/g, " ");
+  if (candidates.has(normalizedPosition) || candidates.has(normalizedPositionSpace)) {
+    return null;
+  }
+
+  return position;
+}
+
 function resolvePortalStageFields(input) {
   const stage = normalizeStage(input.currentStage);
   const reason = String(input.archiveReason || "").trim().toLowerCase();
@@ -268,4 +296,5 @@ module.exports = {
   resolveContactPhone,
   resolveOpportunityTags,
   getExcludedImportTags,
+  resolveSafeLegacyPosition,
 };
