@@ -26,11 +26,6 @@ function asPositiveInt(value, fallback) {
 }
 
 function getQueryParams(req) {
-  if (req && req.query && typeof req.query === "object") {
-    const entries = Object.entries(req.query).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]);
-    return new URLSearchParams(entries);
-  }
-
   try {
     const rawUrl = req && typeof req.url === "string" ? req.url : "";
     const url = new URL(rawUrl, "http://localhost");
