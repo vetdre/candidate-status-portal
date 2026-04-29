@@ -19,6 +19,12 @@ function cronConfig() {
   return { supabaseUrl, serviceRole, leverApiKey, leverApiBaseUrl };
 }
 
+function asPositiveInt(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  return Math.floor(n);
+}
+
 module.exports = async (req, res) => {
   // Verify Vercel cron authorization.
   const cronSecret = process.env.CRON_SECRET;
@@ -41,10 +47,19 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const pageSize = Math.max(1, Number(process.env.CRON_REFRESH_PAGE_SIZE || 50));
-    const maxRecords = Math.max(pageSize, Number(process.env.CRON_REFRESH_MAX_RECORDS || 500));
-    const maxRuntimeMs = Math.max(30000, Number(process.env.CRON_REFRESH_MAX_RUNTIME_MS || 270000));
-    const scope = String(process.env.CRON_REFRESH_SCOPE || "all").trim().toLowerCase();
+    const q = req.query || {};
+    const pageSize = asPositiveInt(q.pageSize, asPositiveInt(process.env.CRON_REFRESH_PAGE_SIZE, 50));
+    const maxRecords = Math.max(
+      pageSize,
+      asPositiveInt(q.maxRecords, asPositiveInt(process.env.CRON_REFRESH_MAX_RECORDS, 500))
+    );
+    const maxRuntimeMs = Math.max(
+      30000,
+      asPositiveInt(q.maxRuntimeMs, asPositiveInt(process.env.CRON_REFRESH_MAX_RUNTIME_MS, 270000))
+    );
+    const scope = String(q.scope || process.env.CRON_REFRESH_SCOPE || "all")
+      .trim()
+      .toLowerCase();
     const archivedFilters = scope === "archived" ? [true] : scope === "active" ? [false] : [false, true];
     const startedAt = Date.now();
 
@@ -108,8 +123,10 @@ module.exports = async (req, res) => {
             const candidateName = contact?.name || null;
 
             const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
-            const interviews = await getOpportunityInterviews(opportunityId, cfg).catch(() => []);
-            const nextInterview = resolveNextInterviewUtc(interviews, Date.now());
+            const nextInterview = resolveNextInterviewUtc(
+              await getOpportunityInterviews(opportunityId, cfg).catch(() => []),
+              Date.now()
+            );
 
             await upsertCandidateShadow(
               {
@@ -128,7 +145,7 @@ module.exports = async (req, res) => {
                 portal_stage_terminal: stageFields.portal_stage_terminal,
                 stage_updated: nowIsoUtcSeconds(),
 
-                magic_token: legacy?.magic_token || null,
+                ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
                 application_phone: legacy?.application_phone || null,
                 application_last_name: legacy?.application_last_name || null,
                 application_last_name_norm: legacy?.application_last_name_norm || null,
@@ -159,6 +176,9 @@ module.exports = async (req, res) => {
       fetched,
       pages,
       scope,
+      pageSize,
+      maxRecords,
+      maxRuntimeMs,
       stopReason,
       elapsedMs: Date.now() - startedAt,
       errors: errors.length ? errors.slice(0, 5) : undefined,

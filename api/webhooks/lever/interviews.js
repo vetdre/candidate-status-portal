@@ -133,7 +133,7 @@ module.exports = async (req, res) => {
           stage_updated: nowIsoUtcSeconds(),
 
           // Phase-1 identity compatibility carry-forward.
-          magic_token: legacy?.magic_token || null,
+          ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
           application_phone: legacy?.application_phone || null,
           application_last_name: legacy?.application_last_name || null,
           application_last_name_norm: legacy?.application_last_name_norm || null,

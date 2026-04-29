@@ -119,7 +119,7 @@ module.exports = async (req, res) => {
           portal_stage_terminal: stageFields.portal_stage_terminal,
           stage_updated: nowIsoUtcSeconds(),
 
-          magic_token: legacy?.magic_token || null,
+          ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
           application_phone: legacy?.application_phone || null,
           application_last_name: legacy?.application_last_name || null,
           application_last_name_norm: legacy?.application_last_name_norm || null,
