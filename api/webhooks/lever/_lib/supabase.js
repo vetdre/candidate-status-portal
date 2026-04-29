@@ -91,6 +91,43 @@ async function getLegacyCandidateByLeverId(leverId, cfg) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function getShadowCandidateByLeverId(leverId, cfg) {
+  const q =
+    `/rest/v1/Candidates_shadow` +
+    `?select=lever_id,name,email,phone,position,person_key,magic_token,application_phone,application_last_name,application_last_name_norm,identity_confidence` +
+    `&lever_id=eq.${encodeURIComponent(leverId)}` +
+    `&limit=1`;
+
+  const resp = await supaFetch(q, { method: "GET" }, cfg);
+  const rows = await resp.json().catch(() => []);
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
+async function findMagicTokenByPersonKey(personKey, cfg) {
+  if (!personKey) return null;
+
+  const shadowQuery =
+    `/rest/v1/Candidates_shadow` +
+    `?select=magic_token` +
+    `&person_key=eq.${encodeURIComponent(personKey)}` +
+    `&magic_token=not.is.null` +
+    `&limit=1`;
+  const shadowResp = await supaFetch(shadowQuery, { method: "GET" }, cfg);
+  const shadowRows = await shadowResp.json().catch(() => []);
+  const shadowToken = Array.isArray(shadowRows) && shadowRows[0]?.magic_token ? String(shadowRows[0].magic_token) : null;
+  if (shadowToken) return shadowToken;
+
+  const legacyQuery =
+    `/rest/v1/Candidates` +
+    `?select=magic_token` +
+    `&person_key=eq.${encodeURIComponent(personKey)}` +
+    `&magic_token=not.is.null` +
+    `&limit=1`;
+  const legacyResp = await supaFetch(legacyQuery, { method: "GET" }, cfg);
+  const legacyRows = await legacyResp.json().catch(() => []);
+  return Array.isArray(legacyRows) && legacyRows[0]?.magic_token ? String(legacyRows[0].magic_token) : null;
+}
+
 async function upsertApplicationNormalized(app, cfg) {
   if (!app || !app.lever_opportunity_id || !app.person_key) return;
 
@@ -173,6 +210,8 @@ module.exports = {
   insertIngestEvent,
   updateIngestStatus,
   getLegacyCandidateByLeverId,
+  getShadowCandidateByLeverId,
+  findMagicTokenByPersonKey,
   upsertApplicationNormalized,
   replaceInterviewsForOpportunity,
   upsertCandidateShadow,

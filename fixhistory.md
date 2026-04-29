@@ -42,3 +42,8 @@
 - Fix: added tag-collision guard for legacy position fallback and applied it in cron + webhook upsert paths.
 - Investigation result: missing person_key/application_phone/magic_token on provided Kaushik samples are explained by missing legacy candidate source rows, not by null-clobber regression.
 - Design constraint captured: future removal of Power Automate must preserve existing person_key grouping and magic_token reuse semantics rather than inventing a new identity model.
+- Active defect scope: identity generation is still split across legacy fallback behavior instead of app-owned shared logic, leaving missing/null identity fields when legacy rows are absent.
+- Locked fix requirements: shared identity utility, exact legacy person_key/identity_confidence/token reuse semantics, and no synthetic grouping when both email and normalized phone are missing.
+- Fix: implemented shared identity utility and replaced legacy person_key/identity_confidence generation in cron + webhook handlers with app-owned logic matching the locked Power Automate semantics.
+- Fix: token reuse now resolves by computed person_key when present, otherwise preserves/generates per-application token without grouping null-identity candidates.
+- Test coverage added for email normalization, phone normalization, person_key/confidence generation, and magic_token resolution rules.

@@ -8,17 +8,21 @@ const {
   resolveCurrentStageLabel,
   normalizeArchiveReason,
   resolvePositionLabel,
+  resolveContactName,
   resolveContactEmail,
   resolveContactPhone,
   resolveOpportunityTags,
   getExcludedImportTags,
   resolveSafeLegacyPosition,
 } = require("./_lib/rules");
+const { buildIdentityFields, resolveMagicToken } = require("./_lib/identity");
 const {
   json,
   insertIngestEvent,
   updateIngestStatus,
   getLegacyCandidateByLeverId,
+  getShadowCandidateByLeverId,
+  findMagicTokenByPersonKey,
   upsertApplicationNormalized,
   upsertCandidateShadow,
 } = require("./_lib/supabase");
@@ -110,14 +114,37 @@ module.exports = async (req, res) => {
       
       // Fetch candidate details directly from Lever for contact info.
       const candidate = candidateId ? await getCandidate(candidateId, cfg).catch(() => ({})) : {};
-      const candidateEmail = resolveContactEmail(candidate);
-      const candidatePhone = resolveContactPhone(candidate);
+      const candidateEmail = resolveContactEmail(candidate) || resolveContactEmail(opp?.contact);
+      const candidatePhone = resolveContactPhone(candidate) || resolveContactPhone(opp?.contact);
+      const candidateName =
+        resolveContactName(candidate) || resolveContactName(opp?.contact) || legacy?.name || null;
+
+      const identity = buildIdentityFields({
+        email: candidateEmail || legacy?.email,
+        phone: candidatePhone || legacy?.application_phone || legacy?.phone,
+        fullName: candidateName,
+      });
+
+      const existingShadow =
+        !identity.person_key && !legacy?.magic_token
+          ? await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null)
+          : null;
+
+      const magicToken = await resolveMagicToken(
+        {
+          personKey: identity.person_key,
+          existingApplicationToken: existingShadow?.magic_token || legacy?.magic_token || null,
+        },
+        {
+          findMagicTokenByPersonKey: async (personKey) => findMagicTokenByPersonKey(personKey, cfg),
+        }
+      );
 
       await upsertApplicationNormalized(
         {
           lever_opportunity_id: opportunityId,
-          person_key: legacy?.person_key || null,
-          candidate_name: legacy?.name || null,
+          person_key: identity.person_key,
+          candidate_name: candidateName,
           position: position || safeLegacyPosition || null,
           current_stage: currentStage,
           archived,
@@ -140,19 +167,26 @@ module.exports = async (req, res) => {
         portal_stage_terminal: stageFields.portal_stage_terminal,
         stage_updated: nowIsoUtcSeconds(),
 
-        ...(legacy?.person_key ? { person_key: legacy.person_key } : {}),
-        ...(legacy?.name ? { name: legacy.name } : {}),
+        ...(identity.person_key ? { person_key: identity.person_key } : {}),
+        ...(candidateName ? { name: candidateName } : {}),
         ...(candidateEmail || legacy?.email ? { email: candidateEmail || legacy.email } : {}),
         ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
         ...(position || safeLegacyPosition ? { position: position || safeLegacyPosition } : {}),
         ...(currentStage ? { current_stage: currentStage } : {}),
-        ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
-        ...(legacy?.application_phone ? { application_phone: legacy.application_phone } : {}),
-        ...(legacy?.application_last_name ? { application_last_name: legacy.application_last_name } : {}),
-        ...(legacy?.application_last_name_norm
-          ? { application_last_name_norm: legacy.application_last_name_norm }
+        magic_token: magicToken,
+        identity_confidence: identity.identity_confidence,
+        ...(identity.application_phone || legacy?.application_phone
+          ? { application_phone: identity.application_phone || legacy.application_phone }
           : {}),
-        ...(legacy?.identity_confidence ? { identity_confidence: legacy.identity_confidence } : {}),
+        ...(identity.application_last_name || legacy?.application_last_name
+          ? { application_last_name: identity.application_last_name || legacy.application_last_name }
+          : {}),
+        ...(identity.application_last_name_norm || legacy?.application_last_name_norm
+          ? {
+              application_last_name_norm:
+                identity.application_last_name_norm || legacy.application_last_name_norm,
+            }
+          : {}),
       };
 
       await upsertCandidateShadow(row, cfg);

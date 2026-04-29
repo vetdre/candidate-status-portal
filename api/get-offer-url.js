@@ -16,6 +16,7 @@
 
 const TOKEN_FAIL_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const TOKEN_FAIL_LIMIT = 5;
+const { normalizePhone10, normalizeLastName } = require("./webhooks/lever/_lib/identity");
 
 const tokenFailBuckets = globalThis.__tokenFailBuckets ?? new Map();
 globalThis.__tokenFailBuckets = tokenFailBuckets;
@@ -59,17 +60,6 @@ function clearTokenFailures(token) {
   const key = String(token || "").trim();
   if (!key) return;
   tokenFailBuckets.delete(key);
-}
-
-function normalizeLastName(s) {
-  return String(s ?? "").trim().toLowerCase();
-}
-
-function normalizePhone10(s) {
-  let digits = String(s ?? "").replace(/\D/g, "");
-  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
-  if (/^\d{10}$/.test(digits)) return digits;
-  return "";
 }
 
 function json(res, status, body) {

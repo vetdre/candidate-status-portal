@@ -34,3 +34,8 @@
 - identity_confidence rules: email = 3, phone = 2, otherwise 1.
 - magic_token rule: reuse existing token for same person_key when available; otherwise generate a GUID.
 - Active/current portal behavior still groups multi-application experiences via single-table Candidates/Candidates_shadow style person_key semantics, not split Persons/Applications tables.
+- Locked correction: do not invent a fallback person_key when both usable email and normalized 10-digit phone are missing; use person_key = null and identity_confidence = 1.
+- Implementation requirement: centralize identity normalization/generation/token reuse logic in one shared utility and add tests before wiring cron/webhook/API callers.
+- Implemented shared identity utility at api/webhooks/lever/_lib/identity.js covering email normalization, phone normalization, person_key generation, identity_confidence, last-name extraction, and magic_token reuse/generation.
+- Cron, all active Lever webhook handlers, and api/get-offer-url.js now consume shared identity helpers instead of duplicating phone normalization / legacy person_key carry-forward logic.
+- Token reuse lookup now checks existing rows by person_key; when person_key is null, token reuse is limited to the same application row instead of grouping on weak identity.

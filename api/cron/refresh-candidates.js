@@ -13,7 +13,13 @@ const {
   getExcludedImportTags,
   resolveSafeLegacyPosition,
 } = require("../webhooks/lever/_lib/rules");
-const { upsertCandidateShadow, getLegacyCandidateByLeverId } = require("../webhooks/lever/_lib/supabase");
+const { buildIdentityFields, resolveMagicToken } = require("../webhooks/lever/_lib/identity");
+const {
+  upsertCandidateShadow,
+  getLegacyCandidateByLeverId,
+  getShadowCandidateByLeverId,
+  findMagicTokenByPersonKey,
+} = require("../webhooks/lever/_lib/supabase");
 const CRON_CHECKPOINT_JOB = "candidates_shadow_refresh";
 
 function cronConfig() {
@@ -378,6 +384,24 @@ module.exports = async (req, res) => {
 
             const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
             const safeLegacyPosition = resolveSafeLegacyPosition(legacy?.position, tags);
+            const identity = buildIdentityFields({
+              email: candidateEmail || legacy?.email,
+              phone: candidatePhone || legacy?.application_phone || legacy?.phone,
+              fullName: candidateName || legacy?.name,
+            });
+            const existingShadow =
+              !identity.person_key && !legacy?.magic_token
+                ? await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null)
+                : null;
+            const magicToken = await resolveMagicToken(
+              {
+                personKey: identity.person_key,
+                existingApplicationToken: existingShadow?.magic_token || legacy?.magic_token || null,
+              },
+              {
+                findMagicTokenByPersonKey: async (personKey) => findMagicTokenByPersonKey(personKey, cfg),
+              }
+            );
             const nextInterview = resolveNextInterviewUtc(
               await getOpportunityInterviews(opportunityId, cfg).catch(() => []),
               Date.now()
@@ -393,7 +417,7 @@ module.exports = async (req, res) => {
               portal_stage_terminal: stageFields.portal_stage_terminal,
               stage_updated: nowIsoUtcSeconds(),
 
-              ...(legacy?.person_key ? { person_key: legacy.person_key } : {}),
+              ...(identity.person_key ? { person_key: identity.person_key } : {}),
               ...(candidateName || legacy?.name ? { name: candidateName || legacy.name } : {}),
               ...(candidateEmail || legacy?.email ? { email: candidateEmail || legacy.email } : {}),
               ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
@@ -401,13 +425,20 @@ module.exports = async (req, res) => {
               ...(currentStage ? { current_stage: currentStage } : {}),
               ...(offer.offerAccess ? { offer_access: true } : {}),
               ...(offer.offerLetterKey ? { offer_letter_key: offer.offerLetterKey } : {}),
-              ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
-              ...(legacy?.application_phone ? { application_phone: legacy.application_phone } : {}),
-              ...(legacy?.application_last_name ? { application_last_name: legacy.application_last_name } : {}),
-              ...(legacy?.application_last_name_norm
-                ? { application_last_name_norm: legacy.application_last_name_norm }
+              magic_token: magicToken,
+              identity_confidence: identity.identity_confidence,
+              ...(identity.application_phone || legacy?.application_phone
+                ? { application_phone: identity.application_phone || legacy.application_phone }
                 : {}),
-              ...(legacy?.identity_confidence ? { identity_confidence: legacy.identity_confidence } : {}),
+              ...(identity.application_last_name || legacy?.application_last_name
+                ? { application_last_name: identity.application_last_name || legacy.application_last_name }
+                : {}),
+              ...(identity.application_last_name_norm || legacy?.application_last_name_norm
+                ? {
+                    application_last_name_norm:
+                      identity.application_last_name_norm || legacy.application_last_name_norm,
+                  }
+                : {}),
             };
 
             await upsertCandidateShadow(row, cfg);

@@ -36,3 +36,9 @@
 - Updated cron and all active webhook handlers to use safe legacy position fallback guard.
 - Confirmed sample null identity fields for lever_id 9a4fe54c-7921-4215-b75c-17898f1fe748 and 47648caa-1049-46a0-b1ff-4abec1ff81a4 are due to absent legacy source rows.
 - Recorded user-confirmed identity/token source-of-truth for future cutover work: preserve existing person_key/identity_confidence/magic_token semantics while removing Power Automate as the producer.
+- Locked cutover requirements received: centralize identity rules into shared utility, preserve exact Power Automate semantics, do not fabricate fallback person_key for missing email+phone, and add tests before wiring runtime callers.
+- Added shared identity utility api/webhooks/lever/_lib/identity.js and backend/tests/identity.test.mjs.
+- Updated backend/package.json with node test runner script for the new identity utility tests.
+- Updated api/webhooks/lever/_lib/supabase.js with token lookup by person_key and existing shadow-row lookup helpers.
+- Updated cron and all active Lever webhook handlers to compute person_key/identity_confidence/application_phone/application_last_name/application_last_name_norm via the shared identity utility and resolve magic_token via same-person token reuse or GUID generation.
+- Updated api/get-offer-url.js to use shared phone and last-name normalization helpers.
