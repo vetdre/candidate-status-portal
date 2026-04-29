@@ -35,3 +35,4 @@
 - Updated api/webhooks/lever/_lib/rules.js with resolveSafeLegacyPosition() to reject legacy position fallback when it collides with opportunity tags.
 - Updated cron and all active webhook handlers to use safe legacy position fallback guard.
 - Confirmed sample null identity fields for lever_id 9a4fe54c-7921-4215-b75c-17898f1fe748 and 47648caa-1049-46a0-b1ff-4abec1ff81a4 are due to absent legacy source rows.
+- Recorded user-confirmed identity/token source-of-truth for future cutover work: preserve existing person_key/identity_confidence/magic_token semantics while removing Power Automate as the producer.

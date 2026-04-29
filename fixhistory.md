@@ -41,3 +41,4 @@
 - Defect: legacy fallback could write tag-like values into position when Lever position payload was empty/missing.
 - Fix: added tag-collision guard for legacy position fallback and applied it in cron + webhook upsert paths.
 - Investigation result: missing person_key/application_phone/magic_token on provided Kaushik samples are explained by missing legacy candidate source rows, not by null-clobber regression.
+- Design constraint captured: future removal of Power Automate must preserve existing person_key grouping and magic_token reuse semantics rather than inventing a new identity model.

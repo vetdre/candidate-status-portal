@@ -29,3 +29,8 @@
 - Confirmed root cause for bad position sample: legacy fallback value in public.Candidates.position contained a tag-like token (Additional+EDU+Alias+Fed), which was being reused when Lever position was absent.
 - Implemented guard to block legacy-position fallback when it matches opportunity tags; applied across cron and all active webhook handlers.
 - Verified null identity fields on provided Kaushik samples are due to no matching legacy candidate row by lever_id/email/name (not overwrite regression).
+- User clarified authoritative identity model to preserve during Power Automate removal: person_key logic must stay the same as legacy portal behavior, only the generator moves out of Power Automate.
+- person_key rules: prefer email -> `email:<lower(trim(email))>`; fallback to normalized 10-digit phone -> `phone:<digits>`.
+- identity_confidence rules: email = 3, phone = 2, otherwise 1.
+- magic_token rule: reuse existing token for same person_key when available; otherwise generate a GUID.
+- Active/current portal behavior still groups multi-application experiences via single-table Candidates/Candidates_shadow style person_key semantics, not split Persons/Applications tables.
