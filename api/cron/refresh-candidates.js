@@ -117,6 +117,24 @@ function resolveOfferFields(opp, currentStage) {
   };
 }
 
+function extractOpportunityTags(opp) {
+  const sources = [opp?.tags, opp?.contact?.tags, opp?.candidate?.tags];
+  const values = [];
+
+  for (const source of sources) {
+    if (!Array.isArray(source)) continue;
+    for (const item of source) {
+      const tag =
+        typeof item === "string"
+          ? asNonEmptyString(item)
+          : firstNonEmpty([item?.text, item?.name, item?.label, item?.value, item?.id]);
+      if (tag) values.push(tag);
+    }
+  }
+
+  return [...new Set(values)];
+}
+
 function getQueryParams(req) {
   try {
     const rawUrl = req && typeof req.url === "string" ? req.url : "";
@@ -180,6 +198,9 @@ module.exports = async (req, res) => {
     const errors = [];
     let fatalError = null;
     let stopReason = "exhausted";
+    let opportunitiesWithTags = 0;
+    let totalTagsObserved = 0;
+    const distinctTags = new Set();
 
     for (const archivedFilter of archivedFilters) {
       offset = null;
@@ -236,6 +257,12 @@ module.exports = async (req, res) => {
               archiveReason,
             });
             const offer = resolveOfferFields(opp, currentStage);
+            const tags = extractOpportunityTags(opp);
+            if (tags.length) {
+              opportunitiesWithTags++;
+              totalTagsObserved += tags.length;
+              for (const tag of tags) distinctTags.add(tag);
+            }
 
             const contact = opp?.contact || {};
             const candidateEmail = resolveContactEmail(contact);
@@ -306,6 +333,12 @@ module.exports = async (req, res) => {
       maxRuntimeMs,
       stopReason,
       elapsedMs: Date.now() - startedAt,
+      tagTelemetry: {
+        opportunitiesWithTags,
+        totalTagsObserved,
+        distinctTagsObserved: distinctTags.size,
+        sample: Array.from(distinctTags).slice(0, 20),
+      },
       errors: errors.length ? errors.slice(0, 5) : undefined,
     });
   } catch (err) {
