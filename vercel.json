@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/refresh-candidates",
+      "schedule": "0 2 * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/lever-webhooks/interviews",

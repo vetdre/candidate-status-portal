@@ -35,8 +35,24 @@ async function getOpportunityInterviews(opportunityId, cfg) {
   return Array.isArray(payload?.data) ? payload.data : [];
 }
 
+async function listOpportunities({ limit = 50, cursor, archived } = {}, cfg) {
+  const qs = new URLSearchParams();
+  qs.set("limit", String(limit));
+  qs.append("expand[]", "contact");
+  if (cursor) qs.set("cursor", cursor);
+  if (archived !== undefined) qs.set("archived", String(archived));
+
+  const payload = await leverGet(`/opportunities?${qs.toString()}`, cfg);
+  return {
+    data: Array.isArray(payload?.data) ? payload.data : [],
+    hasNext: payload?.hasNext || false,
+    next: payload?.next || null,
+  };
+}
+
 module.exports = {
   getOpportunity,
   getCandidate,
   getOpportunityInterviews,
+  listOpportunities,
 };
