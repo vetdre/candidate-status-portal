@@ -47,3 +47,5 @@
 - Fix: implemented shared identity utility and replaced legacy person_key/identity_confidence generation in cron + webhook handlers with app-owned logic matching the locked Power Automate semantics.
 - Fix: token reuse now resolves by computed person_key when present, otherwise preserves/generates per-application token without grouping null-identity candidates.
 - Test coverage added for email normalization, phone normalization, person_key/confidence generation, and magic_token resolution rules.
+- Planned repair: apply one-time backfill to existing Candidates_shadow rows so historical data matches the newly centralized identity logic.
+- Repair executed: backfilled 851 Candidates_shadow rows; remaining gaps reduced to 4 missing person_key rows (no usable email/phone identity), 0 missing identity_confidence, and 0 missing magic_token.

@@ -39,3 +39,6 @@
 - Implemented shared identity utility at api/webhooks/lever/_lib/identity.js covering email normalization, phone normalization, person_key generation, identity_confidence, last-name extraction, and magic_token reuse/generation.
 - Cron, all active Lever webhook handlers, and api/get-offer-url.js now consume shared identity helpers instead of duplicating phone normalization / legacy person_key carry-forward logic.
 - Token reuse lookup now checks existing rows by person_key; when person_key is null, token reuse is limited to the same application row instead of grouping on weak identity.
+- Next step after code deploy: backfill existing Candidates_shadow rows missing person_key / identity_confidence / application_phone / magic_token using the same locked identity rules so historical rows converge without waiting on future touches.
+- One-time backfill executed against Candidates_shadow: updated 851 rows.
+- Post-backfill status: missing_person_key = 4, missing_identity_confidence = 0, missing_application_phone = 80, missing_magic_token = 0; remaining missing person_key rows are expected no-identity cases.

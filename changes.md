@@ -42,3 +42,5 @@
 - Updated api/webhooks/lever/_lib/supabase.js with token lookup by person_key and existing shadow-row lookup helpers.
 - Updated cron and all active Lever webhook handlers to compute person_key/identity_confidence/application_phone/application_last_name/application_last_name_norm via the shared identity utility and resolve magic_token via same-person token reuse or GUID generation.
 - Updated api/get-offer-url.js to use shared phone and last-name normalization helpers.
+- Began one-time data repair step to backfill existing Candidates_shadow identity fields using the newly centralized rules.
+- Executed one-time Candidates_shadow identity backfill in Supabase: updated 851 rows to fill person_key/identity_confidence/application_phone/application_last_name/application_last_name_norm/magic_token where missing using the centralized rules.
