@@ -25,6 +25,11 @@ function asPositiveInt(value, fallback) {
   return Math.floor(n);
 }
 
+function getQueryParams(req) {
+  const url = new URL(req.url || "", "http://localhost");
+  return url.searchParams;
+}
+
 module.exports = async (req, res) => {
   // Verify Vercel cron authorization.
   const cronSecret = process.env.CRON_SECRET;
@@ -47,17 +52,23 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const q = req.query || {};
-    const pageSize = asPositiveInt(q.pageSize, asPositiveInt(process.env.CRON_REFRESH_PAGE_SIZE, 50));
+    const q = getQueryParams(req);
+    const pageSize = asPositiveInt(
+      q.get("pageSize"),
+      asPositiveInt(process.env.CRON_REFRESH_PAGE_SIZE, 50)
+    );
     const maxRecords = Math.max(
       pageSize,
-      asPositiveInt(q.maxRecords, asPositiveInt(process.env.CRON_REFRESH_MAX_RECORDS, 500))
+      asPositiveInt(q.get("maxRecords"), asPositiveInt(process.env.CRON_REFRESH_MAX_RECORDS, 500))
     );
     const maxRuntimeMs = Math.max(
       30000,
-      asPositiveInt(q.maxRuntimeMs, asPositiveInt(process.env.CRON_REFRESH_MAX_RUNTIME_MS, 270000))
+      asPositiveInt(
+        q.get("maxRuntimeMs"),
+        asPositiveInt(process.env.CRON_REFRESH_MAX_RUNTIME_MS, 270000)
+      )
     );
-    const scope = String(q.scope || process.env.CRON_REFRESH_SCOPE || "all")
+    const scope = String(q.get("scope") || process.env.CRON_REFRESH_SCOPE || "all")
       .trim()
       .toLowerCase();
     const archivedFilters = scope === "archived" ? [true] : scope === "active" ? [false] : [false, true];
