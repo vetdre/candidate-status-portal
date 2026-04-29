@@ -11,3 +11,13 @@
 - Lever webhook verification must use HMAC-SHA256 over token+triggeredAt with the configured webhook secret; token-equals-secret mode is only legacy fallback.
 - Lever "Verify connection" sends a signed test payload that can omit opportunityId; routes should return 2xx for that signed ping.
 - External webhook URLs can avoid the /api prefix by using Vercel rewrites under /lever-webhooks/* mapped to /api/webhooks/lever/*.
+
+## 2026-04-29
+- Shifted authoritative ingestion behavior to direct Lever API fetches in webhook + cron paths to reduce dependence on stale Power Automate sync state.
+- Cron refresh now supports pagination with offset, confidentiality=all, active+archived scope, runtime/record caps, and next_interview enrichment.
+- Stage normalization is aligned to legacy Power Automate switch map (16 cases) and archive reason normalization is aligned to legacy switch map (14 cases).
+- Null-safe write behavior is enforced in cron and webhook upserts to prevent overwriting populated fields with null (including magic_token preservation).
+- Cron and webhooks now skip ingestion for import-tagged candidates: candidateimport1/2/3/5/6 and ccandidateimport4.
+- Cron response and runtime logs now expose tag telemetry and import-tag skip counts for run-by-run validation.
+- Offer metadata enrichment added in cron (offer_access and offer_letter_key derivation when available).
+- User requirement reaffirmed: before any new implementation work, update memory.md, changes.md, and fixhistory.md first.

@@ -14,3 +14,16 @@
 - Updated api/webhooks/lever/application-created.js, api/webhooks/lever/candidate-stage-change.js, api/webhooks/lever/archive-state-change.js, and api/webhooks/lever/interviews.js to return HTTP 200 for signed Lever connection-test payloads that omit data.opportunityId.
 - Updated api/webhooks/lever/_lib/env.js to make LEVER_API_KEY optional at config load time so signed connection-test pings can pass without Lever API fetch dependencies.
 - Updated vercel.json with /lever-webhooks/* rewrites to existing /api/webhooks/lever/* routes so webhook URLs can be configured without exposing /api in the external path.
+
+## 2026-04-29
+- Updated api/webhooks/lever/_lib/supabase.js to include email/phone in legacy candidate fallback reads.
+- Updated webhook handlers to fetch candidate contact details directly from Lever and prefer live Lever values with legacy fallback.
+- Added api/cron/refresh-candidates.js and configured vercel.json cron schedule for nightly shadow refresh.
+- Iteratively updated cron to support offset pagination, active+archived scope, confidentiality=all, runtime/record caps, and stop reason reporting.
+- Updated cron to compute next_interview by fetching Lever interviews per opportunity.
+- Updated cron and webhook upsert payloads to preserve existing populated values (null-safe field writes, magic_token protection).
+- Updated api/webhooks/lever/_lib/rules.js with full Power Automate stage mapping switch equivalents and archive reason mapping switch equivalents.
+- Updated stage extraction to normalize object/id-like stage payloads to canonical labels when mappable.
+- Updated cron to enrich offer_access and offer_letter_key from opportunity offer payloads when available.
+- Added cron diagnostics for tag telemetry in response and runtime logs.
+- Added import-tag exclusion rules (candidateimport1/2/3/5/6 and ccandidateimport4) and enforced skipping in cron and all active webhook handlers.
