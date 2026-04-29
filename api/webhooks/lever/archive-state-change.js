@@ -6,6 +6,7 @@ const {
   resolvePortalStageFields,
   nowIsoUtcSeconds,
   resolveCurrentStageLabel,
+  normalizeArchiveReason,
   resolvePositionLabel,
   resolveContactEmail,
   resolveContactPhone,
@@ -83,7 +84,9 @@ module.exports = async (req, res) => {
       // Verified branch logic: archive state is determined by webhook toArchived presence.
       const archived = toArchived != null;
       // Verified source of truth for reason: fetched opportunity archived.reason.
-      const archiveReason = archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
+      const archiveReason = normalizeArchiveReason(
+        archived && opp?.archived?.reason ? String(opp.archived.reason) : null
+      );
       const currentStage = resolveCurrentStageLabel(opp?.stage);
       const position = resolvePositionLabel(opp?.position);
 

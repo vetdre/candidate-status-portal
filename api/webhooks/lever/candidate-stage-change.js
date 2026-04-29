@@ -6,6 +6,7 @@ const {
   resolvePortalStageFields,
   nowIsoUtcSeconds,
   resolveCurrentStageLabel,
+  normalizeArchiveReason,
   resolvePositionLabel,
   resolveContactEmail,
   resolveContactPhone,
@@ -78,7 +79,9 @@ module.exports = async (req, res) => {
     try {
       const opp = await getOpportunity(opportunityId, cfg);
       const archived = opp?.archived != null;
-      const archiveReason = archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
+      const archiveReason = normalizeArchiveReason(
+        archived && opp?.archived?.reason ? String(opp.archived.reason) : null
+      );
       const currentStage = resolveCurrentStageLabel(opp?.stage);
       const position = resolvePositionLabel(opp?.position);
       const stageFields = resolvePortalStageFields({

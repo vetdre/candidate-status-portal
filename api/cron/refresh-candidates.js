@@ -4,6 +4,7 @@ const {
   resolveNextInterviewUtc,
   nowIsoUtcSeconds,
   resolveCurrentStageLabel,
+  normalizeArchiveReason,
   resolvePositionLabel,
   resolveContactName,
   resolveContactEmail,
@@ -225,8 +226,9 @@ module.exports = async (req, res) => {
             if (!opportunityId) continue;
 
             const archived = opp?.archived != null;
-            const archiveReason =
-              archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
+            const archiveReason = normalizeArchiveReason(
+              archived && opp?.archived?.reason ? String(opp.archived.reason) : null
+            );
             const currentStage = resolveCurrentStageLabel(opp?.stage);
             const stageFields = resolvePortalStageFields({
               currentStage,

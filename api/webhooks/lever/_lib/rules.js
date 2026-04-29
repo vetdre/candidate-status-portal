@@ -34,11 +34,36 @@ const POWER_AUTOMATE_STAGE_MAP = {
   "f3a6f8ba-4ad7-4fe0-ba59-3775ea5ea8af": "Decline Candidate",
 };
 
+const POWER_AUTOMATE_ARCHIVE_REASON_MAP = {
+  "cff998ba-a873-474f-9b81-353efb7e2fdf": "Does Not Meet Minimum Requirements",
+  "7e360c2b-98ac-4bf9-aaba-7adbda80df24": "Non-Responsive",
+  "67a2a47c-0f02-4d21-97c5-3b22c3dcebfe": "Location Does Not Work",
+  "5ef42b7b-0842-4c3f-bf73-aa666c92bdda": "Withdrew Application",
+  "682434eb-29c4-49c2-8bf2-08f2eba9d8c6": "Declined Offer",
+  "28df8038-1352-47d6-8d9e-ad9d858fc930": "Position Closed or On Hold",
+  "065bdabc-f3ac-4bf3-8f95-368a0193996a": "Hired",
+  "0a7b5763-557e-4384-ba80-22a03d0182e6": "Another Candidate Selected",
+  "79f0bf1d-e968-40f8-93fd-54230773b561": "Hold - Future Consideration",
+  "945c66de-c091-4ec2-9e10-13cb5d3a39bd": "Not Eligible For US Work Without Sponsorship",
+  "307d0439-73ed-4bad-a78d-e4d4465c54fe": "Assigned to different position",
+  "70359e5f-c78a-476f-80e3-c980a7b0e53c": "Salary expectations are out of range",
+  "ff6c0a92-6c89-4fd4-9491-5b55a6f8d28b": "Offer Rescinded",
+  "fa0cba21-1784-4d3a-a361-2235c3d423a9": "Archived - Other",
+};
+
 function normalizePowerAutomateStage(raw) {
   const token = asNonEmptyString(raw);
   if (!token) return null;
 
   const mapped = POWER_AUTOMATE_STAGE_MAP[token.toLowerCase()];
+  return mapped || token;
+}
+
+function normalizeArchiveReason(raw) {
+  const token = asNonEmptyString(raw);
+  if (!token) return null;
+
+  const mapped = POWER_AUTOMATE_ARCHIVE_REASON_MAP[token.toLowerCase()];
   return mapped || token;
 }
 
@@ -191,6 +216,7 @@ module.exports = {
   resolveNextInterviewUtc,
   nowIsoUtcSeconds,
   resolveCurrentStageLabel,
+  normalizeArchiveReason,
   resolvePositionLabel,
   resolveContactName,
   resolveContactEmail,
