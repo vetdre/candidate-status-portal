@@ -15,17 +15,46 @@ function firstString(values) {
   return null;
 }
 
+const POWER_AUTOMATE_STAGE_MAP = {
+  "lead-new": "New Lead",
+  "lead-reached-out": "Reached Out",
+  "lead-responded": "Responded",
+  "applicant-new": "New applicant",
+  "7b042735-93c4-4f99-a12d-5c63060f0cb5": "Review",
+  "eb4bc7f9-c6d7-4b82-8eb5-ae53ef2940e6": "Phone screen",
+  "4d64f338-9d80-41b8-91a1-867835252a3d": "Virtual interview",
+  "ec8e09e6-25ee-47e1-a24b-fd43bc1aafa9": "Interview",
+  "514e64a3-7600-4e08-a16f-d56fc6d57883": "Second interview",
+  "c8bdc4ee-d87a-4102-9ade-a2a199c7b0a8": "Third interview",
+  "a1339f72-2853-4465-bedc-4d1fd6dc8efc": "Reference check",
+  "c320de36-762d-4f67-9fdd-d875561e2adb": "In progress",
+  offer: "Offer",
+  "7bac956b-7e4f-4d04-8ed5-d0187274a267": "Background Check",
+  "4bde84f8-de25-4dd5-83e0-883f0fe483e0": "Request Phone Screen",
+  "f3a6f8ba-4ad7-4fe0-ba59-3775ea5ea8af": "Decline Candidate",
+};
+
+function normalizePowerAutomateStage(raw) {
+  const token = asNonEmptyString(raw);
+  if (!token) return null;
+
+  const mapped = POWER_AUTOMATE_STAGE_MAP[token.toLowerCase()];
+  return mapped || token;
+}
+
 function resolveCurrentStageLabel(stage) {
-  if (typeof stage === "string") return asNonEmptyString(stage);
+  if (typeof stage === "string") return normalizePowerAutomateStage(stage);
   if (!stage || typeof stage !== "object") return null;
 
-  return firstString([
+  const raw = firstString([
     stage.text,
     stage.name,
     stage.label,
     stage.value,
     stage.id,
   ]);
+
+  return normalizePowerAutomateStage(raw);
 }
 
 function resolvePositionLabel(position) {
@@ -121,7 +150,7 @@ function resolvePortalStageFields(input) {
     return { portal_stage: "Interviewing", portal_stage_order: 30, portal_stage_terminal: false };
   }
 
-  if (stage === "reference check" || stage === "requisition") {
+  if (stage === "reference check" || stage === "requisition" || stage === "in progress") {
     return {
       portal_stage: "Decision in Progress",
       portal_stage_order: 40,
