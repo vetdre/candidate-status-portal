@@ -30,6 +30,92 @@ function asPositiveInt(value, fallback) {
   return Math.floor(n);
 }
 
+function asNonEmptyString(value) {
+  const s = String(value == null ? "" : value).trim();
+  return s || null;
+}
+
+function firstNonEmpty(values) {
+  for (const v of values) {
+    const s = asNonEmptyString(v);
+    if (s) return s;
+  }
+  return null;
+}
+
+function asBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return null;
+    if (["true", "1", "yes", "y", "sent", "signed", "approved"].includes(normalized)) return true;
+    if (["false", "0", "no", "n", "draft", "voided", "rejected"].includes(normalized)) return false;
+  }
+  return null;
+}
+
+function toTimeMs(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string") return 0;
+  const n = Number(value);
+  if (Number.isFinite(n)) return n;
+  const t = Date.parse(value);
+  return Number.isFinite(t) ? t : 0;
+}
+
+function resolveOfferFields(opp, currentStage) {
+  const offers = Array.isArray(opp?.offers) ? opp.offers : [];
+  const sorted = [...offers].sort((a, b) => {
+    const aMs = Math.max(
+      toTimeMs(a?.updatedAt),
+      toTimeMs(a?.createdAt),
+      toTimeMs(a?.sentAt),
+      toTimeMs(a?.created)
+    );
+    const bMs = Math.max(
+      toTimeMs(b?.updatedAt),
+      toTimeMs(b?.createdAt),
+      toTimeMs(b?.sentAt),
+      toTimeMs(b?.created)
+    );
+    return bMs - aMs;
+  });
+
+  const latest = sorted[0] || null;
+  const stageLower = String(currentStage || "").trim().toLowerCase();
+
+  const explicitAccess = asBoolean(
+    latest?.offerAccess ?? latest?.hasAccess ?? latest?.accessible ?? latest?.isAccessible
+  );
+  const statusAccess = asBoolean(latest?.status);
+  const inferredAccess = offers.length > 0 || stageLower === "offer" || stageLower === "background check";
+  const offerAccess = explicitAccess != null ? explicitAccess : statusAccess != null ? statusAccess : inferredAccess;
+
+  const offerId = firstNonEmpty([latest?.id, latest?.offerId]);
+  const offerStatus = firstNonEmpty([latest?.status, latest?.state]);
+  const directKey = firstNonEmpty([
+    latest?.offer_letter_key,
+    latest?.offerLetterKey,
+    latest?.documentKey,
+    latest?.fileKey,
+    latest?.storageKey,
+    latest?.document?.key,
+    latest?.file?.key,
+    latest?.letterDocument?.key,
+  ]);
+
+  let offerLetterKey = directKey;
+  if (!offerLetterKey && offerId && opp?.id) {
+    offerLetterKey = `${String(opp.id)}/${offerId}${offerStatus ? `_${offerStatus}` : ""}.pdf`;
+  }
+
+  return {
+    offerAccess,
+    offerLetterKey,
+  };
+}
+
 function getQueryParams(req) {
   try {
     const rawUrl = req && typeof req.url === "string" ? req.url : "";
@@ -147,6 +233,7 @@ module.exports = async (req, res) => {
               archived,
               archiveReason,
             });
+            const offer = resolveOfferFields(opp, currentStage);
 
             const contact = opp?.contact || {};
             const candidateEmail = resolveContactEmail(contact);
@@ -176,6 +263,8 @@ module.exports = async (req, res) => {
               ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
               ...(position || legacy?.position ? { position: position || legacy.position } : {}),
               ...(currentStage ? { current_stage: currentStage } : {}),
+              ...(offer.offerAccess ? { offer_access: true } : {}),
+              ...(offer.offerLetterKey ? { offer_letter_key: offer.offerLetterKey } : {}),
               ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
               ...(legacy?.application_phone ? { application_phone: legacy.application_phone } : {}),
               ...(legacy?.application_last_name ? { application_last_name: legacy.application_last_name } : {}),
