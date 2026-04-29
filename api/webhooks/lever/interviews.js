@@ -1,7 +1,7 @@
 const { config, expectedSecretForEvent } = require("./_lib/env");
 const { buildInterviewDedupeKey } = require("./_lib/dedupe");
 const { verifyWebhookEnvelope } = require("./_lib/verify");
-const { getOpportunity, getOpportunityInterviews } = require("./_lib/lever");
+const { getOpportunity, getCandidate, getOpportunityInterviews } = require("./_lib/lever");
 const {
   resolvePortalStageFields,
   resolveNextInterviewUtc,
@@ -42,6 +42,7 @@ module.exports = async (req, res) => {
     }
 
     const opportunityId = body?.data?.opportunityId ? String(body.data.opportunityId) : "";
+    const candidateId = body?.data?.candidateId ? String(body.data.candidateId) : "";
     const interviewId = body?.data?.interviewId ? String(body.data.interviewId) : null;
     const triggeredAt = body?.triggeredAt ?? null;
 
@@ -87,6 +88,11 @@ module.exports = async (req, res) => {
       });
 
       const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg);
+      
+      // Fetch candidate details directly from Lever for contact info.
+      const candidate = candidateId ? await getCandidate(candidateId, cfg).catch(() => ({})) : {};
+      const candidateEmail = candidate?.emails?.[0]?.value || null;
+      const candidatePhone = candidate?.phones?.[0]?.value || null;
 
       await upsertApplicationNormalized(
         {
@@ -114,8 +120,8 @@ module.exports = async (req, res) => {
           lever_id: opportunityId,
           person_key: legacy?.person_key || null,
           name: legacy?.name || null,
-          email: legacy?.email || null,
-          phone: legacy?.phone || null,
+          email: candidateEmail || legacy?.email || null,
+          phone: candidatePhone || legacy?.phone || null,
           position: legacy?.position || null,
           current_stage: opp?.stage || null,
           archived,

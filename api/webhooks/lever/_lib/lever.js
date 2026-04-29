@@ -25,6 +25,11 @@ async function getOpportunity(opportunityId, cfg) {
   return payload?.data || {};
 }
 
+async function getCandidate(candidateId, cfg) {
+  const payload = await leverGet(`/candidates/${encodeURIComponent(candidateId)}`, cfg);
+  return payload?.data || {};
+}
+
 async function getOpportunityInterviews(opportunityId, cfg) {
   const payload = await leverGet(`/opportunities/${encodeURIComponent(opportunityId)}/interviews`, cfg);
   return Array.isArray(payload?.data) ? payload.data : [];
@@ -32,5 +37,6 @@ async function getOpportunityInterviews(opportunityId, cfg) {
 
 module.exports = {
   getOpportunity,
+  getCandidate,
   getOpportunityInterviews,
 };
