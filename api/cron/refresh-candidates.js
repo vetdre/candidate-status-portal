@@ -1,5 +1,9 @@
-const { listOpportunities } = require("../webhooks/lever/_lib/lever");
-const { resolvePortalStageFields, nowIsoUtcSeconds } = require("../webhooks/lever/_lib/rules");
+const { listOpportunities, getOpportunityInterviews } = require("../webhooks/lever/_lib/lever");
+const {
+  resolvePortalStageFields,
+  resolveNextInterviewUtc,
+  nowIsoUtcSeconds,
+} = require("../webhooks/lever/_lib/rules");
 const { upsertCandidateShadow, getLegacyCandidateByLeverId } = require("../webhooks/lever/_lib/supabase");
 
 function cronConfig() {
@@ -104,6 +108,8 @@ module.exports = async (req, res) => {
             const candidateName = contact?.name || null;
 
             const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
+            const interviews = await getOpportunityInterviews(opportunityId, cfg).catch(() => []);
+            const nextInterview = resolveNextInterviewUtc(interviews, Date.now());
 
             await upsertCandidateShadow(
               {
@@ -116,6 +122,7 @@ module.exports = async (req, res) => {
                 current_stage: opp?.stage || null,
                 archived,
                 archive_reason: archiveReason,
+                next_interview: nextInterview,
                 portal_stage: stageFields.portal_stage,
                 portal_stage_order: stageFields.portal_stage_order,
                 portal_stage_terminal: stageFields.portal_stage_terminal,
