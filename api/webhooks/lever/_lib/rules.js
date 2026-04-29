@@ -2,6 +2,78 @@ function normalizeStage(stage) {
   return String(stage || "").trim().toLowerCase();
 }
 
+function asNonEmptyString(value) {
+  const s = String(value == null ? "" : value).trim();
+  return s || null;
+}
+
+function firstString(values) {
+  for (const value of values) {
+    const s = asNonEmptyString(value);
+    if (s) return s;
+  }
+  return null;
+}
+
+function resolveCurrentStageLabel(stage) {
+  if (typeof stage === "string") return asNonEmptyString(stage);
+  if (!stage || typeof stage !== "object") return null;
+
+  return firstString([
+    stage.text,
+    stage.name,
+    stage.label,
+    stage.value,
+    stage.id,
+  ]);
+}
+
+function resolvePositionLabel(position) {
+  if (typeof position === "string") return asNonEmptyString(position);
+  if (!position || typeof position !== "object") return null;
+
+  return firstString([
+    position.text,
+    position.name,
+    position.title,
+    position.label,
+    position.id,
+  ]);
+}
+
+function resolveContactName(contact) {
+  if (!contact || typeof contact !== "object") return null;
+  return firstString([contact.name, contact.fullName]);
+}
+
+function resolveContactEmail(source) {
+  if (!source || typeof source !== "object") return null;
+
+  const first = Array.isArray(source.emails) ? source.emails[0] : null;
+  if (typeof first === "string") return asNonEmptyString(first);
+
+  return firstString([
+    first?.value,
+    first?.email,
+    first?.address,
+    source.email,
+  ]);
+}
+
+function resolveContactPhone(source) {
+  if (!source || typeof source !== "object") return null;
+
+  const first = Array.isArray(source.phones) ? source.phones[0] : null;
+  if (typeof first === "string") return asNonEmptyString(first);
+
+  return firstString([
+    first?.value,
+    first?.phone,
+    first?.number,
+    source.phone,
+  ]);
+}
+
 function resolvePortalStageFields(input) {
   const stage = normalizeStage(input.currentStage);
   const reason = String(input.archiveReason || "").trim().toLowerCase();
@@ -89,4 +161,9 @@ module.exports = {
   resolvePortalStageFields,
   resolveNextInterviewUtc,
   nowIsoUtcSeconds,
+  resolveCurrentStageLabel,
+  resolvePositionLabel,
+  resolveContactName,
+  resolveContactEmail,
+  resolveContactPhone,
 };

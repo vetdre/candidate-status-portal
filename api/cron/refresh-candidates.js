@@ -3,6 +3,11 @@ const {
   resolvePortalStageFields,
   resolveNextInterviewUtc,
   nowIsoUtcSeconds,
+  resolveCurrentStageLabel,
+  resolvePositionLabel,
+  resolveContactName,
+  resolveContactEmail,
+  resolveContactPhone,
 } = require("../webhooks/lever/_lib/rules");
 const { upsertCandidateShadow, getLegacyCandidateByLeverId } = require("../webhooks/lever/_lib/supabase");
 
@@ -136,16 +141,18 @@ module.exports = async (req, res) => {
             const archived = opp?.archived != null;
             const archiveReason =
               archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
+            const currentStage = resolveCurrentStageLabel(opp?.stage);
             const stageFields = resolvePortalStageFields({
-              currentStage: opp?.stage || null,
+              currentStage,
               archived,
               archiveReason,
             });
 
             const contact = opp?.contact || {};
-            const candidateEmail = contact?.emails?.[0]?.value || null;
-            const candidatePhone = contact?.phones?.[0]?.value || null;
-            const candidateName = contact?.name || null;
+            const candidateEmail = resolveContactEmail(contact);
+            const candidatePhone = resolveContactPhone(contact);
+            const candidateName = resolveContactName(contact);
+            const position = resolvePositionLabel(opp?.position);
 
             const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
             const nextInterview = resolveNextInterviewUtc(
@@ -153,31 +160,32 @@ module.exports = async (req, res) => {
               Date.now()
             );
 
-            await upsertCandidateShadow(
-              {
-                lever_id: opportunityId,
-                person_key: legacy?.person_key || null,
-                name: candidateName || legacy?.name || null,
-                email: candidateEmail || legacy?.email || null,
-                phone: candidatePhone || legacy?.phone || null,
-                position: opp?.position?.text || legacy?.position || null,
-                current_stage: opp?.stage || null,
-                archived,
-                archive_reason: archiveReason,
-                next_interview: nextInterview,
-                portal_stage: stageFields.portal_stage,
-                portal_stage_order: stageFields.portal_stage_order,
-                portal_stage_terminal: stageFields.portal_stage_terminal,
-                stage_updated: nowIsoUtcSeconds(),
+            const row = {
+              lever_id: opportunityId,
+              archived,
+              archive_reason: archiveReason,
+              next_interview: nextInterview,
+              portal_stage: stageFields.portal_stage,
+              portal_stage_order: stageFields.portal_stage_order,
+              portal_stage_terminal: stageFields.portal_stage_terminal,
+              stage_updated: nowIsoUtcSeconds(),
 
-                ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
-                application_phone: legacy?.application_phone || null,
-                application_last_name: legacy?.application_last_name || null,
-                application_last_name_norm: legacy?.application_last_name_norm || null,
-                identity_confidence: legacy?.identity_confidence || null,
-              },
-              cfg
-            );
+              ...(legacy?.person_key ? { person_key: legacy.person_key } : {}),
+              ...(candidateName || legacy?.name ? { name: candidateName || legacy.name } : {}),
+              ...(candidateEmail || legacy?.email ? { email: candidateEmail || legacy.email } : {}),
+              ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
+              ...(position || legacy?.position ? { position: position || legacy.position } : {}),
+              ...(currentStage ? { current_stage: currentStage } : {}),
+              ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
+              ...(legacy?.application_phone ? { application_phone: legacy.application_phone } : {}),
+              ...(legacy?.application_last_name ? { application_last_name: legacy.application_last_name } : {}),
+              ...(legacy?.application_last_name_norm
+                ? { application_last_name_norm: legacy.application_last_name_norm }
+                : {}),
+              ...(legacy?.identity_confidence ? { identity_confidence: legacy.identity_confidence } : {}),
+            };
+
+            await upsertCandidateShadow(row, cfg);
 
             processed++;
           } catch (err) {

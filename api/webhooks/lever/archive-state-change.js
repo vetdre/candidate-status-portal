@@ -2,7 +2,14 @@ const { config, expectedSecretForEvent } = require("./_lib/env");
 const { buildArchiveDedupeKey } = require("./_lib/dedupe");
 const { verifyWebhookEnvelope } = require("./_lib/verify");
 const { getOpportunity, getCandidate } = require("./_lib/lever");
-const { resolvePortalStageFields, nowIsoUtcSeconds } = require("./_lib/rules");
+const {
+  resolvePortalStageFields,
+  nowIsoUtcSeconds,
+  resolveCurrentStageLabel,
+  resolvePositionLabel,
+  resolveContactEmail,
+  resolveContactPhone,
+} = require("./_lib/rules");
 const {
   json,
   insertIngestEvent,
@@ -77,9 +84,11 @@ module.exports = async (req, res) => {
       const archived = toArchived != null;
       // Verified source of truth for reason: fetched opportunity archived.reason.
       const archiveReason = archived && opp?.archived?.reason ? String(opp.archived.reason) : null;
+      const currentStage = resolveCurrentStageLabel(opp?.stage);
+      const position = resolvePositionLabel(opp?.position);
 
       const stageFields = resolvePortalStageFields({
-        currentStage: opp?.stage || null,
+        currentStage,
         archived,
         archiveReason,
       });
@@ -88,16 +97,16 @@ module.exports = async (req, res) => {
       
       // Fetch candidate details directly from Lever for contact info.
       const candidate = candidateId ? await getCandidate(candidateId, cfg).catch(() => ({})) : {};
-      const candidateEmail = candidate?.emails?.[0]?.value || null;
-      const candidatePhone = candidate?.phones?.[0]?.value || null;
+      const candidateEmail = resolveContactEmail(candidate);
+      const candidatePhone = resolveContactPhone(candidate);
 
       await upsertApplicationNormalized(
         {
           lever_opportunity_id: opportunityId,
           person_key: legacy?.person_key || null,
           candidate_name: legacy?.name || null,
-          position: legacy?.position || null,
-          current_stage: opp?.stage || null,
+          position: position || legacy?.position || null,
+          current_stage: currentStage,
           archived,
           archive_reason: archiveReason,
           portal_stage: stageFields.portal_stage,
@@ -109,32 +118,32 @@ module.exports = async (req, res) => {
         cfg
       );
 
-      await upsertCandidateShadow(
-        {
-          lever_id: opportunityId,
-          person_key: legacy?.person_key || null,
-          name: legacy?.name || null,
-          email: candidateEmail || legacy?.email || null,
-          phone: candidatePhone || legacy?.phone || null,
-          position: legacy?.position || null,
-          current_stage: opp?.stage || null,
-          archived,
-          archive_reason: archiveReason,
-          next_interview: null,
-          portal_stage: stageFields.portal_stage,
-          portal_stage_order: stageFields.portal_stage_order,
-          portal_stage_terminal: stageFields.portal_stage_terminal,
-          stage_updated: nowIsoUtcSeconds(),
+      const row = {
+        lever_id: opportunityId,
+        archived,
+        archive_reason: archiveReason,
+        next_interview: null,
+        portal_stage: stageFields.portal_stage,
+        portal_stage_order: stageFields.portal_stage_order,
+        portal_stage_terminal: stageFields.portal_stage_terminal,
+        stage_updated: nowIsoUtcSeconds(),
 
-          // Phase-1 identity compatibility carry-forward.
-          ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
-          application_phone: legacy?.application_phone || null,
-          application_last_name: legacy?.application_last_name || null,
-          application_last_name_norm: legacy?.application_last_name_norm || null,
-          identity_confidence: legacy?.identity_confidence || null,
-        },
-        cfg
-      );
+        ...(legacy?.person_key ? { person_key: legacy.person_key } : {}),
+        ...(legacy?.name ? { name: legacy.name } : {}),
+        ...(candidateEmail || legacy?.email ? { email: candidateEmail || legacy.email } : {}),
+        ...(candidatePhone || legacy?.phone ? { phone: candidatePhone || legacy.phone } : {}),
+        ...(position || legacy?.position ? { position: position || legacy.position } : {}),
+        ...(currentStage ? { current_stage: currentStage } : {}),
+        ...(legacy?.magic_token ? { magic_token: legacy.magic_token } : {}),
+        ...(legacy?.application_phone ? { application_phone: legacy.application_phone } : {}),
+        ...(legacy?.application_last_name ? { application_last_name: legacy.application_last_name } : {}),
+        ...(legacy?.application_last_name_norm
+          ? { application_last_name_norm: legacy.application_last_name_norm }
+          : {}),
+        ...(legacy?.identity_confidence ? { identity_confidence: legacy.identity_confidence } : {}),
+      };
+
+      await upsertCandidateShadow(row, cfg);
 
       await updateIngestStatus(ingest.id, "processed", null, cfg);
       return json(res, 200, { ok: true, ingestEventId: ingest.id });
