@@ -27,3 +27,7 @@
 - Updated cron to enrich offer_access and offer_letter_key from opportunity offer payloads when available.
 - Added cron diagnostics for tag telemetry in response and runtime logs.
 - Added import-tag exclusion rules (candidateimport1/2/3/5/6 and ccandidateimport4) and enforced skipping in cron and all active webhook handlers.
+- Logged remediation task: implement persisted cron checkpoint/resume to prevent restart-from-zero behavior on repeated runtime-capped runs.
+- Added backend/migrations/0008_cron_refresh_checkpoint.sql to create public.cron_refresh_state and service_role policy.
+- Updated api/cron/refresh-candidates.js to load/save checkpoint state, resume offsets across runs, and report checkpoint status in run output.
+- Applied Supabase migration cron_refresh_checkpoint to project nnauvyublclfeqizpawr.

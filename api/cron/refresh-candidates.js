@@ -13,6 +13,7 @@ const {
   getExcludedImportTags,
 } = require("../webhooks/lever/_lib/rules");
 const { upsertCandidateShadow, getLegacyCandidateByLeverId } = require("../webhooks/lever/_lib/supabase");
+const CRON_CHECKPOINT_JOB = "candidates_shadow_refresh";
 
 function cronConfig() {
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -129,6 +130,82 @@ function getQueryParams(req) {
   }
 }
 
+async function supabaseAdminFetch(path, opts, cfg) {
+  const resp = await fetch(`${cfg.supabaseUrl}${path}`, {
+    ...opts,
+    headers: {
+      ...(opts?.headers || {}),
+      apikey: cfg.serviceRole,
+      Authorization: `Bearer ${cfg.serviceRole}`,
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    const err = new Error(`cron checkpoint fetch failed: ${resp.status} ${resp.statusText} :: ${text}`);
+    err.status = resp.status;
+    throw err;
+  }
+
+  return resp;
+}
+
+async function loadCheckpoint(cfg) {
+  const defaultState = {
+    enabled: true,
+    phase: "active",
+    active_offset: null,
+    archived_offset: null,
+  };
+
+  try {
+    const resp = await supabaseAdminFetch(
+      `/rest/v1/cron_refresh_state?job_name=eq.${encodeURIComponent(CRON_CHECKPOINT_JOB)}&select=phase,active_offset,archived_offset&limit=1`,
+      { method: "GET" },
+      cfg
+    );
+    const rows = await resp.json().catch(() => []);
+    const row = Array.isArray(rows) && rows.length ? rows[0] : null;
+    if (!row) return defaultState;
+
+    return {
+      enabled: true,
+      phase: row.phase === "archived" ? "archived" : "active",
+      active_offset: row.active_offset || null,
+      archived_offset: row.archived_offset || null,
+    };
+  } catch (err) {
+    return {
+      ...defaultState,
+      enabled: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+async function saveCheckpoint(state, cfg) {
+  if (!state?.enabled) return;
+
+  await supabaseAdminFetch(
+    `/rest/v1/cron_refresh_state?on_conflict=job_name`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        job_name: CRON_CHECKPOINT_JOB,
+        phase: state.phase === "archived" ? "archived" : "active",
+        active_offset: state.active_offset || null,
+        archived_offset: state.archived_offset || null,
+        updated_at: new Date().toISOString(),
+      }),
+    },
+    cfg
+  );
+}
+
 module.exports = async (req, res) => {
   // Verify Vercel cron authorization.
   const cronSecret = process.env.CRON_SECRET;
@@ -170,7 +247,20 @@ module.exports = async (req, res) => {
     const scope = String(q.get("scope") || process.env.CRON_REFRESH_SCOPE || "all")
       .trim()
       .toLowerCase();
-    const archivedFilters = scope === "archived" ? [true] : scope === "active" ? [false] : [false, true];
+    const checkpointState = await loadCheckpoint(cfg);
+    const checkpointWarnings = [];
+    if (!checkpointState.enabled && checkpointState.error) {
+      checkpointWarnings.push(checkpointState.error);
+    }
+
+    const archivedFilters =
+      scope === "archived"
+        ? [true]
+        : scope === "active"
+          ? [false]
+          : checkpointState.phase === "archived"
+            ? [true]
+            : [false, true];
     const startedAt = Date.now();
 
     let processed = 0;
@@ -189,16 +279,31 @@ module.exports = async (req, res) => {
     const skippedImportTagCounts = {};
 
     for (const archivedFilter of archivedFilters) {
-      offset = null;
+      offset =
+        archivedFilter
+          ? (scope === "archived" ? checkpointState.archived_offset : checkpointState.archived_offset)
+          : (scope === "active" ? checkpointState.active_offset : checkpointState.active_offset);
       hasNext = true;
 
       while (hasNext) {
         if (Date.now() - startedAt >= maxRuntimeMs) {
           stopReason = "runtime_cap";
+          checkpointState.phase = archivedFilter ? "archived" : "active";
+          if (archivedFilter) checkpointState.archived_offset = offset;
+          else checkpointState.active_offset = offset;
+          await saveCheckpoint(checkpointState, cfg).catch((e) => {
+            checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+          });
           break;
         }
         if (processed + failed >= maxRecords) {
           stopReason = "record_cap";
+          checkpointState.phase = archivedFilter ? "archived" : "active";
+          if (archivedFilter) checkpointState.archived_offset = offset;
+          else checkpointState.active_offset = offset;
+          await saveCheckpoint(checkpointState, cfg).catch((e) => {
+            checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+          });
           break;
         }
 
@@ -212,6 +317,12 @@ module.exports = async (req, res) => {
           stopReason = "page_fetch_error";
           fatalError = err instanceof Error ? err.message : String(err);
           errors.push(`page fetch failed (archived=${archivedFilter}, offset=${offset || "start"}): ${fatalError}`);
+          checkpointState.phase = archivedFilter ? "archived" : "active";
+          if (archivedFilter) checkpointState.archived_offset = offset;
+          else checkpointState.active_offset = offset;
+          await saveCheckpoint(checkpointState, cfg).catch((e) => {
+            checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+          });
           break;
         }
         const opportunities = Array.isArray(page?.data) ? page.data : [];
@@ -311,7 +422,29 @@ module.exports = async (req, res) => {
         offset = hasNext ? String(page.next) : null;
       }
 
+      if (!hasNext && stopReason === "exhausted") {
+        if (archivedFilter) {
+          checkpointState.archived_offset = null;
+          checkpointState.phase = "active";
+        } else {
+          checkpointState.active_offset = null;
+          checkpointState.phase = "archived";
+        }
+        await saveCheckpoint(checkpointState, cfg).catch((e) => {
+          checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+        });
+      }
+
       if (stopReason === "runtime_cap" || stopReason === "record_cap") break;
+    }
+
+    if (stopReason === "exhausted" && scope === "all") {
+      checkpointState.phase = "active";
+      checkpointState.active_offset = null;
+      checkpointState.archived_offset = null;
+      await saveCheckpoint(checkpointState, cfg).catch((e) => {
+        checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+      });
     }
 
     const result = {
@@ -334,6 +467,13 @@ module.exports = async (req, res) => {
         sample: Array.from(distinctTags).slice(0, 20),
         skippedByImportTag,
         skippedImportTagCounts,
+      },
+      checkpoint: {
+        enabled: !!checkpointState.enabled,
+        phase: checkpointState.phase,
+        active_offset: checkpointState.active_offset,
+        archived_offset: checkpointState.archived_offset,
+        warnings: checkpointWarnings.length ? checkpointWarnings.slice(0, 5) : undefined,
       },
       errors: errors.length ? errors.slice(0, 5) : undefined,
     };

@@ -33,3 +33,7 @@
 - Defect: imported migration candidates should be excluded from ingestion but continued entering shadow data.
 - Fix: Added import-tag based exclusion logic in shared rules and enforced skip behavior in cron + all active webhook handlers.
 - Observability fix: added cron response telemetry and runtime logging for tag presence and import-tag skip counts to validate behavior in environments with differing dashboard UI views.
+- Defect: cron backfill is non-resumable; each invocation restarts at the beginning, causing repeated front-of-list scans under runtime caps.
+- Planned fix: persist checkpoint state (phase + offsets) and resume on subsequent runs.
+- Fix: implemented persisted checkpoint state in public.cron_refresh_state and resume-aware cron traversal in api/cron/refresh-candidates.js.
+- Fix validation path: migration cron_refresh_checkpoint applied to project nnauvyublclfeqizpawr; cron output now includes checkpoint state/warnings.

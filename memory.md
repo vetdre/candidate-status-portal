@@ -21,3 +21,7 @@
 - Cron response and runtime logs now expose tag telemetry and import-tag skip counts for run-by-run validation.
 - Offer metadata enrichment added in cron (offer_access and offer_letter_key derivation when available).
 - User requirement reaffirmed: before any new implementation work, update memory.md, changes.md, and fixhistory.md first.
+- Root cause confirmed: cron backfill is not resumable between invocations; repeated manual runs restart from the first pages and can loop under 5-minute runtime constraints.
+- Remediation direction: add persisted checkpoint state (offset + phase) so each run resumes instead of restarting.
+- Implemented persisted checkpoint state in Supabase (public.cron_refresh_state) and wired cron to resume active/archived offsets across invocations.
+- Applied migration cron_refresh_checkpoint to Supabase project nnauvyublclfeqizpawr.
