@@ -10,6 +10,8 @@ const {
   resolvePositionLabel,
   resolveContactEmail,
   resolveContactPhone,
+  resolveOpportunityTags,
+  getExcludedImportTags,
 } = require("./_lib/rules");
 const {
   json,
@@ -80,6 +82,17 @@ module.exports = async (req, res) => {
 
     try {
       const opp = await getOpportunity(opportunityId, cfg);
+      const matchedImportTags = getExcludedImportTags(resolveOpportunityTags(opp));
+      if (matchedImportTags.length) {
+        await updateIngestStatus(ingest.id, "processed", "Skipped by import tag", cfg);
+        return json(res, 200, {
+          ok: true,
+          ingestEventId: ingest.id,
+          skipped: true,
+          skipReason: "import_tag",
+          matchedImportTags,
+        });
+      }
 
       // Verified branch logic: archive state is determined by webhook toArchived presence.
       const archived = toArchived != null;

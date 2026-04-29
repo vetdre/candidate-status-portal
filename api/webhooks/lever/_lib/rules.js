@@ -128,6 +128,51 @@ function resolveContactPhone(source) {
   ]);
 }
 
+function resolveTagsFromSource(source) {
+  if (!Array.isArray(source)) return [];
+  const tags = [];
+
+  for (const item of source) {
+    const tag =
+      typeof item === "string"
+        ? asNonEmptyString(item)
+        : firstString([item?.text, item?.name, item?.label, item?.value, item?.id]);
+    if (tag) tags.push(tag);
+  }
+
+  return tags;
+}
+
+function resolveOpportunityTags(opp) {
+  const merged = [
+    ...resolveTagsFromSource(opp?.tags),
+    ...resolveTagsFromSource(opp?.contact?.tags),
+    ...resolveTagsFromSource(opp?.candidate?.tags),
+  ];
+
+  return [...new Set(merged)];
+}
+
+const EXCLUDED_IMPORT_TAGS = new Set([
+  "candidateimport1",
+  "candidateimport2",
+  "candidateimport3",
+  "ccandidateimport4",
+  "candidateimport5",
+  "candidateimport6",
+]);
+
+function getExcludedImportTags(tags) {
+  const matches = [];
+  for (const tag of Array.isArray(tags) ? tags : []) {
+    const normalized = String(tag || "").trim().toLowerCase();
+    if (normalized && EXCLUDED_IMPORT_TAGS.has(normalized)) {
+      matches.push(tag);
+    }
+  }
+  return [...new Set(matches)];
+}
+
 function resolvePortalStageFields(input) {
   const stage = normalizeStage(input.currentStage);
   const reason = String(input.archiveReason || "").trim().toLowerCase();
@@ -221,4 +266,6 @@ module.exports = {
   resolveContactName,
   resolveContactEmail,
   resolveContactPhone,
+  resolveOpportunityTags,
+  getExcludedImportTags,
 };

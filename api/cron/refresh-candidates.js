@@ -9,6 +9,8 @@ const {
   resolveContactName,
   resolveContactEmail,
   resolveContactPhone,
+  resolveOpportunityTags,
+  getExcludedImportTags,
 } = require("../webhooks/lever/_lib/rules");
 const { upsertCandidateShadow, getLegacyCandidateByLeverId } = require("../webhooks/lever/_lib/supabase");
 
@@ -117,24 +119,6 @@ function resolveOfferFields(opp, currentStage) {
   };
 }
 
-function extractOpportunityTags(opp) {
-  const sources = [opp?.tags, opp?.contact?.tags, opp?.candidate?.tags];
-  const values = [];
-
-  for (const source of sources) {
-    if (!Array.isArray(source)) continue;
-    for (const item of source) {
-      const tag =
-        typeof item === "string"
-          ? asNonEmptyString(item)
-          : firstNonEmpty([item?.text, item?.name, item?.label, item?.value, item?.id]);
-      if (tag) values.push(tag);
-    }
-  }
-
-  return [...new Set(values)];
-}
-
 function getQueryParams(req) {
   try {
     const rawUrl = req && typeof req.url === "string" ? req.url : "";
@@ -201,6 +185,8 @@ module.exports = async (req, res) => {
     let opportunitiesWithTags = 0;
     let totalTagsObserved = 0;
     const distinctTags = new Set();
+    let skippedByImportTag = 0;
+    const skippedImportTagCounts = {};
 
     for (const archivedFilter of archivedFilters) {
       offset = null;
@@ -257,11 +243,19 @@ module.exports = async (req, res) => {
               archiveReason,
             });
             const offer = resolveOfferFields(opp, currentStage);
-            const tags = extractOpportunityTags(opp);
+            const tags = resolveOpportunityTags(opp);
             if (tags.length) {
               opportunitiesWithTags++;
               totalTagsObserved += tags.length;
               for (const tag of tags) distinctTags.add(tag);
+            }
+            const matchedImportTags = getExcludedImportTags(tags);
+            if (matchedImportTags.length) {
+              skippedByImportTag++;
+              for (const tag of matchedImportTags) {
+                skippedImportTagCounts[tag] = (skippedImportTagCounts[tag] || 0) + 1;
+              }
+              continue;
             }
 
             const contact = opp?.contact || {};
@@ -338,6 +332,8 @@ module.exports = async (req, res) => {
         totalTagsObserved,
         distinctTagsObserved: distinctTags.size,
         sample: Array.from(distinctTags).slice(0, 20),
+        skippedByImportTag,
+        skippedImportTagCounts,
       },
       errors: errors.length ? errors.slice(0, 5) : undefined,
     });
