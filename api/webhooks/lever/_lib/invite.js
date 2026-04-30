@@ -8,6 +8,11 @@ function isLeadStage(stageValue) {
   return stage.startsWith("lead");
 }
 
+function isDeclineStage(stageValue) {
+  const stage = String(stageValue == null ? "" : stageValue).trim().toLowerCase();
+  return stage === "decline candidate";
+}
+
 function evaluateMagicInviteEligibility({
   inviteAlreadySent,
   archived,
@@ -20,6 +25,7 @@ function evaluateMagicInviteEligibility({
   if (inviteAlreadySent) reasons.push("invite_already_sent");
   if (archived) reasons.push("archived");
   if (isLeadStage(currentStage)) reasons.push("lead_stage");
+  if (isDeclineStage(currentStage)) reasons.push("decline_stage");
   if (!asNonEmptyString(applicationPhone)) reasons.push("missing_valid_application_phone");
   if (!asNonEmptyString(recipientEmail)) reasons.push("missing_recipient_email");
 
