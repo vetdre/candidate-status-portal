@@ -19,6 +19,8 @@ const {
   buildIdentityFields,
   resolveMagicToken,
 } = require("./_lib/identity");
+const { evaluateMagicInviteEligibility } = require("./_lib/invite");
+const { sendMagicLinkInvite } = require("./_lib/mailer");
 const {
   json,
   insertIngestEvent,
@@ -114,6 +116,7 @@ module.exports = async (req, res) => {
 
       const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg);
       const safeLegacyPosition = resolveSafeLegacyPosition(legacy?.position, opportunityTags);
+      const existingShadow = await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null);
       
       // Fetch candidate details directly from Lever for contact info.
       const candidate = candidateId ? await getCandidate(candidateId, cfg).catch(() => ({})) : {};
@@ -127,11 +130,6 @@ module.exports = async (req, res) => {
         phone: candidatePhone || legacy?.application_phone || legacy?.phone,
         fullName: candidateName,
       });
-
-      const existingShadow =
-        !identity.person_key && !legacy?.magic_token
-          ? await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null)
-          : null;
 
       const magicToken = await resolveMagicToken(
         {
@@ -194,8 +192,51 @@ module.exports = async (req, res) => {
 
       await upsertCandidateShadow(row, cfg);
 
-      await updateIngestStatus(ingest.id, "processed", null, cfg);
-      return json(res, 200, { ok: true, ingestEventId: ingest.id });
+      const inviteEligibility = evaluateMagicInviteEligibility({
+        isNewPortalRecord: !existingShadow,
+        archived,
+        currentStage,
+        applicationPhone: identity.application_phone,
+        recipientEmail: candidateEmail || legacy?.email || existingShadow?.email,
+      });
+
+      let inviteResult = null;
+      let inviteError = null;
+      if (inviteEligibility.shouldSend) {
+        try {
+          inviteResult = await sendMagicLinkInvite({
+            recipientEmail: candidateEmail || legacy?.email || existingShadow?.email,
+            candidateName,
+            magicToken,
+          });
+        } catch (mailErr) {
+          inviteError = mailErr instanceof Error ? mailErr.message : String(mailErr);
+        }
+      }
+
+      const statusNotes = [];
+      if (!inviteEligibility.shouldSend) {
+        statusNotes.push(`Invite skipped: ${inviteEligibility.reasons.join(",")}`);
+      } else if (inviteResult?.reason) {
+        statusNotes.push(`Invite not sent: ${inviteResult.reason}`);
+      }
+      if (inviteError) statusNotes.push("Invite send failed");
+
+      await updateIngestStatus(
+        ingest.id,
+        "processed",
+        statusNotes.length ? statusNotes.join("; ") : null,
+        cfg
+      );
+      return json(res, 200, {
+        ok: true,
+        ingestEventId: ingest.id,
+        invite: {
+          eligibility: inviteEligibility,
+          result: inviteResult,
+          warning: inviteError || undefined,
+        },
+      });
     } catch (innerErr) {
       const msg = innerErr instanceof Error ? innerErr.message : String(innerErr);
       await updateIngestStatus(ingest.id, "failed", msg, cfg);

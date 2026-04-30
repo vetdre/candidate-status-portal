@@ -156,8 +156,25 @@ async function upsertApplicationNormalized(app, cfg) {
   );
 }
 
+async function hasApplicationByLeverOpportunityId(opportunityId, cfg) {
+  if (!opportunityId) return false;
+
+  const resp = await supaFetch(
+    `/rest/v1/applications?lever_opportunity_id=eq.${encodeURIComponent(opportunityId)}&select=lever_opportunity_id&limit=1`,
+    { method: "GET" },
+    cfg
+  );
+  const rows = await resp.json().catch(() => []);
+  return Array.isArray(rows) && rows.length > 0;
+}
+
 async function replaceInterviewsForOpportunity(opportunityId, interviews, ingestEventId, cfg) {
   if (!opportunityId) return;
+
+  const hasApplication = await hasApplicationByLeverOpportunityId(opportunityId, cfg);
+  if (!hasApplication) {
+    return { skipped: true, reason: "missing_application" };
+  }
 
   await supaFetch(
     `/rest/v1/interviews?lever_opportunity_id=eq.${encodeURIComponent(opportunityId)}`,
@@ -176,7 +193,7 @@ async function replaceInterviewsForOpportunity(opportunityId, interviews, ingest
     source_event_id: ingestEventId ? String(ingestEventId) : null,
   }));
 
-  if (!rows.length) return;
+  if (!rows.length) return { skipped: false, inserted: 0 };
 
   await supaFetch(
     `/rest/v1/interviews`,
@@ -187,6 +204,45 @@ async function replaceInterviewsForOpportunity(opportunityId, interviews, ingest
     },
     cfg
   );
+
+  return { skipped: false, inserted: rows.length };
+}
+
+async function replaceRawInterviewEventsForOpportunity(opportunityId, candidateId, interviews, ingestEventId, cfg) {
+  if (!opportunityId) return { inserted: 0 };
+
+  await supaFetch(
+    `/rest/v1/interview_events_raw?lever_opportunity_id=eq.${encodeURIComponent(opportunityId)}`,
+    {
+      method: "DELETE",
+      headers: { Prefer: "return=minimal" },
+    },
+    cfg
+  );
+
+  const rows = (Array.isArray(interviews) ? interviews : []).map((x) => ({
+    lever_opportunity_id: String(opportunityId),
+    lever_candidate_id: candidateId ? String(candidateId) : null,
+    lever_interview_id: x?.id ? String(x.id) : null,
+    interview_at: x?.date ? new Date(Number(x.date)).toISOString() : null,
+    canceled_at: x?.canceledAt ? new Date(Number(x.canceledAt)).toISOString() : null,
+    source_event_id: ingestEventId ? String(ingestEventId) : null,
+    payload: x ?? null,
+  }));
+
+  if (!rows.length) return { inserted: 0 };
+
+  await supaFetch(
+    `/rest/v1/interview_events_raw`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(rows),
+    },
+    cfg
+  );
+
+  return { inserted: rows.length };
 }
 
 async function upsertCandidateShadow(row, cfg) {
@@ -213,6 +269,8 @@ module.exports = {
   getShadowCandidateByLeverId,
   findMagicTokenByPersonKey,
   upsertApplicationNormalized,
+  hasApplicationByLeverOpportunityId,
   replaceInterviewsForOpportunity,
+  replaceRawInterviewEventsForOpportunity,
   upsertCandidateShadow,
 };

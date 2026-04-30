@@ -26,6 +26,7 @@ const {
   findMagicTokenByPersonKey,
   upsertApplicationNormalized,
   replaceInterviewsForOpportunity,
+  replaceRawInterviewEventsForOpportunity,
   upsertCandidateShadow,
 } = require("./_lib/supabase");
 
@@ -165,7 +166,25 @@ module.exports = async (req, res) => {
         cfg
       );
 
-      await replaceInterviewsForOpportunity(opportunityId, interviews, ingest.id, cfg);
+      const interviewSync = await replaceInterviewsForOpportunity(
+        opportunityId,
+        interviews,
+        ingest.id,
+        cfg
+      );
+      let rawInterviewSync = null;
+      let rawInterviewSyncError = null;
+      try {
+        rawInterviewSync = await replaceRawInterviewEventsForOpportunity(
+          opportunityId,
+          candidateId,
+          interviews,
+          ingest.id,
+          cfg
+        );
+      } catch (rawErr) {
+        rawInterviewSyncError = rawErr instanceof Error ? rawErr.message : String(rawErr);
+      }
 
       const row = {
         lever_id: opportunityId,
@@ -201,8 +220,18 @@ module.exports = async (req, res) => {
 
       await upsertCandidateShadow(row, cfg);
 
-      await updateIngestStatus(ingest.id, "processed", null, cfg);
-      return json(res, 200, { ok: true, ingestEventId: ingest.id });
+      const statusNotes = [];
+      if (interviewSync?.skipped) statusNotes.push("Skipped interviews: missing application row");
+      if (rawInterviewSyncError) statusNotes.push("Raw interview cache failed");
+      const statusMessage = statusNotes.length ? statusNotes.join("; ") : null;
+      await updateIngestStatus(ingest.id, "processed", statusMessage, cfg);
+      return json(res, 200, {
+        ok: true,
+        ingestEventId: ingest.id,
+        interviewSync: interviewSync?.skipped ? interviewSync : undefined,
+        rawInterviewSync,
+        warnings: rawInterviewSyncError ? [rawInterviewSyncError] : undefined,
+      });
     } catch (innerErr) {
       const msg = innerErr instanceof Error ? innerErr.message : String(innerErr);
       await updateIngestStatus(ingest.id, "failed", msg, cfg);
