@@ -94,7 +94,7 @@ async function getLegacyCandidateByLeverId(leverId, cfg) {
 async function getShadowCandidateByLeverId(leverId, cfg) {
   const q =
     `/rest/v1/Candidates_shadow` +
-    `?select=lever_id,name,email,phone,position,person_key,magic_token,application_phone,application_last_name,application_last_name_norm,identity_confidence` +
+    `?select=lever_id,name,email,phone,position,person_key,magic_token,application_phone,application_last_name,application_last_name_norm,identity_confidence,current_stage,invite_sent_at` +
     `&lever_id=eq.${encodeURIComponent(leverId)}` +
     `&limit=1`;
 
@@ -245,6 +245,18 @@ async function replaceRawInterviewEventsForOpportunity(opportunityId, candidateI
   return { inserted: rows.length };
 }
 
+async function markInviteSentOnShadow(leverId, cfg) {
+  await supaFetch(
+    `/rest/v1/Candidates_shadow?lever_id=eq.${encodeURIComponent(leverId)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ invite_sent_at: new Date().toISOString() }),
+    },
+    cfg
+  );
+}
+
 async function upsertCandidateShadow(row, cfg) {
   const q = `/rest/v1/Candidates_shadow?on_conflict=lever_id`;
   await supaFetch(
@@ -273,4 +285,5 @@ module.exports = {
   replaceInterviewsForOpportunity,
   replaceRawInterviewEventsForOpportunity,
   upsertCandidateShadow,
+  markInviteSentOnShadow,
 };

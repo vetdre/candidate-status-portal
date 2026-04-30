@@ -9,7 +9,7 @@ function isLeadStage(stageValue) {
 }
 
 function evaluateMagicInviteEligibility({
-  isNewPortalRecord,
+  inviteAlreadySent,
   archived,
   currentStage,
   applicationPhone,
@@ -17,7 +17,7 @@ function evaluateMagicInviteEligibility({
 }) {
   const reasons = [];
 
-  if (!isNewPortalRecord) reasons.push("existing_portal_record");
+  if (inviteAlreadySent) reasons.push("invite_already_sent");
   if (archived) reasons.push("archived");
   if (isLeadStage(currentStage)) reasons.push("lead_stage");
   if (!asNonEmptyString(applicationPhone)) reasons.push("missing_valid_application_phone");
@@ -31,4 +31,5 @@ function evaluateMagicInviteEligibility({
 
 module.exports = {
   evaluateMagicInviteEligibility,
+  isLeadStage,
 };

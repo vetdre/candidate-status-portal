@@ -16,6 +16,8 @@ const {
   resolveSafeLegacyPosition,
 } = require("./_lib/rules");
 const { buildIdentityFields, resolveMagicToken } = require("./_lib/identity");
+const { evaluateMagicInviteEligibility, isLeadStage } = require("./_lib/invite");
+const { sendMagicLinkInvite } = require("./_lib/mailer");
 const {
   json,
   insertIngestEvent,
@@ -25,6 +27,7 @@ const {
   findMagicTokenByPersonKey,
   upsertApplicationNormalized,
   upsertCandidateShadow,
+  markInviteSentOnShadow,
 } = require("./_lib/supabase");
 
 module.exports = async (req, res) => {
@@ -125,10 +128,8 @@ module.exports = async (req, res) => {
         fullName: candidateName,
       });
 
-      const existingShadow =
-        !identity.person_key && !legacy?.magic_token
-          ? await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null)
-          : null;
+      const existingShadow = await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null);
+      const previousStage = existingShadow?.current_stage ?? null;
 
       const magicToken = await resolveMagicToken(
         {
@@ -191,7 +192,50 @@ module.exports = async (req, res) => {
 
       await upsertCandidateShadow(row, cfg);
 
-      await updateIngestStatus(ingest.id, "processed", null, cfg);
+      // Send invite when transitioning out of lead stage for the first time.
+      const recipientEmail = candidateEmail || legacy?.email || existingShadow?.email || null;
+      const isLeadTransition = (isLeadStage(previousStage) || previousStage === null) && !isLeadStage(currentStage);
+      const inviteEligibility = isLeadTransition
+        ? evaluateMagicInviteEligibility({
+            inviteAlreadySent: !!existingShadow?.invite_sent_at,
+            archived,
+            currentStage,
+            applicationPhone: identity.application_phone || legacy?.application_phone || null,
+            recipientEmail,
+          })
+        : null;
+
+      let inviteResult = null;
+      let inviteError = null;
+      if (inviteEligibility?.shouldSend) {
+        try {
+          inviteResult = await sendMagicLinkInvite({
+            recipientEmail,
+            candidateName,
+            magicToken,
+          });
+          if (inviteResult?.sent === true) {
+            await markInviteSentOnShadow(opportunityId, cfg).catch(() => {});
+          }
+        } catch (mailErr) {
+          inviteError = mailErr instanceof Error ? mailErr.message : String(mailErr);
+        }
+      }
+
+      const statusNotes = [];
+      if (inviteEligibility && !inviteEligibility.shouldSend) {
+        statusNotes.push(`Invite skipped: ${inviteEligibility.reasons.join(",")}`);
+      } else if (inviteResult?.reason) {
+        statusNotes.push(`Invite not sent: ${inviteResult.reason}`);
+      }
+      if (inviteError) statusNotes.push("Invite send failed");
+
+      await updateIngestStatus(
+        ingest.id,
+        "processed",
+        statusNotes.length ? statusNotes.join("; ") : null,
+        cfg
+      );
       return json(res, 200, { ok: true, ingestEventId: ingest.id });
     } catch (innerErr) {
       const msg = innerErr instanceof Error ? innerErr.message : String(innerErr);

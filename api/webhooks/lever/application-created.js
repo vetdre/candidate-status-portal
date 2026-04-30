@@ -30,6 +30,7 @@ const {
   findMagicTokenByPersonKey,
   upsertApplicationNormalized,
   upsertCandidateShadow,
+  markInviteSentOnShadow,
 } = require("./_lib/supabase");
 
 module.exports = async (req, res) => {
@@ -193,7 +194,7 @@ module.exports = async (req, res) => {
       await upsertCandidateShadow(row, cfg);
 
       const inviteEligibility = evaluateMagicInviteEligibility({
-        isNewPortalRecord: !existingShadow,
+        inviteAlreadySent: !!existingShadow?.invite_sent_at,
         archived,
         currentStage,
         applicationPhone: identity.application_phone,
@@ -209,6 +210,9 @@ module.exports = async (req, res) => {
             candidateName,
             magicToken,
           });
+          if (inviteResult?.sent === true) {
+            await markInviteSentOnShadow(opportunityId, cfg).catch(() => {});
+          }
         } catch (mailErr) {
           inviteError = mailErr instanceof Error ? mailErr.message : String(mailErr);
         }
