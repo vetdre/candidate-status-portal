@@ -104,26 +104,37 @@ async function loadAlertState(cfg) {
 
 async function evaluateCronCheck(cfg) {
   const rows = await supabaseAdminFetch(
-    `/rest/v1/cron_refresh_state?job_name=eq.${encodeURIComponent("candidates_shadow_refresh")}&select=job_name,updated_at,phase&limit=1`,
+    `/rest/v1/cron_refresh_state?job_name=eq.${encodeURIComponent("candidates_shadow_refresh")}&select=job_name,updated_at,phase,last_run_at,last_success_at,last_status,last_error&limit=1`,
     cfg
   );
   const row = Array.isArray(rows) && rows.length ? rows[0] : null;
-  const ageMinutes = diffMinutes(row?.updated_at);
+  const successAt = row?.last_success_at || row?.updated_at || null;
+  const ageMinutes = diffMinutes(successAt);
+  const runAgeMinutes = diffMinutes(row?.last_run_at || null);
   const maxAgeMinutes = cfg.cronMaxAgeHours * 60;
-  const ok = !!(row && ageMinutes != null && ageMinutes <= maxAgeMinutes);
+  const lastStatus = row?.last_status || null;
+  const hasRecentSuccess = !!(row && ageMinutes != null && ageMinutes <= maxAgeMinutes);
+  const ok = hasRecentSuccess && lastStatus !== "error";
 
   return {
     name: CHECK_NAMES.cron,
     ok,
     summary: ok
-      ? `Cron checkpoint updated ${ageMinutes} minute(s) ago`
+      ? `Cron last successful run was ${ageMinutes} minute(s) ago`
       : row
-        ? `Cron checkpoint is stale at ${ageMinutes} minute(s) old`
-        : "Cron checkpoint row is missing",
+        ? lastStatus === "error"
+          ? `Cron latest run failed; last successful run was ${ageMinutes} minute(s) ago`
+          : `Cron success heartbeat is stale at ${ageMinutes} minute(s) old`
+        : "Cron heartbeat row is missing",
     details: {
       updatedAt: row?.updated_at || null,
+      lastRunAt: row?.last_run_at || null,
+      lastSuccessAt: row?.last_success_at || null,
+      lastStatus: row?.last_status || null,
+      lastError: row?.last_error || null,
       phase: row?.phase || null,
       ageMinutes,
+      runAgeMinutes,
       maxAgeMinutes,
     },
   };

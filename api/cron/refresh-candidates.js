@@ -213,6 +213,35 @@ async function saveCheckpoint(state, cfg) {
   );
 }
 
+async function saveRunHeartbeat(
+  {
+    lastStatus,
+    markSuccess = false,
+    lastError = null,
+  },
+  cfg
+) {
+  const nowIso = new Date().toISOString();
+  await supabaseAdminFetch(
+    `/rest/v1/cron_refresh_state?on_conflict=job_name`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        job_name: CRON_CHECKPOINT_JOB,
+        last_run_at: nowIso,
+        last_status: lastStatus,
+        last_error: lastError,
+        ...(markSuccess ? { last_success_at: nowIso } : {}),
+      }),
+    },
+    cfg
+  );
+}
+
 module.exports = async (req, res) => {
   // Verify Vercel cron authorization.
   const cronSecret = process.env.CRON_SECRET;
@@ -259,6 +288,9 @@ module.exports = async (req, res) => {
     if (!checkpointState.enabled && checkpointState.error) {
       checkpointWarnings.push(checkpointState.error);
     }
+    await saveRunHeartbeat({ lastStatus: "running", lastError: null }, cfg).catch((e) => {
+      checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+    });
 
     const archivedFilters =
       scope === "archived"
@@ -480,8 +512,9 @@ module.exports = async (req, res) => {
       });
     }
 
+    const runSucceeded = !fatalError;
     const result = {
-      ok: true,
+      ok: runSucceeded,
       processed,
       failed,
       fetched,
@@ -511,6 +544,17 @@ module.exports = async (req, res) => {
       errors: errors.length ? errors.slice(0, 5) : undefined,
     };
 
+    await saveRunHeartbeat(
+      {
+        lastStatus: runSucceeded ? "ok" : "error",
+        markSuccess: runSucceeded,
+        lastError: fatalError || null,
+      },
+      cfg
+    ).catch((e) => {
+      checkpointWarnings.push(e instanceof Error ? e.message : String(e));
+    });
+
     console.log("[refresh-candidates] summary", JSON.stringify({
       processed: result.processed,
       failed: result.failed,
@@ -521,6 +565,7 @@ module.exports = async (req, res) => {
     return res.status(200).json(result);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    await saveRunHeartbeat({ lastStatus: "error", lastError: msg }, cfg).catch(() => {});
     return res.status(500).json({ ok: false, error: msg });
   }
 };
