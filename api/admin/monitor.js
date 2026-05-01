@@ -208,6 +208,22 @@ function formatAlertLines(failingChecks) {
   });
 }
 
+async function safeEvaluate(checkName, fn) {
+  try {
+    return await fn();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      name: checkName,
+      ok: false,
+      summary: `Check execution failed: ${msg}`,
+      details: {
+        error: msg,
+      },
+    };
+  }
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method === "OPTIONS") {
@@ -228,11 +244,20 @@ module.exports = async (req, res) => {
       }
     }
 
-    const [cronCheck, ingestCheck, freshnessCheck, alertState] = await Promise.all([
-      evaluateCronCheck(cfg),
-      evaluateIngestCheck(cfg),
-      evaluateFreshnessCheck(cfg),
-      loadAlertState(cfg),
+    let alertState = new Map();
+    const monitorWarnings = [];
+
+    try {
+      alertState = await loadAlertState(cfg);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      monitorWarnings.push(`Alert state load failed: ${msg}`);
+    }
+
+    const [cronCheck, ingestCheck, freshnessCheck] = await Promise.all([
+      safeEvaluate(CHECK_NAMES.cron, () => evaluateCronCheck(cfg)),
+      safeEvaluate(CHECK_NAMES.ingest, () => evaluateIngestCheck(cfg)),
+      safeEvaluate(CHECK_NAMES.freshness, () => evaluateFreshnessCheck(cfg)),
     ]);
 
     const checks = [cronCheck, ingestCheck, freshnessCheck];
@@ -250,17 +275,28 @@ module.exports = async (req, res) => {
     };
 
     if (checksNeedingAlert.length && canSendAlerts) {
-      alertResult = await sendMonitoringAlertEmail({
-        subject: `[Candidate Portal] Monitor alert: ${checksNeedingAlert.map((check) => check.name).join(", ")}`,
-        summary: `${checksNeedingAlert.length} monitor check(s) are failing`,
-        lines: formatAlertLines(checksNeedingAlert),
-      });
+      try {
+        alertResult = await sendMonitoringAlertEmail({
+          subject: `[Candidate Portal] Monitor alert: ${checksNeedingAlert.map((check) => check.name).join(", ")}`,
+          summary: `${checksNeedingAlert.length} monitor check(s) are failing`,
+          lines: formatAlertLines(checksNeedingAlert),
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        monitorWarnings.push(`Alert email send failed: ${msg}`);
+        alertResult = {
+          attempted: true,
+          sent: false,
+          reason: "send_failed",
+          error: msg,
+        };
+      }
     }
 
     const nowIso = new Date().toISOString();
-    await Promise.all(
-      checks.map((check) =>
-        upsertMonitorAlertState(
+    for (const check of checks) {
+      try {
+        await upsertMonitorAlertState(
           {
             check_name: check.name,
             last_status: check.ok ? "ok" : "alert",
@@ -271,13 +307,17 @@ module.exports = async (req, res) => {
               : {}),
           },
           cfg
-        )
-      )
-    );
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        monitorWarnings.push(`Alert state upsert failed for ${check.name}: ${msg}`);
+      }
+    }
 
     return json(res, failingChecks.length ? 503 : 200, {
       ok: failingChecks.length === 0,
       checkedAt: nowIso,
+      warnings: monitorWarnings,
       alerts: {
         configured: canSendAlerts,
         cooldownMinutes: cfg.alertCooldownMinutes,
