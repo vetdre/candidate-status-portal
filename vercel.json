@@ -1,5 +1,4 @@
 {
-  "_comment": "Vercel configuration for deployment and cron jobs",
   "crons": [
     {
       "path": "/api/cron/refresh-candidates",
