@@ -160,7 +160,7 @@ async function evaluateIngestCheck(cfg) {
 async function evaluateFreshnessCheck(cfg) {
   const cutoff = toIsoCutoffHours(cfg.freshnessLookbackHours);
   const rows = await supabaseAdminFetch(
-    `/rest/v1/portal_freshness_monitor_v1?select=lever_id,portal_last_viewed_at,freshness_status,minutes_stale_at_last_view&portal_last_viewed_at=gte.${encodeURIComponent(cutoff)}&freshness_status=neq.${encodeURIComponent("up_to_date_at_last_view")}&order=portal_last_viewed_at.desc&limit=20`,
+    `/rest/v1/portal_freshness_monitor_v1?select=person_key,portal_last_viewed_at,freshness_status,seconds_delta_stage_vs_view&portal_last_viewed_at=gte.${encodeURIComponent(cutoff)}&freshness_status=neq.${encodeURIComponent("up_to_date_at_last_view")}&order=portal_last_viewed_at.desc&limit=20`,
     cfg
   );
   const staleRows = Array.isArray(rows) ? rows : [];
