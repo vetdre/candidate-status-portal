@@ -248,7 +248,7 @@ index.html loads in browser
 
 ## 6. Database Schema
 
-### Normalized Tables (phase 1+)
+### Normalized Tables (phase 1 through phase 3)
 
 **`public.people`**
 | Column | Type | Notes |
@@ -290,9 +290,9 @@ index.html loads in browser
 
 ### Legacy Compatibility Table
 
-**`public.Candidates_shadow`** — writeable shadow of the legacy `Candidates` table. This is the authoritative read model for portal authentication during phase 1.
+**`public.Candidates_shadow`** — writeable shadow/compatibility table for the legacy `Candidates` model. In phase 3, portal authentication reads from normalized `people` + `applications`; `Candidates_shadow` is retained for compatibility fields (for example offer metadata) and migration safety.
 
-Key fields used for auth: `magic_token`, `application_last_name_norm`, `application_phone`, `person_key`.
+Key fields retained for compatibility/debugging: `magic_token`, `application_last_name_norm`, `application_phone`, `person_key`.
 
 Additional fields: `current_stage`, `portal_stage`, `portal_stage_order`, `portal_stage_terminal`, `offer_access`, `offer_letter_key`, `archived`, `archive_reason`, `invite_sent_at`.
 
@@ -536,9 +536,10 @@ All identity logic is centralized in `_lib/identity.js`.
 
 ### magic_token Rules
 
-1. If `person_key` is non-null, look for an existing token held by any row with the same `person_key` in `Candidates_shadow`. Reuse it to link multi-application people to one portal view.
-2. If no existing token found, or `person_key` is null, generate a new UUID.
-3. Never clobber an existing populated token.
+1. If `person_key` is non-null, look for an existing token by `person_key` and reuse it for continuity across that person's applications.
+2. If no person-level token exists, reuse the existing application token if present.
+3. Otherwise generate a new UUID.
+4. Never clobber an existing populated token.
 
 Notes:
 - `lever_candidate:*` keys are provisional identity anchors for sourced leads that lack email/phone at ingest time.
@@ -546,14 +547,14 @@ Notes:
 - They allow cross-event linking until stronger identity factors are available.
 - A future merge step should reconcile provisional `lever_candidate:*` keys to canonical `email:*` or `phone:*` keys when reliable contact fields appear.
 
-### Portal Authentication (phase 1)
+### Portal Authentication (phase 3)
 
-The `portal-status` edge function validates:
-1. `magic_token` (URL param) matches a `Candidates_shadow` row.
-2. `application_last_name_norm` matches (case-insensitive, normalized).
-3. `application_phone` (10-digit normalized) matches.
+The `portal-status` edge function validates against normalized data:
+1. `magic_token` (URL param) matches `people.magic_token_current`.
+2. `application_last_name_norm` matches `people.application_last_name_norm`.
+3. 10-digit normalized phone matches `people.application_phone10`.
 
-`Candidates_shadow` is the authoritative source for these fields during phase 1. The normalized `people` table is populated in parallel but is not yet the auth source.
+After auth, applications are loaded from `applications` by `person_key`, with optional compatibility enrichment from `Candidates_shadow` for display/offer fields.
 
 ---
 
@@ -796,13 +797,68 @@ If stage is stale, check whether Lever is firing stage-change webhooks (check `i
 
 ### Pending Validation
 - Confirm first real post-cutover invite arrives at a candidate with correct subject, position name, and portal link.
+- Confirm at least one real offer packet can be downloaded through the live portal flow (runbook below).
 
-### Legacy Cleanup (post-stabilization)
-- Remove `Candidates` legacy fallback from `portal-status` edge function (v14). Currently, if a person_key lookup against normalized `people` fails, the function falls back to the legacy `Candidates` table. Once normalized coverage is fully validated, this fallback can be removed and the edge function simplified.
+### Final Business-Level Smoke Confirmation: Offer Download
 
-### Identity Model Migration (future)
-- The normalized `people` table is populated but not yet the auth source (see `backend/docs/phase1_identity_and_cutover_notes.md`). Portal cutover from `Candidates_shadow` to `people` requires full parity validation of `magic_token`, `person_key`, `application_last_name`, and `application_phone`.
-- Provisional `lever_candidate:*` person keys should be merge-mapped to canonical `email:*` / `phone:*` keys once contact data arrives, before final auth-source cutover.
+Objective: verify a real candidate with offer access can complete the full production flow (`portal-status` auth + `get-offer-url` + signed file fetch).
+
+1. Pick one real candidate with offer metadata and normalized identity factors:
+
+```sql
+SELECT
+        p.person_key,
+        p.magic_token_current AS token,
+        p.application_last_name_norm AS last_name_norm,
+        p.application_phone10 AS phone10,
+        s.lever_id,
+        s.offer_access,
+        s.offer_letter_key
+FROM public.people p
+JOIN public.applications a
+        ON a.person_key = p.person_key
+JOIN public."Candidates_shadow" s
+        ON s.lever_id = a.lever_opportunity_id
+WHERE p.magic_token_current IS NOT NULL
+        AND p.application_last_name_norm IS NOT NULL
+        AND p.application_phone10 IS NOT NULL
+        AND COALESCE(s.offer_access, false) = true
+        AND s.offer_letter_key IS NOT NULL
+LIMIT 1;
+```
+
+2. Validate auth/read flow on the production portal domain:
+
+```bash
+curl -s "https://candidateportal.msconsultants.com/api/get-offer-url?token=<token>&lastName=<last_name_norm>&phone=<phone10>"
+```
+
+Expected: `200` with JSON including `ok: true` and a signed `url`.
+
+3. Validate signed file fetch:
+
+```bash
+curl -I "<signed_url_from_step_2>"
+```
+
+Expected: `200` and PDF-like headers (`content-type: application/pdf` or binary download content type).
+
+4. Business confirmation:
+- Open the signed URL in a browser session and confirm the document matches the selected candidate/opportunity.
+- Record `lever_id`, timestamp, and operator initials in release notes.
+
+5. If failure occurs:
+- `ok:false` with auth shape correct: check `people.magic_token_current`, `people.application_last_name_norm`, and `people.application_phone10`.
+- `No offer file found`: check `Candidates_shadow.offer_access` and `Candidates_shadow.offer_letter_key`, then verify object existence in `offer-letters` storage.
+- Signed URL fails: re-run step 2 to generate a fresh URL (1-hour expiry), then check Storage object permissions/path.
+
+### Legacy Cleanup (status)
+- Completed: `portal-status` fallback to legacy `Candidates` removed in edge function v15.
+- Completed: portal auth/read model is normalized (`people` + `applications`).
+
+### Identity Model Migration (status)
+- Completed: normalized `people` is the auth source.
+- In progress (continuous hygiene): reconcile provisional `lever_candidate:*` / `lever_opportunity:*` keys to canonical `email:*` / `phone:*` as stronger identity arrives.
 
 ### Smoke-Test Endpoint
 - `/api/admin/test-mailer` should be disabled or have its secret rotated for long-term production posture.
