@@ -29,6 +29,11 @@ function normalizeLeverCandidateId(value) {
   return id || null;
 }
 
+function normalizeLeverOpportunityId(value) {
+  const id = asString(value).toLowerCase();
+  return id || null;
+}
+
 function extractLastName(fullName) {
   const name = asString(fullName);
   if (!name) return null;
@@ -36,10 +41,11 @@ function extractLastName(fullName) {
   return parts.length ? parts[parts.length - 1] : null;
 }
 
-function buildIdentityFields({ email, phone, fullName, leverCandidateId }) {
+function buildIdentityFields({ email, phone, fullName, leverCandidateId, leverOpportunityId }) {
   const normalizedEmail = normalizeEmail(email);
   const normalizedPhone = normalizePhone10(phone);
   const normalizedLeverCandidateId = normalizeLeverCandidateId(leverCandidateId);
+  const normalizedLeverOpportunityId = normalizeLeverOpportunityId(leverOpportunityId);
   const applicationLastName = extractLastName(fullName);
 
   if (normalizedEmail) {
@@ -72,7 +78,22 @@ function buildIdentityFields({ email, phone, fullName, leverCandidateId }) {
       normalizedEmail,
       normalizedPhone,
       normalizedLeverCandidateId,
+      normalizedLeverOpportunityId,
       person_key: `lever_candidate:${normalizedLeverCandidateId}`,
+      identity_confidence: 1,
+      application_phone: null,
+      application_last_name: applicationLastName,
+      application_last_name_norm: normalizeLastName(applicationLastName),
+    };
+  }
+
+  if (normalizedLeverOpportunityId) {
+    return {
+      normalizedEmail,
+      normalizedPhone,
+      normalizedLeverCandidateId,
+      normalizedLeverOpportunityId,
+      person_key: `lever_opportunity:${normalizedLeverOpportunityId}`,
       identity_confidence: 1,
       application_phone: null,
       application_last_name: applicationLastName,
@@ -84,6 +105,7 @@ function buildIdentityFields({ email, phone, fullName, leverCandidateId }) {
     normalizedEmail,
     normalizedPhone,
     normalizedLeverCandidateId,
+    normalizedLeverOpportunityId,
     person_key: null,
     identity_confidence: 1,
     application_phone: null,

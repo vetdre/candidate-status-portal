@@ -52,9 +52,33 @@ test('buildIdentityFields falls back to phone and leaves person_key null without
   assert.equal(provisionalIdentity.application_phone, null);
 
   const emptyIdentity = buildIdentityFields({ email: '', phone: '', fullName: 'John Smith', leverCandidateId: '' });
-  assert.equal(emptyIdentity.person_key, null);
-  assert.equal(emptyIdentity.identity_confidence, 1);
-  assert.equal(emptyIdentity.application_phone, null);
+    assert.equal(emptyIdentity.person_key, null);
+
+    assert.equal(emptyIdentity.identity_confidence, 1);
+    assert.equal(emptyIdentity.application_phone, null);
+
+    const opportunityIdentity = buildIdentityFields({
+      email: '',
+      phone: '',
+      fullName: 'John Smith',
+      leverCandidateId: '',
+      leverOpportunityId: 'OPP-987',
+    });
+    assert.equal(opportunityIdentity.person_key, 'lever_opportunity:opp-987');
+    assert.equal(opportunityIdentity.identity_confidence, 1);
+
+    const noIdentity = buildIdentityFields({
+      email: '',
+      phone: '',
+      fullName: 'John Smith',
+      leverCandidateId: '',
+      leverOpportunityId: '',
+    });
+    assert.equal(noIdentity.person_key, null);
+    assert.equal(noIdentity.identity_confidence, 1);
+
+    assert.equal(emptyIdentity.identity_confidence, 1);
+    assert.equal(emptyIdentity.application_phone, null);
 });
 
 test('resolveMagicToken reuses person token when available and otherwise generates as required', async () => {

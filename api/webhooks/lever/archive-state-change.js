@@ -132,6 +132,7 @@ module.exports = async (req, res) => {
         phone: candidatePhone || legacy?.application_phone || legacy?.phone,
         fullName: candidateName,
         leverCandidateId: candidateId || resolveContactId(candidate) || resolveContactId(opp?.contact),
+        leverOpportunityId: opportunityId,
       });
 
       const existingShadow =

@@ -527,6 +527,7 @@ All identity logic is centralized in `_lib/identity.js`.
 | Valid email | `email:<lower(email)>` | 3 |
 | No email, valid 10-digit phone | `phone:<10digits>` | 2 |
 | No email/phone, Lever candidate ID available | `lever_candidate:<candidateId>` | 1 |
+| No email/phone/candidate ID, Lever opportunity ID available | `lever_opportunity:<leverOpportunityId>` | 1 |
 | Neither | `null` | 1 |
 
 **Phone normalization:** strip non-digits; if 11 digits starting with `1`, drop the leading `1`; accept only exactly 10 digits.
@@ -541,6 +542,7 @@ All identity logic is centralized in `_lib/identity.js`.
 
 Notes:
 - `lever_candidate:*` keys are provisional identity anchors for sourced leads that lack email/phone at ingest time.
+- `lever_opportunity:*` keys are last-resort provisional anchors when candidate id is unavailable; these keep application rows linkable instead of leaving null identity.
 - They allow cross-event linking until stronger identity factors are available.
 - A future merge step should reconcile provisional `lever_candidate:*` keys to canonical `email:*` or `phone:*` keys when reliable contact fields appear.
 

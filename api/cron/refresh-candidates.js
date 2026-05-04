@@ -425,6 +425,7 @@ module.exports = async (req, res) => {
               phone: candidatePhone || legacy?.application_phone || legacy?.phone,
               fullName: candidateName || legacy?.name,
               leverCandidateId: candidateId,
+              leverOpportunityId: opportunityId,
             });
             const existingShadow =
               !identity.person_key && !legacy?.magic_token
