@@ -23,6 +23,7 @@ const {
   getLegacyCandidateByLeverId,
   getShadowCandidateByLeverId,
   findMagicTokenByPersonKey,
+  upsertPersonNormalized,
   upsertApplicationNormalized,
   upsertCandidateShadow,
 } = require("./_lib/supabase");
@@ -144,6 +145,20 @@ module.exports = async (req, res) => {
         {
           findMagicTokenByPersonKey: async (personKey) => findMagicTokenByPersonKey(personKey, cfg),
         }
+      );
+
+      await upsertPersonNormalized(
+        {
+          person_key: identity.person_key,
+          primary_email: identity.normalizedEmail || candidateEmail || legacy?.email || null,
+          primary_phone10: identity.normalizedPhone || null,
+          application_last_name_norm:
+            identity.application_last_name_norm || legacy?.application_last_name_norm || null,
+          application_phone10: identity.application_phone || legacy?.application_phone || null,
+          magic_token_current: magicToken,
+          identity_confidence: identity.identity_confidence,
+        },
+        cfg
       );
 
       await upsertApplicationNormalized(

@@ -15,6 +15,8 @@ const {
 } = require("../webhooks/lever/_lib/rules");
 const { buildIdentityFields, resolveMagicToken } = require("../webhooks/lever/_lib/identity");
 const {
+  upsertPersonNormalized,
+  upsertApplicationNormalized,
   upsertCandidateShadow,
   getLegacyCandidateByLeverId,
   getShadowCandidateByLeverId,
@@ -437,6 +439,39 @@ module.exports = async (req, res) => {
             const nextInterview = resolveNextInterviewUtc(
               await getOpportunityInterviews(opportunityId, cfg).catch(() => []),
               Date.now()
+            );
+
+            await upsertPersonNormalized(
+              {
+                person_key: identity.person_key,
+                primary_email: identity.normalizedEmail || candidateEmail || legacy?.email || null,
+                primary_phone10: identity.normalizedPhone || null,
+                application_last_name_norm:
+                  identity.application_last_name_norm || legacy?.application_last_name_norm || null,
+                application_phone10: identity.application_phone || legacy?.application_phone || null,
+                magic_token_current: magicToken,
+                identity_confidence: identity.identity_confidence,
+              },
+              cfg
+            );
+
+            await upsertApplicationNormalized(
+              {
+                lever_opportunity_id: opportunityId,
+                person_key: identity.person_key,
+                candidate_name: candidateName || legacy?.name || null,
+                position: position || safeLegacyPosition || null,
+                current_stage: currentStage,
+                archived,
+                archive_reason: archiveReason,
+                portal_stage: stageFields.portal_stage,
+                portal_stage_order: stageFields.portal_stage_order,
+                portal_stage_terminal: stageFields.portal_stage_terminal,
+                next_interview: nextInterview,
+                stage_updated: nowIsoUtcSeconds(),
+                updated_at: nowIsoUtcSeconds(),
+              },
+              cfg
             );
 
             const row = {

@@ -128,11 +128,40 @@ async function findMagicTokenByPersonKey(personKey, cfg) {
   return Array.isArray(legacyRows) && legacyRows[0]?.magic_token ? String(legacyRows[0].magic_token) : null;
 }
 
+async function upsertPersonNormalized(person, cfg) {
+  if (!person || !person.person_key) return;
+
+  const row = {
+    person_key: person.person_key,
+    updated_at: new Date().toISOString(),
+    ...(person.primary_email ? { primary_email: person.primary_email } : {}),
+    ...(person.primary_phone10 ? { primary_phone10: person.primary_phone10 } : {}),
+    ...(person.application_last_name_norm ? { application_last_name_norm: person.application_last_name_norm } : {}),
+    ...(person.application_phone10 ? { application_phone10: person.application_phone10 } : {}),
+    ...(person.magic_token_current ? { magic_token_current: person.magic_token_current } : {}),
+    ...(typeof person.identity_confidence === "number" ? { identity_confidence: person.identity_confidence } : {}),
+  };
+
+  const q = `/rest/v1/people?on_conflict=person_key`;
+  await supaFetch(
+    q,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify(row),
+    },
+    cfg
+  );
+}
+
 async function upsertApplicationNormalized(app, cfg) {
   if (!app || !app.lever_opportunity_id || !app.person_key) return;
 
-  // Guard: only write to applications if the person_key already exists in people.
-  // In Phase 1 the people table is empty, so this will always skip — that is correct.
+  // Guard: only write to applications when parent person exists.
+  // Callers should upsert people first via upsertPersonNormalized.
   const checkResp = await supaFetch(
     `/rest/v1/people?person_key=eq.${encodeURIComponent(app.person_key)}&select=person_key&limit=1`,
     { method: "GET" },
