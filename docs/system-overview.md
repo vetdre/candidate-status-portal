@@ -526,6 +526,7 @@ All identity logic is centralized in `_lib/identity.js`.
 |-----------------|------------|---------------------|
 | Valid email | `email:<lower(email)>` | 3 |
 | No email, valid 10-digit phone | `phone:<10digits>` | 2 |
+| No email/phone, Lever candidate ID available | `lever_candidate:<candidateId>` | 1 |
 | Neither | `null` | 1 |
 
 **Phone normalization:** strip non-digits; if 11 digits starting with `1`, drop the leading `1`; accept only exactly 10 digits.
@@ -537,6 +538,11 @@ All identity logic is centralized in `_lib/identity.js`.
 1. If `person_key` is non-null, look for an existing token held by any row with the same `person_key` in `Candidates_shadow`. Reuse it to link multi-application people to one portal view.
 2. If no existing token found, or `person_key` is null, generate a new UUID.
 3. Never clobber an existing populated token.
+
+Notes:
+- `lever_candidate:*` keys are provisional identity anchors for sourced leads that lack email/phone at ingest time.
+- They allow cross-event linking until stronger identity factors are available.
+- A future merge step should reconcile provisional `lever_candidate:*` keys to canonical `email:*` or `phone:*` keys when reliable contact fields appear.
 
 ### Portal Authentication (phase 1)
 
@@ -794,6 +800,7 @@ If stage is stale, check whether Lever is firing stage-change webhooks (check `i
 
 ### Identity Model Migration (future)
 - The normalized `people` table is populated but not yet the auth source (see `backend/docs/phase1_identity_and_cutover_notes.md`). Portal cutover from `Candidates_shadow` to `people` requires full parity validation of `magic_token`, `person_key`, `application_last_name`, and `application_phone`.
+- Provisional `lever_candidate:*` person keys should be merge-mapped to canonical `email:*` / `phone:*` keys once contact data arrives, before final auth-source cutover.
 
 ### Smoke-Test Endpoint
 - `/api/admin/test-mailer` should be disabled or have its secret rotated for long-term production posture.

@@ -11,6 +11,7 @@ const {
   resolveContactName,
   resolveContactEmail,
   resolveContactPhone,
+  resolveContactId,
   resolveOpportunityTags,
   getExcludedImportTags,
   resolveSafeLegacyPosition,
@@ -131,6 +132,7 @@ module.exports = async (req, res) => {
         email: candidateEmail || legacy?.email,
         phone: candidatePhone || legacy?.application_phone || legacy?.phone,
         fullName: candidateName,
+        leverCandidateId: candidateId || resolveContactId(candidate) || resolveContactId(opp?.contact),
       });
 
       const magicToken = await resolveMagicToken(

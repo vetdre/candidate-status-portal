@@ -24,6 +24,11 @@ function normalizeLastName(value) {
   return lastName || null;
 }
 
+function normalizeLeverCandidateId(value) {
+  const id = asString(value).toLowerCase();
+  return id || null;
+}
+
 function extractLastName(fullName) {
   const name = asString(fullName);
   if (!name) return null;
@@ -31,9 +36,10 @@ function extractLastName(fullName) {
   return parts.length ? parts[parts.length - 1] : null;
 }
 
-function buildIdentityFields({ email, phone, fullName }) {
+function buildIdentityFields({ email, phone, fullName, leverCandidateId }) {
   const normalizedEmail = normalizeEmail(email);
   const normalizedPhone = normalizePhone10(phone);
+  const normalizedLeverCandidateId = normalizeLeverCandidateId(leverCandidateId);
   const applicationLastName = extractLastName(fullName);
 
   if (normalizedEmail) {
@@ -52,6 +58,7 @@ function buildIdentityFields({ email, phone, fullName }) {
     return {
       normalizedEmail,
       normalizedPhone,
+      normalizedLeverCandidateId,
       person_key: `phone:${normalizedPhone}`,
       identity_confidence: 2,
       application_phone: normalizedPhone,
@@ -60,9 +67,23 @@ function buildIdentityFields({ email, phone, fullName }) {
     };
   }
 
+  if (normalizedLeverCandidateId) {
+    return {
+      normalizedEmail,
+      normalizedPhone,
+      normalizedLeverCandidateId,
+      person_key: `lever_candidate:${normalizedLeverCandidateId}`,
+      identity_confidence: 1,
+      application_phone: null,
+      application_last_name: applicationLastName,
+      application_last_name_norm: normalizeLastName(applicationLastName),
+    };
+  }
+
   return {
     normalizedEmail,
     normalizedPhone,
+    normalizedLeverCandidateId,
     person_key: null,
     identity_confidence: 1,
     application_phone: null,
@@ -87,6 +108,7 @@ module.exports = {
   normalizeEmail,
   normalizePhone10,
   normalizeLastName,
+  normalizeLeverCandidateId,
   extractLastName,
   buildIdentityFields,
   resolveMagicToken,

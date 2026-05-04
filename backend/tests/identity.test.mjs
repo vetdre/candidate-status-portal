@@ -41,7 +41,17 @@ test('buildIdentityFields falls back to phone and leaves person_key null without
   assert.equal(phoneIdentity.person_key, 'phone:5551234567');
   assert.equal(phoneIdentity.identity_confidence, 2);
 
-  const emptyIdentity = buildIdentityFields({ email: '', phone: '', fullName: 'John Smith' });
+  const provisionalIdentity = buildIdentityFields({
+    email: '',
+    phone: '',
+    fullName: 'John Smith',
+    leverCandidateId: 'ABCD-1234',
+  });
+  assert.equal(provisionalIdentity.person_key, 'lever_candidate:abcd-1234');
+  assert.equal(provisionalIdentity.identity_confidence, 1);
+  assert.equal(provisionalIdentity.application_phone, null);
+
+  const emptyIdentity = buildIdentityFields({ email: '', phone: '', fullName: 'John Smith', leverCandidateId: '' });
   assert.equal(emptyIdentity.person_key, null);
   assert.equal(emptyIdentity.identity_confidence, 1);
   assert.equal(emptyIdentity.application_phone, null);

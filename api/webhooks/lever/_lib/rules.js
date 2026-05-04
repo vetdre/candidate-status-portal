@@ -128,6 +128,17 @@ function resolveContactPhone(source) {
   ]);
 }
 
+function resolveContactId(source) {
+  if (!source || typeof source !== "object") return null;
+
+  return firstString([
+    source.id,
+    source.candidateId,
+    source.candidate_id,
+    source.uuid,
+  ]);
+}
+
 function resolveTagsFromSource(source) {
   if (!Array.isArray(source)) return [];
   const tags = [];
@@ -294,6 +305,7 @@ module.exports = {
   resolveContactName,
   resolveContactEmail,
   resolveContactPhone,
+  resolveContactId,
   resolveOpportunityTags,
   getExcludedImportTags,
   resolveSafeLegacyPosition,

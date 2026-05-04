@@ -9,6 +9,7 @@ const {
   resolveContactName,
   resolveContactEmail,
   resolveContactPhone,
+  resolveContactId,
   resolveOpportunityTags,
   getExcludedImportTags,
   resolveSafeLegacyPosition,
@@ -414,6 +415,7 @@ module.exports = async (req, res) => {
             const candidateEmail = resolveContactEmail(contact);
             const candidatePhone = resolveContactPhone(contact);
             const candidateName = resolveContactName(contact);
+            const candidateId = resolveContactId(contact) || resolveContactId(opp?.candidate);
             const position = resolvePositionLabel(opp?.position);
 
             const legacy = await getLegacyCandidateByLeverId(opportunityId, cfg).catch(() => null);
@@ -422,6 +424,7 @@ module.exports = async (req, res) => {
               email: candidateEmail || legacy?.email,
               phone: candidatePhone || legacy?.application_phone || legacy?.phone,
               fullName: candidateName || legacy?.name,
+              leverCandidateId: candidateId,
             });
             const existingShadow =
               !identity.person_key && !legacy?.magic_token
