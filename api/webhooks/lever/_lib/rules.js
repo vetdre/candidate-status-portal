@@ -295,10 +295,36 @@ function nowIsoUtcSeconds() {
   return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+function resolveAppliedAtUtc(opportunity, fallbacks = []) {
+  const raw = firstString([
+    opportunity?.createdAt,
+    opportunity?.created,
+    opportunity?.appliedAt,
+    opportunity?.applied_at,
+    ...(Array.isArray(fallbacks) ? fallbacks : []),
+  ]);
+  if (!raw) return null;
+
+  const numeric = Number(raw);
+  if (Number.isFinite(numeric) && numeric > 0) {
+    // Lever timestamps are commonly epoch milliseconds; support seconds as well.
+    const asMs = numeric > 1e12 ? numeric : numeric > 1e9 ? numeric * 1000 : null;
+    if (asMs) {
+      const d = new Date(asMs);
+      if (!Number.isNaN(d.getTime())) return d.toISOString();
+    }
+  }
+
+  const parsed = Date.parse(raw);
+  if (!Number.isFinite(parsed)) return null;
+  return new Date(parsed).toISOString();
+}
+
 module.exports = {
   resolvePortalStageFields,
   resolveNextInterviewUtc,
   nowIsoUtcSeconds,
+  resolveAppliedAtUtc,
   resolveCurrentStageLabel,
   normalizeArchiveReason,
   resolvePositionLabel,

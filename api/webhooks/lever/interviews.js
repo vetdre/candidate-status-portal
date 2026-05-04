@@ -16,6 +16,7 @@ const {
   resolveOpportunityTags,
   getExcludedImportTags,
   resolveSafeLegacyPosition,
+  resolveAppliedAtUtc,
 } = require("./_lib/rules");
 const { buildIdentityFields, resolveMagicToken } = require("./_lib/identity");
 const {
@@ -170,6 +171,7 @@ module.exports = async (req, res) => {
           lever_opportunity_id: opportunityId,
           person_key: identity.person_key,
           candidate_name: candidateName,
+          applied_at: resolveAppliedAtUtc(opp, [legacy?.created_at, existingShadow?.created_at]),
           position: position || safeLegacyPosition || null,
           current_stage: currentStage,
           archived,

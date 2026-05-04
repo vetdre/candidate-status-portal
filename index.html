@@ -1599,8 +1599,8 @@ function renderApplicationsView(payload) {
 
 
   apps.sort((a, b) => {
-    const ad = new Date(a?.created_at || 0).getTime();
-    const bd = new Date(b?.created_at || 0).getTime();
+    const ad = new Date(a?.applied_at || a?.created_at || 0).getTime();
+    const bd = new Date(b?.applied_at || b?.created_at || 0).getTime();
     return bd - ad;
   });
 
@@ -1610,7 +1610,7 @@ function renderApplicationsView(payload) {
 
   const tabsHtml = apps.map((a, idx) => {
     const pos = escapeHtml(a?.position || "Position");
-    const applied = formatDateShort(a?.created_at);
+    const applied = formatDateShort(a?.applied_at || a?.created_at);
 
 
     return `
@@ -1653,7 +1653,7 @@ function renderApplicationsView(payload) {
     const portalTerminal = resolvePortalTerminal(active, candidate);
 
 
-    const appliedShort = formatDateShort(active?.created_at);
+    const appliedShort = formatDateShort(active?.applied_at || active?.created_at);
     const updatedShort = active?.stage_updated ? formatDateToLocal(active.stage_updated) : null;
 
 
