@@ -295,6 +295,23 @@ function nowIsoUtcSeconds() {
   return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+function resolveTimestampToIso(value) {
+  if (value == null) return null;
+
+  const numeric = Number(value);
+  if (Number.isFinite(numeric) && numeric > 0) {
+    const asMs = numeric > 1e12 ? numeric : numeric > 1e9 ? numeric * 1000 : null;
+    if (asMs) {
+      const d = new Date(asMs);
+      if (!Number.isNaN(d.getTime())) return d.toISOString();
+    }
+  }
+
+  const parsed = Date.parse(String(value));
+  if (!Number.isFinite(parsed)) return null;
+  return new Date(parsed).toISOString();
+}
+
 function resolveAppliedAtUtc(opportunity, fallbacks = []) {
   const raw = firstString([
     opportunity?.createdAt,
@@ -303,21 +320,22 @@ function resolveAppliedAtUtc(opportunity, fallbacks = []) {
     opportunity?.applied_at,
     ...(Array.isArray(fallbacks) ? fallbacks : []),
   ]);
-  if (!raw) return null;
+  return resolveTimestampToIso(raw);
+}
 
-  const numeric = Number(raw);
-  if (Number.isFinite(numeric) && numeric > 0) {
-    // Lever timestamps are commonly epoch milliseconds; support seconds as well.
-    const asMs = numeric > 1e12 ? numeric : numeric > 1e9 ? numeric * 1000 : null;
-    if (asMs) {
-      const d = new Date(asMs);
-      if (!Number.isNaN(d.getTime())) return d.toISOString();
-    }
-  }
-
-  const parsed = Date.parse(raw);
-  if (!Number.isFinite(parsed)) return null;
-  return new Date(parsed).toISOString();
+function resolveStageUpdatedAtUtc(opportunity, fallbacks = []) {
+  const raw = firstString([
+    opportunity?.stage?.updatedAt,
+    opportunity?.stage?.updated_at,
+    opportunity?.stage?.changedAt,
+    opportunity?.stage?.changed_at,
+    opportunity?.stageUpdatedAt,
+    opportunity?.stage_updated_at,
+    opportunity?.updatedAt,
+    opportunity?.updated,
+    ...(Array.isArray(fallbacks) ? fallbacks : []),
+  ]);
+  return resolveTimestampToIso(raw);
 }
 
 module.exports = {
@@ -325,6 +343,7 @@ module.exports = {
   resolveNextInterviewUtc,
   nowIsoUtcSeconds,
   resolveAppliedAtUtc,
+  resolveStageUpdatedAtUtc,
   resolveCurrentStageLabel,
   normalizeArchiveReason,
   resolvePositionLabel,

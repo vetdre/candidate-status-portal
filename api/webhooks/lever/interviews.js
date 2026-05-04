@@ -17,6 +17,7 @@ const {
   getExcludedImportTags,
   resolveSafeLegacyPosition,
   resolveAppliedAtUtc,
+  resolveStageUpdatedAtUtc,
 } = require("./_lib/rules");
 const { buildIdentityFields, resolveMagicToken } = require("./_lib/identity");
 const {
@@ -152,6 +153,10 @@ module.exports = async (req, res) => {
         }
       );
 
+      const stageUpdatedAt =
+        resolveStageUpdatedAtUtc(opp, [existingShadow?.stage_updated, legacy?.stage_updated]) ||
+        nowIsoUtcSeconds();
+
       await upsertPersonNormalized(
         {
           person_key: identity.person_key,
@@ -180,7 +185,7 @@ module.exports = async (req, res) => {
           portal_stage_order: stageFields.portal_stage_order,
           portal_stage_terminal: stageFields.portal_stage_terminal,
           next_interview: nextInterview,
-          stage_updated: nowIsoUtcSeconds(),
+          stage_updated: stageUpdatedAt,
           updated_at: nowIsoUtcSeconds(),
         },
         cfg
@@ -214,7 +219,7 @@ module.exports = async (req, res) => {
         portal_stage: stageFields.portal_stage,
         portal_stage_order: stageFields.portal_stage_order,
         portal_stage_terminal: stageFields.portal_stage_terminal,
-        stage_updated: nowIsoUtcSeconds(),
+        stage_updated: stageUpdatedAt,
 
         ...(identity.person_key ? { person_key: identity.person_key } : {}),
         ...(candidateName ? { name: candidateName } : {}),
