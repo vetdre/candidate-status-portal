@@ -210,7 +210,7 @@ The stage-change handler exists to catch candidates who entered the pipeline at 
 ## 5. Data Flow: Portal Login
 
 ```
-Candidate clicks magic link → https://portal.msconsultants.com/?token=<uuid>
+Candidate clicks magic link → https://candidateportal.msconsultants.com/?token=<uuid>
         │
         ▼
 index.html loads in browser
