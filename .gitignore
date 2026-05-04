@@ -36,3 +36,6 @@ tmp/
 
 # Supabase local artifacts (if used later)
 .supabase/
+
+# Internal documentation (keep local only)
+docs/system-overview.md
