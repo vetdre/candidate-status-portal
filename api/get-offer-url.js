@@ -4,7 +4,7 @@
 //
 // Behavior:
 // - Validates identity via token + lastName + phone10 (same inputs as portal-status).
-// - Resolves person_key from magic_token (Candidates table).
+// - Resolves person_key from magic_token (people table).
 // - Finds the best application row with an offer (offer_letter_key or offer_access).
 // - Supports legacy keys like "offer_{opportunityId}.pdf" by listing Storage under "{opportunityId}/"
 //   and selecting the newest PDF automatically.
@@ -216,12 +216,12 @@ module.exports = async (req, res) => {
       return json(res, 200, { ok: false });
     }
 
-    // 1) Resolve person_key from any Candidate row with this token, and validate identity.
+    // 1) Resolve person_key from people row with this token, and validate identity.
     // We select identity factors from the same row as the token.
     const tokenLookupUrl =
-      `${SUPABASE_URL}/rest/v1/Candidates` +
-      `?select=person_key,application_last_name,application_phone,name` +
-      `&magic_token=eq.${encodeURIComponent(token)}` +
+      `${SUPABASE_URL}/rest/v1/people` +
+      `?select=person_key,application_last_name_norm,application_phone10` +
+      `&magic_token_current=eq.${encodeURIComponent(token)}` +
       `&limit=1`;
 
     const tokenResp = await supaFetch(
@@ -239,8 +239,8 @@ module.exports = async (req, res) => {
       return json(res, 200, { ok: false });
     }
 
-    const dbLastNameNorm = normalizeLastName(tokenRow.application_last_name);
-    const dbPhoneNorm = normalizePhone10(tokenRow.application_phone);
+    const dbLastNameNorm = normalizeLastName(tokenRow.application_last_name_norm);
+    const dbPhoneNorm = normalizePhone10(tokenRow.application_phone10);
 
     if (dbLastNameNorm !== lastNameNorm || dbPhoneNorm !== phoneNorm) {
       registerTokenFailure(token);
@@ -256,7 +256,7 @@ module.exports = async (req, res) => {
     try {
       const nowIso = nowIsoUtcSeconds();
       const clearUrl =
-        `${SUPABASE_URL}/rest/v1/Candidates` +
+        `${SUPABASE_URL}/rest/v1/applications` +
         `?person_key=eq.${encodeURIComponent(personKey)}` +
         `&next_interview=lt.${encodeURIComponent(nowIso)}`;
 
@@ -277,10 +277,10 @@ module.exports = async (req, res) => {
       // Do not block offer downloads on cleanup failures.
     }
 
-    // 2) Pull all applications for this person_key and choose best offer row.
+    // 2) Pull normalized applications for this person_key and enrich with shadow offer metadata.
     const appsUrl =
-      `${SUPABASE_URL}/rest/v1/Candidates` +
-      `?select=id,lever_id,offer_access,offer_letter_key,stage_updated,created_at` +
+      `${SUPABASE_URL}/rest/v1/applications` +
+      `?select=lever_opportunity_id,stage_updated,created_at` +
       `&person_key=eq.${encodeURIComponent(personKey)}` +
       `&order=created_at.desc`;
 
@@ -291,7 +291,41 @@ module.exports = async (req, res) => {
       SERVICE_ROLE
     );
 
-    const apps = await appsResp.json().catch(() => []);
+    const normalizedApps = await appsResp.json().catch(() => []);
+    const leverIds = (Array.isArray(normalizedApps) ? normalizedApps : [])
+      .map((row) => String(row?.lever_opportunity_id || "").trim())
+      .filter(Boolean);
+
+    let shadowMap = new Map();
+    if (leverIds.length) {
+      const shadowUrl =
+        `${SUPABASE_URL}/rest/v1/Candidates_shadow` +
+        `?select=lever_id,offer_access,offer_letter_key,stage_updated,created_at` +
+        `&lever_id=in.(${leverIds.map((id) => encodeURIComponent(id)).join(",")})`;
+
+      const shadowResp = await supaFetch(
+        shadowUrl,
+        { method: "GET" },
+        SUPABASE_URL,
+        SERVICE_ROLE
+      );
+      const shadowRows = await shadowResp.json().catch(() => []);
+      shadowMap = new Map((Array.isArray(shadowRows) ? shadowRows : []).map((r) => [String(r?.lever_id || ""), r]));
+    }
+
+    const apps = (Array.isArray(normalizedApps) ? normalizedApps : []).map((app) => {
+      const leverId = String(app?.lever_opportunity_id || "").trim();
+      const shadow = shadowMap.get(leverId) || {};
+      return {
+        id: null,
+        lever_id: leverId,
+        offer_access: !!shadow?.offer_access,
+        offer_letter_key: shadow?.offer_letter_key || null,
+        stage_updated: app?.stage_updated || shadow?.stage_updated || null,
+        created_at: app?.created_at || shadow?.created_at || null,
+      };
+    });
+
     const best = pickBestOfferRow(apps);
 
     if (!best) return json(res, 404, { ok: false, error: "No applications found for person" });

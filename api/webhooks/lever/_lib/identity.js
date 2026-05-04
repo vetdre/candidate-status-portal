@@ -120,7 +120,7 @@ async function resolveMagicToken(
 ) {
   if (personKey) {
     const existing = await findMagicTokenByPersonKey(personKey);
-    return existing || generateToken();
+    return existing || existingApplicationToken || generateToken();
   }
 
   return existingApplicationToken || generateToken();

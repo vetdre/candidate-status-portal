@@ -98,7 +98,7 @@ test('resolveMagicToken reuses person token when available and otherwise generat
       generateToken: () => 'generated-token',
     }
   );
-  assert.equal(generatedForPerson, 'generated-token');
+  assert.equal(generatedForPerson, 'app-token');
 
   const preservedApplicationToken = await resolveMagicToken(
     { personKey: null, existingApplicationToken: 'app-token' },
