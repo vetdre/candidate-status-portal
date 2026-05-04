@@ -60,11 +60,13 @@ module.exports = async (req, res) => {
 
     const recipientEmail = String(req.body?.recipientEmail || "dvetrano@msconsultants.com").trim();
     const candidateName = String(req.body?.candidateName || "Drew").trim();
+    const positionApplied = String(req.body?.positionApplied || "Engineering").trim();
     const magicToken = String(req.body?.magicToken || "smoke-test-token").trim();
 
     const result = await sendMagicLinkInvite({
       recipientEmail,
       candidateName,
+      positionApplied,
       magicToken,
     });
 

@@ -208,6 +208,7 @@ module.exports = async (req, res) => {
           inviteResult = await sendMagicLinkInvite({
             recipientEmail: candidateEmail || legacy?.email || existingShadow?.email,
             candidateName,
+            positionApplied: position || safeLegacyPosition || null,
             magicToken,
           });
           if (inviteResult?.sent === true) {

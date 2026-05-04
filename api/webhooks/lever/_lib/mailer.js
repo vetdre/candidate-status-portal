@@ -102,26 +102,43 @@ async function fetchGraphAccessToken(cfg) {
   return token;
 }
 
-function buildInviteEmailHtml({ candidateName, magicLink }) {
-  const safeName = asNonEmptyString(candidateName) || "there";
+function buildInviteEmailHtml({ candidateName, magicLink, positionApplied }) {
+  const safeName = asNonEmptyString(candidateName) || "Candidate";
+  const safePosition = asNonEmptyString(positionApplied) || "position";
   return [
     `<p>Hi ${safeName},</p>`,
-    "<p>Your candidate portal is ready.</p>",
-    `<p><a href=\"${magicLink}\">Open your portal</a></p>`,
-    "<p>This link is personalized for your application.</p>",
+    `<p>Thank you for your interest in the ${safePosition} role at ms Consultants.</p>`,
+    `<p>You can securely view your application status using your personal status link: <a href=\"${magicLink}\">${magicLink}</a></p>`,
+    "<p>You must use this specific link in order to access your application status details.</p>",
+    "<p>When prompted, enter the last name and 10-digit phone number used on your application.</p>",
+    "<p>Thank you.</p>",
+    "<p><em>This email inbox is unmonitored and replies will not be received.</em></p>",
   ].join("");
 }
 
-function buildInviteEmailText({ candidateName, magicLink }) {
-  const safeName = asNonEmptyString(candidateName) || "there";
+function buildInviteEmailText({ candidateName, magicLink, positionApplied }) {
+  const safeName = asNonEmptyString(candidateName) || "Candidate";
+  const safePosition = asNonEmptyString(positionApplied) || "position";
   return [
     `Hi ${safeName},`,
     "",
-    "Your candidate portal is ready.",
-    `Open your portal: ${magicLink}`,
+    `Thank you for your interest in the ${safePosition} role at ms Consultants.`,
     "",
-    "This link is personalized for your application.",
+    `You can securely view your application status using your personal status link: ${magicLink}`,
+    "You must use this specific link in order to access your application status details.",
+    "",
+    "When prompted, enter the last name and 10-digit phone number used on your application.",
+    "",
+    "Thank you.",
+    "",
+    "*This email inbox is unmonitored and replies will not be received",
   ].join("\n");
+}
+
+function buildInviteSubject({ candidateName, positionApplied }) {
+  const safeName = asNonEmptyString(candidateName) || "Candidate";
+  const safePosition = asNonEmptyString(positionApplied) || "Role";
+  return `${safeName} Application Status Link - ${safePosition}`;
 }
 
 async function sendGraphMail({ cfg, to, subject, htmlContent, textContent }) {
@@ -248,7 +265,7 @@ async function sendMonitoringAlertEmail({ subject, summary, lines }) {
   });
 }
 
-async function sendMagicLinkInvite({ recipientEmail, candidateName, magicToken }) {
+async function sendMagicLinkInvite({ recipientEmail, candidateName, positionApplied, magicToken }) {
   const cfg = getMagicLinkMailerConfig();
   if (!isMagicLinkMailerReady(cfg)) {
     return {
@@ -269,6 +286,9 @@ async function sendMagicLinkInvite({ recipientEmail, candidateName, magicToken }
   }
 
   const magicLink = buildMagicLinkUrl(cfg, magicToken);
+  const subject = buildInviteSubject({ candidateName, positionApplied });
+  const htmlContent = buildInviteEmailHtml({ candidateName, positionApplied, magicLink });
+  const textContent = buildInviteEmailText({ candidateName, positionApplied, magicLink });
   if (cfg.dryRun) {
     return {
       attempted: true,
@@ -278,7 +298,7 @@ async function sendMagicLinkInvite({ recipientEmail, candidateName, magicToken }
         to,
         requestedRecipient,
         from: cfg.senderEmail,
-        subject: "Your Candidate Portal Link",
+        subject,
         magicLink,
         forcedRecipient: !!cfg.forceRecipientEmail,
       },
@@ -288,9 +308,9 @@ async function sendMagicLinkInvite({ recipientEmail, candidateName, magicToken }
   const result = await sendGraphMail({
     cfg,
     to: [to],
-    subject: "Your Candidate Portal Link",
-    htmlContent: buildInviteEmailHtml({ candidateName, magicLink }),
-    textContent: buildInviteEmailText({ candidateName, magicLink }),
+    subject,
+    htmlContent,
+    textContent,
   });
 
   return {
@@ -300,9 +320,9 @@ async function sendMagicLinkInvite({ recipientEmail, candidateName, magicToken }
       to,
       requestedRecipient,
       from: cfg.senderEmail,
-      subject: "Your Candidate Portal Link",
+      subject,
       magicLink,
-      text: buildInviteEmailText({ candidateName, magicLink }),
+      text: textContent,
       forcedRecipient: !!cfg.forceRecipientEmail,
     },
   };
