@@ -326,9 +326,17 @@ module.exports = async (req, res) => {
       };
     });
 
-    const best = pickBestOfferRow(apps);
+    // Only allow signing when the application is explicitly offer-eligible.
+    // This prevents generic folder discovery from returning files for non-offer rows.
+    const offerEligibleApps = apps.filter((row) => {
+      const hasOfferAccess = !!row.offer_access;
+      const hasOfferKey = !!String(row.offer_letter_key || "").trim();
+      return hasOfferAccess || hasOfferKey;
+    });
 
-    if (!best) return json(res, 404, { ok: false, error: "No applications found for person" });
+    const best = pickBestOfferRow(offerEligibleApps);
+
+    if (!best) return json(res, 404, { ok: false, error: "No offer-eligible application found" });
 
     // 3) Resolve storage key (handles legacy)
     const key = await resolveStorageKeyFromRow(best, SUPABASE_URL, SERVICE_ROLE);
