@@ -44,3 +44,74 @@
 - Updated api/get-offer-url.js to use shared phone and last-name normalization helpers.
 - Began one-time data repair step to backfill existing Candidates_shadow identity fields using the newly centralized rules.
 - Executed one-time Candidates_shadow identity backfill in Supabase: updated 851 rows to fill person_key/identity_confidence/application_phone/application_last_name/application_last_name_norm/magic_token where missing using the centralized rules.
+
+## 2026-04-30
+- Updated api/webhooks/lever/_lib/supabase.js to guard normalized interview writes behind application parent existence checks and avoid interviews FK violations during phase-1.
+- Updated api/webhooks/lever/interviews.js to record skip status when normalized interview sync is bypassed and to continue processing shadow updates.
+- Added raw interview cache persistence in api/webhooks/lever/_lib/supabase.js via interview_events_raw replacement writes keyed by lever_opportunity_id.
+- Added backend/migrations/0009_interview_events_raw.sql and backend/migrations/0010_secure_interview_events_raw.sql.
+- Applied Supabase migrations interview_events_raw_cache and secure_interview_events_raw to project nnauvyublclfeqizpawr.
+- Added invite eligibility helper api/webhooks/lever/_lib/invite.js.
+- Added Graph mailer helper api/webhooks/lever/_lib/mailer.js with dry-run mode, magic-link URL construction, and optional forced-recipient override.
+- Updated api/webhooks/lever/application-created.js to evaluate onboarding invite eligibility and invoke mailer non-blockingly with ingest status notes.
+- Added protected smoke-test endpoint api/admin/test-mailer.js for manual mailer verification (MAILER_TEST_SECRET bearer auth).
+- Pushed integration commit ae36fe0 (invite eligibility, Graph mailer, raw interview cache, and smoke-test endpoint).
+- Executed production idempotent data backfill SQL to populate public.people and public.applications from unified Candidates_shadow/Candidates source rows.
+- Backfill result: public.people = 1618 rows, public.applications = 1786 rows, 0 applications with null person_key.
+- Executed production seed for public.interviews from public.applications.next_interview where no real interview rows existed.
+- Seed result: 19 rows in public.interviews with source_event_id = next_interview_backfill_v1.
+- Deployed Supabase Edge Function portal-status v14 to read from normalized people/applications first and fallback to legacy Candidates when needed.
+- Preserved portal response contract (person/candidate/applications payload shape) so index.html required no UI changes.
+- Applied Supabase migration portal_freshness_monitor_view to create public.portal_freshness_monitor_v1.
+
+## 2026-05-01
+- Added backend/migrations/0011_invite_sent_at.sql to add `invite_sent_at timestamptz` column to Candidates_shadow.
+- Updated api/webhooks/lever/_lib/supabase.js to include `invite_sent_at` in shadow SELECT and add `markInviteSentOnShadow(leverId, cfg)` helper.
+- Updated api/webhooks/lever/_lib/invite.js: replaced `isNewPortalRecord` guard with `inviteAlreadySent` check (uses invite_sent_at); added `isLeadStage()` and `isDeclineStage()` exports; blocked invite when stage is lead, decline, archived, already sent, or contact fields missing.
+- Updated api/webhooks/lever/application-created.js to pass `inviteAlreadySent: !!existingShadow?.invite_sent_at` into eligibility check and call `markInviteSentOnShadow` on successful send.
+- Updated api/webhooks/lever/candidate-stage-change.js to always fetch shadow row and fire invite when `isLeadTransition` is true (previous stage was lead/null and new stage is not lead) and invite not already sent; blocks on decline stage; calls `markInviteSentOnShadow` on send.
+- Applied Supabase migration 0011_invite_sent_at to project nnauvyublclfeqizpawr.
+
+## 2026-05-02
+- Added api/health.js: public liveness endpoint returning app version, environment, and timestamp with no auth requirement (for UptimeRobot/Better Stack).
+- Added api/admin/monitor.js: protected monitoring endpoint evaluating three health checks — cron_refresh heartbeat staleness, recent ingest_events failure rate, and portal_freshness_monitor_v1 stale-view detection. Auth via MONITOR_SECRET or CRON_SECRET bearer. Persists alert state to monitor_alert_state with cooldown to avoid duplicate emails. Returns 200 (healthy) or 503 (degraded). Sends alert emails via Graph mailer.
+- Updated api/webhooks/lever/_lib/mailer.js to export `sendMonitoringAlertEmail`, `getMonitoringAlertConfig`, and `isMonitoringAlertReady` for use by the monitor endpoint.
+- Added backend/migrations/0012_monitor_alert_state.sql to create public.monitor_alert_state table with cooldown tracking.
+- Added backend/migrations/0013_secure_portal_freshness_monitor_v1.sql to revoke anon and authenticated role grants on portal_freshness_monitor_v1 (service_role only).
+- Added backend/migrations/0014_cron_refresh_heartbeat.sql to add `last_run_at`, `last_success_at`, `last_status`, `last_error` columns to cron_refresh_state.
+- Added backend/migrations/0015_cron_refresh_heartbeat_retry.sql as idempotent retry of 0014 with IF NOT EXISTS guards.
+- Updated api/admin/monitor.js cron_refresh health check to use `last_success_at` / `last_status` heartbeat fields instead of checkpoint `updated_at`.
+- Updated vercel.json: added /api/admin/monitor cron at `0 1 * * *` (daily, Hobby plan limit). Refresh cron retained at `0 2 * * *`.
+- Applied Supabase migrations 0012–0015 to project nnauvyublclfeqizpawr.
+
+## 2026-05-04
+- Completed three-day observation window with clean results (37 processed, 0 failed).
+- Set MAGIC_LINK_EMAIL_DRY_RUN=false in Vercel production environment — live invite sends now active.
+- Removed MAGIC_LINK_FORCE_RECIPIENT_EMAIL from Vercel production environment.
+- Updated api/webhooks/lever/_lib/mailer.js sendMagicLinkInvite to accept `positionApplied` parameter; email subject now `[candidateName] Application Status Link - [positionApplied]`; body aligned to prior Power Automate template (thanks for interest in position, personalized link instructions, last name + 10-digit phone prompt, unmonitored inbox disclaimer).
+- Updated api/webhooks/lever/application-created.js to derive and pass `positionApplied` to sendMagicLinkInvite.
+- Updated api/webhooks/lever/candidate-stage-change.js to derive and pass `positionApplied` to sendMagicLinkInvite.
+- Updated api/admin/test-mailer.js to accept optional `positionApplied` in request body (defaults to "Test Position").
+- Pushed commit a125bc7.
+
+## 2026-05-04 (documentation)
+- Created docs/system-overview.md: end-to-end architecture and operations documentation covering all components, data flows, database schema, API endpoints, cron jobs, invite system, monitoring, identity model, stage normalization, environment variables, and operations runbook.
+
+## 2026-05-04 (normalized write ordering fix)
+- Updated api/webhooks/lever/_lib/supabase.js with new `upsertPersonNormalized(person, cfg)` helper to write normalized people rows by person_key before applications upsert.
+- Updated webhook handlers (application-created, candidate-stage-change, archive-state-change, interviews) to call `upsertPersonNormalized` before `upsertApplicationNormalized`.
+- Updated api/cron/refresh-candidates.js to also upsert normalized people and applications during nightly refresh (not shadow-only).
+- Executed one-time Supabase people backfill from Candidates_shadow distinct person_key rows (upsert preserving existing non-null values and max identity_confidence).
+- Executed one-time Supabase applications backfill from Candidates_shadow for rows with non-null person_key and matching people parent.
+- Validation after backfill: `shadow_person_key_missing_in_people = 0` and `shadow_not_in_applications = 4` (remaining four rows are null-person_key lead records, expected non-mappable identity exceptions).
+- Updated docs/system-overview.md flow and cron sections to reflect people-first normalized upsert ordering and cron normalized writes.
+
+## 2026-05-04 (provisional sourced identity anchor)
+- Updated api/webhooks/lever/_lib/identity.js `buildIdentityFields` to support provisional person key fallback `lever_candidate:<candidateId>` when both email and normalized phone are absent.
+- Added `resolveContactId` helper in api/webhooks/lever/_lib/rules.js and wired it into all webhook handlers and cron refresh identity generation.
+- Updated webhook handlers and cron to pass Lever candidate id into identity builder so sourced candidates without contact factors can still link across events/applications.
+- Extended identity fallback to `lever_opportunity:<leverId>` as last-resort when candidate id is unavailable.
+- Added backend/tests/identity.test.mjs coverage for provisional `lever_candidate:*` person key behavior.
+- Updated docs/system-overview.md identity rules to document provisional `lever_candidate:*` keys and future merge requirement to canonical email/phone keys.
+- Executed one-time data repair to assign `lever_opportunity:*` person keys for residual null-identity rows and upsert corresponding people/applications rows.
+- Validation snapshot after repair: `shadow_null_person_key = 0`, `shadow_not_in_applications = 0`, `shadow_person_key_missing_in_people = 0`.

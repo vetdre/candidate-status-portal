@@ -42,3 +42,59 @@
 - Next step after code deploy: backfill existing Candidates_shadow rows missing person_key / identity_confidence / application_phone / magic_token using the same locked identity rules so historical rows converge without waiting on future touches.
 - One-time backfill executed against Candidates_shadow: updated 851 rows.
 - Post-backfill status: missing_person_key = 4, missing_identity_confidence = 0, missing_application_phone = 80, missing_magic_token = 0; remaining missing person_key rows are expected no-identity cases.
+
+## 2026-04-30
+- Interview webhook FK conflicts were confirmed to occur when normalized applications rows are intentionally skipped (people table not yet populated) but interviews child writes still run.
+- Implemented parent-guarded normalized interview sync and added a raw interview cache path (interview_events_raw) so recruiter-created interview events are still persisted even when normalized parents are absent.
+- Applied Supabase migrations for interview_events_raw table creation and RLS service-role policy in project nnauvyublclfeqizpawr.
+- Implemented onboarding invite eligibility gate in application-created flow: new portal record only, not archived, non-lead stage, valid normalized application phone, and usable recipient email.
+- Added Microsoft Graph mailer integration with safe dry-run default and test-recipient override support for controlled validation.
+- Added protected smoke-test endpoint at /api/admin/test-mailer (bearer-secret gated) to validate Graph send path without creating ATS test candidates.
+- Validation outcome: dry-run test succeeded, then live smoke test delivered successfully after IT corrected Graph permission type to application Mail.Send with consent.
+- Executed idempotent normalized-model backfill from Candidates_shadow + Candidates into people/applications.
+- Post-backfill normalized counts: people = 1618, applications = 1786, applications missing person_key = 0.
+- Seeded normalized interviews from existing applications.next_interview for transition continuity.
+- Inserted/updated 19 synthetic interview rows tagged with source_event_id = next_interview_backfill_v1 and lever_interview_id prefix backfill-next:.
+- Deployed Supabase edge function portal-status v14 with hybrid read-path: normalized auth/reads via people+applications first, legacy Candidates fallback, and unchanged response contract for existing UI.
+- Added normalized next_interview stale cleanup in portal-status against applications table and retained non-blocking analytics tracking.
+- Created reusable database view public.portal_freshness_monitor_v1 for daily portal freshness checks anchored on portal_view_stats.
+
+## 2026-05-01
+- invite_sent_at (timestamptz on Candidates_shadow) is the single source of truth for idempotent invite tracking; never rely on row existence or isNewPortalRecord for this gate.
+- markInviteSentOnShadow must be called immediately after a confirmed successful mailer send in every code path that can trigger an invite.
+- isLeadStage() and isDeclineStage() are exported from invite.js; any new invite-triggering code path must gate on both before calling the mailer.
+- Stage-change invite logic: fire when (previousStage was lead OR previousStage was null) AND currentStage is NOT lead AND currentStage is NOT decline AND invite_sent_at is null.
+
+## 2026-05-02
+- /api/health is intentionally unauthenticated; it exists solely for external uptime monitors.
+- /api/admin/monitor requires MONITOR_SECRET or CRON_SECRET bearer; it is also the target of the Vercel daily cron at 0 1 * * *.
+- monitor_alert_state cooldown prevents duplicate alert emails; do not bypass or skip writes to that table after a successful send.
+- Vercel Hobby plan only supports daily cron schedules (no sub-daily intervals); any cron added to vercel.json must use a daily pattern or deployment will fail.
+- portal_freshness_monitor_v1 is service_role only; do not re-grant anon or authenticated access to it.
+- cron_refresh_state heartbeat fields (last_run_at, last_success_at, last_status, last_error) must be written at the start and end of every cron run; monitor staleness detection depends on last_success_at, not updated_at.
+- Each health check in monitor.js must be wrapped in safeEvaluate() so a single check failure does not crash the entire endpoint.
+
+## 2026-05-04
+- System is fully live: MAGIC_LINK_EMAIL_DRY_RUN=false, MAGIC_LINK_FORCE_RECIPIENT_EMAIL removed, real invite emails are being delivered to candidates.
+- Invite email subject format: "[candidateName] Application Status Link - [positionApplied]" — must match this exactly to stay consistent with candidate expectations.
+- positionApplied must be derived and passed through every send path (application-created, candidate-stage-change, test-mailer); never call sendMagicLinkInvite without it.
+- Pending validation: confirm first real post-cutover invite arrives at a candidate with correct subject, position name, and portal link.
+- Pending cleanup: remove legacy Candidates fallback from portal-status edge function after additional stabilization.
+- Pending operational: set calendar reminder for Graph client secret expiration and evaluate long-term posture of smoke-test endpoint.
+
+## 2026-05-04 (documentation)
+- Canonical system documentation lives at docs/system-overview.md. Keep it updated any time architecture, endpoints, env vars, schema, or runbook procedures change.
+
+## 2026-05-04 (normalized write ordering fix)
+- Ingestion ordering rule: always upsert normalized `people` before attempting normalized `applications` writes for the same opportunity.
+- Runtime coverage rule: cron refresh must keep normalized tables in sync as well; shadow-only refresh creates normalized drift.
+- Remaining normalized gap baseline after repair is expected null-identity exceptions only: 4 lead rows with `person_key = null` cannot map to applications by design.
+- Documentation rule: keep docs/system-overview.md flow and cron sections aligned with actual write ordering whenever ingestion logic changes.
+
+## 2026-05-04 (provisional sourced identity anchor)
+- New identity fallback rule: when email and normalized phone are both missing but Lever candidate id exists, use provisional `person_key = lever_candidate:<candidateId>`.
+- Provisional `lever_candidate:*` keys are preferred over null person_key because they preserve cross-event linking for sourced leads.
+- Keep `identity_confidence = 1` for provisional candidate-id identity.
+- Last-resort identity fallback: when candidate id is unavailable, use `person_key = lever_opportunity:<leverId>` to avoid null-identity rows.
+- Current production parity snapshot after remediation: `shadow_null_person_key = 0`, `shadow_not_in_applications = 0`, `shadow_person_key_missing_in_people = 0`.
+- Future cleanup requirement: merge provisional `lever_candidate:*` and `lever_opportunity:*` keys to canonical `email:*` / `phone:*` keys when reliable contact data appears.

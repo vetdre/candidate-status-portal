@@ -103,8 +103,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(12px);
+  background: white;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
@@ -123,23 +122,31 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
+  flex: 1 1 auto;
+  padding-left: 2px;
 }
 
 
 .brand-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  box-shadow: var(--shadow-sm);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  width: 240px;
+  height: 78px;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
   flex: 0 0 auto;
-  padding: 6px;
+  padding: 0;
+}
+
+
+.brand-link {
+  text-decoration: none;
+  color: inherit;
 }
 
 
@@ -147,36 +154,8 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: left center;
   display: block;
-}
-
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-
-.brand-title {
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: none;
-  font-weight: 800;
-  color: rgba(15, 23, 42, 0.76);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-
-.brand-subtitle {
-  font-size: 12px;
-  color: rgba(15, 23, 42, 0.55);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 
@@ -254,7 +233,19 @@ label {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 14px;
-  align-items: center;
+  align-items: end;
+}
+
+.input-stack {
+  min-width: 0;
+}
+
+.input-stack label {
+  margin: 0 0 8px;
+}
+
+.submit-inline {
+  align-self: end;
 }
 
 
@@ -370,6 +361,358 @@ input.error {
 
 
 .secondary-btn svg { width: 14px; height: 14px; }
+
+.secondary-link {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.58);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.18);
+  padding-bottom: 2px;
+}
+
+.secondary-link:hover {
+  color: rgba(15, 23, 42, 0.82);
+  border-bottom-color: rgba(15, 23, 42, 0.35);
+}
+
+
+.preview-tools {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(15, 47, 74, 0.24);
+  background: rgba(15, 47, 74, 0.03);
+}
+
+
+.preview-tools[hidden] { display: none; }
+
+
+.preview-header {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(15, 47, 74, 0.74);
+  margin-bottom: 8px;
+}
+
+
+.preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+
+.preview-btn {
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 47, 74, 0.22);
+  background: #fff;
+  color: rgba(15, 23, 42, 0.9);
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+
+.preview-btn:hover {
+  border-color: rgba(15, 47, 74, 0.34);
+  box-shadow: var(--shadow-sm);
+}
+
+
+.preview-btn.active {
+  background: rgba(15, 47, 74, 0.10);
+  border-color: rgba(15, 47, 74, 0.44);
+  color: rgba(15, 47, 74, 0.98);
+}
+
+
+.preview-group {
+  margin-top: 10px;
+}
+
+
+.preview-group:first-of-type {
+  margin-top: 0;
+}
+
+
+.preview-group-label {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.62);
+  margin: 0 0 6px;
+}
+
+
+body.typography-relaxed label {
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+
+body.typography-relaxed .secure-pill,
+body.typography-relaxed .primary-btn,
+body.typography-relaxed .secondary-btn,
+body.typography-relaxed .tab-position,
+body.typography-relaxed .tab-date,
+body.typography-relaxed .chip,
+body.typography-relaxed .status-pill,
+body.typography-relaxed .stagebar-title .label,
+body.typography-relaxed .stagebar-title .value {
+  text-transform: none;
+}
+
+
+body.typography-relaxed .secure-pill {
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  font-weight: 750;
+}
+
+
+body.typography-relaxed .primary-btn {
+  font-size: 13.5px;
+  font-weight: 820;
+  letter-spacing: 0.06em;
+}
+
+
+body.typography-relaxed .secondary-btn {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+
+body.typography-relaxed .tab-position {
+  font-size: 13.5px;
+  font-weight: 820;
+  letter-spacing: 0.04em;
+}
+
+
+body.typography-relaxed .tab-date {
+  font-size: 12.5px;
+  font-weight: 740;
+  letter-spacing: 0.03em;
+}
+
+
+body.typography-relaxed .chip {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 8px 11px;
+}
+
+
+body.typography-relaxed .status-pill {
+  font-size: 12.5px;
+  font-weight: 840;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+}
+
+
+body.typography-relaxed .stagebar-title .label,
+body.typography-relaxed .stagebar-title .value {
+  font-size: 12.5px;
+  font-weight: 820;
+  letter-spacing: 0.05em;
+}
+
+
+body.typography-relaxed .result-row {
+  row-gap: 10px;
+}
+
+
+body.typography-relaxed .result-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(15, 23, 42, 0.54);
+}
+
+
+body.brand-ms-preview {
+  --accent: #59621D;
+  --accent-2: #9A8700;
+  --accent-soft: rgba(89, 98, 29, 0.10);
+  --accent-border: rgba(89, 98, 29, 0.28);
+
+  --page-bg-1: #f3f3f3;
+  --page-bg-2: #e5e5e5;
+  --card-border: rgba(0, 0, 0, 0.10);
+
+  --text-main: #111111;
+  --text-muted: rgba(0, 0, 0, 0.68);
+  --text-light: rgba(0, 0, 0, 0.54);
+
+  --line: rgba(0, 0, 0, 0.12);
+  --line-strong: rgba(0, 0, 0, 0.20);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 10px 24px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.10);
+
+  --info: #1F707D;
+  --info-bg: rgba(31, 112, 125, 0.12);
+  --info-border: rgba(31, 112, 125, 0.36);
+
+  --success: #8FC248;
+  --success-bg: rgba(143, 194, 72, 0.14);
+  --success-border: rgba(143, 194, 72, 0.40);
+
+  --warning: #A45A2A;
+  --warning-bg: rgba(164, 90, 42, 0.12);
+  --warning-border: rgba(164, 90, 42, 0.36);
+
+  --stage-interviewing: #1F707D;
+  --stage-interviewing-bg: rgba(31, 112, 125, 0.10);
+  --stage-interviewing-border: rgba(31, 112, 125, 0.34);
+  --stage-decision: #A45A2A;
+  --stage-decision-bg: rgba(164, 90, 42, 0.10);
+  --stage-decision-border: rgba(164, 90, 42, 0.32);
+
+  --tab-inactive-bg: rgba(255, 255, 255, 0.72);
+  --tab-active-bg: #ffffff;
+  --tab-inactive-text: rgba(0, 0, 0, 0.66);
+  --tab-active-text: rgba(0, 0, 0, 0.90);
+  --tab-inactive-border: rgba(0, 0, 0, 0.18);
+  --tab-active-border: rgba(0, 0, 0, 0.22);
+  --panel-border: rgba(0, 0, 0, 0.22);
+}
+
+
+body.brand-ms-preview {
+  font-family: "Source Sans Pro", "Open Sans", Arial, sans-serif;
+  background:
+    radial-gradient(900px 450px at 15% 10%, rgba(164, 90, 42, 0.07) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(900px 450px at 85% 15%, rgba(89, 98, 29, 0.08) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(180deg, var(--page-bg-1), var(--page-bg-2));
+}
+
+
+body.brand-ms-preview h1,
+body.brand-ms-preview .result-title {
+  font-family: "Raleway", Arial, sans-serif;
+}
+
+
+body.brand-ms-preview .primary-btn {
+  background: linear-gradient(135deg, var(--accent), #6f7a29);
+}
+
+
+body.brand-ms-preview .preview-tools {
+  border-color: rgba(89, 98, 29, 0.34);
+  background: rgba(89, 98, 29, 0.08);
+}
+
+
+body.brand-ms-preview .preview-btn.active {
+  background: rgba(89, 98, 29, 0.16);
+  border-color: rgba(89, 98, 29, 0.46);
+  color: rgba(60, 66, 21, 0.98);
+}
+
+
+body.brand-ms-preview .secondary-link {
+  color: rgba(89, 98, 29, 0.90);
+  border-bottom-color: rgba(89, 98, 29, 0.40);
+}
+
+
+body.brand-ms-preview .secondary-link:hover {
+  color: rgba(89, 98, 29, 1);
+  border-bottom-color: rgba(89, 98, 29, 0.65);
+}
+
+
+body.brand-ms-preview .stage-step.current {
+  border-color: rgba(31, 112, 125, 0.46);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+
+body.brand-ms-preview .stage-step.current .stage-dot,
+body.brand-ms-preview .stage-step.current .step-fill {
+  background: var(--info);
+}
+
+
+body.brand-ms-preview .stage-step.current .step-text {
+  color: rgba(20, 74, 84, 0.98);
+}
+
+
+body.brand-ms-preview .stage-step.current.offer,
+body.brand-ms-preview .stage-step.current.hired {
+  border-color: rgba(89, 98, 29, 0.46);
+  background: rgba(249, 252, 240, 0.96);
+}
+
+
+body.brand-ms-preview .stage-step.current.offer .stage-dot,
+body.brand-ms-preview .stage-step.current.offer .step-fill,
+body.brand-ms-preview .stage-step.current.hired .stage-dot,
+body.brand-ms-preview .stage-step.current.hired .step-fill {
+  background: rgba(89, 98, 29, 0.94);
+}
+
+
+body.brand-ms-preview .stage-step.current.offer .step-text,
+body.brand-ms-preview .stage-step.current.hired .step-text {
+  color: rgba(59, 67, 18, 0.98);
+}
+
+
+body.brand-ms-preview .stagebar.terminal-success {
+  border-color: rgba(89, 98, 29, 0.44);
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(143, 194, 72, 0.24) 0%, rgba(143, 194, 72, 0) 55%),
+    radial-gradient(100% 100% at 100% 0%, rgba(154, 135, 0, 0.20) 0%, rgba(154, 135, 0, 0) 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 241, 0.95));
+}
+
+
+body.brand-ms-preview .stagebar.terminal-success .stagebar-title .value {
+  color: rgba(59, 67, 18, 0.98);
+}
+
+
+body.brand-ms-preview .status-pill-hired {
+  color: rgba(59, 67, 18, 0.98);
+  border-color: rgba(89, 98, 29, 0.52);
+  background: rgba(143, 194, 72, 0.24);
+}
+
+
+body.brand-ms-preview .stagebar.terminal-warning {
+  border-color: rgba(164, 90, 42, 0.32);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+
+body.typography-relaxed .stage-step .step-text {
+  font-size: 11.5px;
+  font-weight: 840;
+  letter-spacing: 0.03em;
+}
 
 
 /* Offer button variant */
@@ -748,7 +1091,14 @@ input.error {
 .note-success {
   border-color: rgba(22, 163, 74, 0.24);
   background: rgba(22, 163, 74, 0.08);
-  color: rgba(22, 163, 74, 0.95);
+  color: rgba(20, 97, 50, 0.98);
+}
+
+
+body.brand-ms-preview .note-success {
+  border-color: rgba(89, 98, 29, 0.36);
+  background: rgba(143, 194, 72, 0.16);
+  color: rgba(49, 60, 16, 0.98);
 }
 
 
@@ -870,14 +1220,14 @@ input.error {
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: rgba(255,255,255,0.9);
   padding: 10px 10px 12px;
-  min-height: 52px;
+  min-height: 64px;
   overflow: hidden;
 }
 
 
 .stage-step .step-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
 }
 
@@ -888,16 +1238,23 @@ input.error {
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.22);
   flex: 0 0 auto;
+  margin-top: 2px;
 }
 
 
 .stage-step .step-text {
   font-size: 11px;
   font-weight: 950;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-transform: none;
   color: rgba(15, 23, 42, 0.60);
-  white-space: nowrap;
+  line-height: 1.25;
+  min-height: calc(1.25em * 2);
+  white-space: normal;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -993,6 +1350,12 @@ input.error {
 
 
 @media (max-width: 860px) {
+  .topbar-inner { padding: 14px 14px; }
+  .brand { gap: 8px; padding-left: 0; }
+  .brand-badge { width: 160px; height: 52px; }
+  .brand-text { min-height: 52px; }
+  .brand-title { font-size: 15px; letter-spacing: 0.01em; }
+  .secure-pill { font-size: 11px; letter-spacing: 0.06em; padding: 7px 10px; }
   .card { padding: 30px 20px 22px; }
   h1 { font-size: 30px; }
   .row { grid-template-columns: 1fr; }
@@ -1018,22 +1381,24 @@ input.error {
 }
 </style>
 </head>
-<body>
+<body class="typography-relaxed brand-ms-preview">
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-badge" aria-hidden="true">
+      <a
+        class="brand-badge brand-link"
+        href="https://msconsultants.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Visit MS Consultants website"
+      >
         <img
-          src="ms-logo-Color-Solid-square-transparent_no-text.webp"
-          alt=""
+          src="ms logo wide.png"
+          alt="MS consultants, inc. engineers, architects, planners"
           loading="lazy"
           onerror="this.style.display='none'"
         />
-      </div>
-      <div class="brand-text">
-        <div class="brand-title">ms consultants application portal</div>
-        <div class="brand-subtitle">secure status updates for your application</div>
-      </div>
+      </a>
     </div>
     <div class="secure-pill" title="This is a secured portal experience">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1057,31 +1422,39 @@ input.error {
 
 
     <form id="status-form" novalidate>
-      <label for="lastName">
-        Last name on your application
-        <span class="sr-only">(Required)</span>
-      </label>
       <div class="row">
-        <input
-          id="lastName"
-          type="text"
-          placeholder="Last name"
-          aria-label="Last name"
-          aria-required="true"
-          autocomplete="off"
-          required
-        />
-        <input
-          id="phone"
-          type="tel"
-          inputmode="numeric"
-          placeholder="10-digit phone (no dashes)"
-          aria-label="Phone number"
-          aria-required="true"
-          autocomplete="off"
-          required
-        />
-        <button type="submit" id="submit-btn" class="primary-btn">
+        <div class="input-stack">
+          <label for="lastName">
+            Last name on your application
+            <span class="sr-only">(Required)</span>
+          </label>
+          <input
+            id="lastName"
+            type="text"
+            placeholder="Last name"
+            aria-label="Last name"
+            aria-required="true"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <div class="input-stack">
+          <label for="phone">
+            Phone number on your application
+            <span class="sr-only">(Required)</span>
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            inputmode="numeric"
+            placeholder="10-digit phone"
+            aria-label="Phone number"
+            aria-required="true"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <button type="submit" id="submit-btn" class="primary-btn submit-inline">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -1095,14 +1468,12 @@ input.error {
         <div class="helper" id="phone-helper">
           Must match the last name and 10-digit phone number on your application
         </div>
-        <a class="secondary-btn" href="https://jobs.lever.co/msconsultants" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-          <span>Return to Careers</span>
+        <a class="secondary-link" href="https://jobs.lever.co/msconsultants" target="_blank" rel="noopener noreferrer">
+          Return to Careers
         </a>
       </div>
+
+      <div id="preview-tools" class="preview-tools" hidden aria-live="polite"></div>
     </form>
 
 
@@ -1137,6 +1508,7 @@ const CONFIG = {
 
 
 const session = { token: "", lastName: "", phone10: "", verified: false };
+const previewState = { scenario: "interview", typography: "current", brand: "current" };
 
 
 let activeController = null;
@@ -1170,6 +1542,256 @@ function initElements() {
   el.status = document.getElementById("status");
   el.result = document.getElementById("result");
   el.helper = document.getElementById("phone-helper");
+  el.previewTools = document.getElementById("preview-tools");
+}
+
+
+function isPreviewModeEnabled() {
+  const host = String(window.location.hostname || "").toLowerCase();
+  const isLocalHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  const isFileProtocol = String(window.location.protocol || "").toLowerCase() === "file:";
+  return isLocalHost || isFileProtocol;
+}
+
+
+function buildPreviewPayload(kind) {
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const hourMs = 60 * 60 * 1000;
+
+  const candidate = {
+    name: "Jordan Example",
+    position: "Civil Engineer"
+  };
+
+  if (kind === "closed") {
+    return {
+      ok: true,
+      candidate,
+      applications: [
+        {
+          name: "Jordan Example",
+          position: "Project Coordinator",
+          applied_at: new Date(now - 65 * dayMs).toISOString(),
+          stage_updated: new Date(now - 8 * dayMs).toISOString(),
+          portal_stage: "Closed",
+          portal_stage_order: 0,
+          portal_stage_terminal: true,
+          offer_access: false
+        }
+      ]
+    };
+  }
+
+  if (kind === "hired") {
+    return {
+      ok: true,
+      candidate,
+      applications: [
+        {
+          name: "Jordan Example",
+          position: "Transportation Planner",
+          applied_at: new Date(now - 52 * dayMs).toISOString(),
+          stage_updated: new Date(now - 2 * dayMs).toISOString(),
+          portal_stage: "Hired",
+          portal_stage_order: 99,
+          portal_stage_terminal: true,
+          offer_access: false
+        }
+      ]
+    };
+  }
+
+  if (kind === "offer") {
+    return {
+      ok: true,
+      candidate,
+      applications: [
+        {
+          name: "Jordan Example",
+          position: "Environmental Scientist",
+          applied_at: new Date(now - 38 * dayMs).toISOString(),
+          stage_updated: new Date(now - 1 * dayMs).toISOString(),
+          portal_stage: "Offer Extended",
+          portal_stage_order: 50,
+          portal_stage_terminal: false,
+          offer_access: true,
+          next_interview: null
+        }
+      ]
+    };
+  }
+
+  if (kind === "interview") {
+    return {
+      ok: true,
+      candidate,
+      applications: [
+        {
+          name: "Jordan Example",
+          position: "Structural Engineer",
+          applied_at: new Date(now - 22 * dayMs).toISOString(),
+          stage_updated: new Date(now - 6 * hourMs).toISOString(),
+          portal_stage: "Interviewing",
+          portal_stage_order: 30,
+          portal_stage_terminal: false,
+          offer_access: false,
+          next_interview: new Date(now + 3 * dayMs).toISOString()
+        },
+        {
+          name: "Jordan Example",
+          position: "Civil Engineer",
+          applied_at: new Date(now - 9 * dayMs).toISOString(),
+          stage_updated: new Date(now - 2 * dayMs).toISOString(),
+          portal_stage: "Under Review",
+          portal_stage_order: 20,
+          portal_stage_terminal: false,
+          offer_access: false
+        }
+      ]
+    };
+  }
+
+  return {
+    ok: true,
+    candidate,
+    applications: [
+      {
+        name: "Jordan Example",
+        position: "Civil Engineer",
+        applied_at: new Date(now - 11 * dayMs).toISOString(),
+        stage_updated: new Date(now - 20 * hourMs).toISOString(),
+        portal_stage: "Under Review",
+        portal_stage_order: 20,
+        portal_stage_terminal: false,
+        offer_access: false
+      }
+    ]
+  };
+}
+
+
+function setTypographyPreviewMode(mode) {
+  const relaxed = mode === "relaxed";
+  document.body.classList.toggle("typography-relaxed", relaxed);
+  previewState.typography = relaxed ? "relaxed" : "current";
+}
+
+
+function setBrandPreviewMode(mode) {
+  const msBrand = mode === "ms";
+  document.body.classList.toggle("brand-ms-preview", msBrand);
+  previewState.brand = msBrand ? "ms" : "current";
+}
+
+
+function syncPreviewButtons() {
+  if (!el.previewTools) return;
+  const scenarioButtons = Array.from(el.previewTools.querySelectorAll("[data-preview-scenario]"));
+  scenarioButtons.forEach((btn) => {
+    const scenario = String(btn.getAttribute("data-preview-scenario") || "");
+    btn.classList.toggle("active", scenario === previewState.scenario);
+  });
+
+  const typeButtons = Array.from(el.previewTools.querySelectorAll("[data-preview-typography]"));
+  typeButtons.forEach((btn) => {
+    const mode = String(btn.getAttribute("data-preview-typography") || "");
+    btn.classList.toggle("active", mode === previewState.typography);
+  });
+
+  const brandButtons = Array.from(el.previewTools.querySelectorAll("[data-preview-brand]"));
+  brandButtons.forEach((btn) => {
+    const mode = String(btn.getAttribute("data-preview-brand") || "");
+    btn.classList.toggle("active", mode === previewState.brand);
+  });
+}
+
+
+function renderPreviewTools() {
+  if (!el.previewTools) return;
+
+  const scenarios = [
+    { key: "review", label: "Under Review" },
+    { key: "interview", label: "Interviewing" },
+    { key: "offer", label: "Offer" },
+    { key: "hired", label: "Hired" },
+    { key: "closed", label: "Closed" }
+  ];
+
+  const scenarioButtons = scenarios.map((s) => (
+    `<button type="button" class="preview-btn" data-preview-scenario="${s.key}">${s.label}</button>`
+  )).join("");
+
+  const typeButtons = [
+    { key: "current", label: "Current Type" },
+    { key: "relaxed", label: "Relaxed Type" }
+  ].map((s) => (
+    `<button type="button" class="preview-btn" data-preview-typography="${s.key}">${s.label}</button>`
+  )).join("");
+
+  const brandButtons = [
+    { key: "current", label: "Current Brand" },
+    { key: "ms", label: "MS Brand" }
+  ].map((s) => (
+    `<button type="button" class="preview-btn" data-preview-brand="${s.key}">${s.label}</button>`
+  )).join("");
+
+  el.previewTools.innerHTML = `
+    <div class="preview-header">Local Preview Mode</div>
+    <div class="preview-group">
+      <div class="preview-group-label">Scenario</div>
+      <div class="preview-row">${scenarioButtons}</div>
+    </div>
+    <div class="preview-group">
+      <div class="preview-group-label">Typography</div>
+      <div class="preview-row">${typeButtons}</div>
+    </div>
+    <div class="preview-group">
+      <div class="preview-group-label">Brand Style</div>
+      <div class="preview-row">${brandButtons}</div>
+    </div>
+  `;
+  el.previewTools.hidden = false;
+
+  const scenarioBtns = Array.from(el.previewTools.querySelectorAll("[data-preview-scenario]"));
+  scenarioBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const scenario = String(btn.getAttribute("data-preview-scenario") || "review");
+      previewState.scenario = scenario;
+      renderApplicationsView(buildPreviewPayload(scenario));
+      setStatus(`Previewing: ${scenario}`, "info");
+      setTimeout(() => setStatus(""), 1500);
+      syncPreviewButtons();
+    });
+  });
+
+  const typBtns = Array.from(el.previewTools.querySelectorAll("[data-preview-typography]"));
+  typBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = String(btn.getAttribute("data-preview-typography") || "current");
+      setTypographyPreviewMode(mode);
+      setStatus(`Typography: ${previewState.typography}`, "info");
+      setTimeout(() => setStatus(""), 1500);
+      syncPreviewButtons();
+    });
+  });
+
+  const brandBtns = Array.from(el.previewTools.querySelectorAll("[data-preview-brand]"));
+  brandBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = String(btn.getAttribute("data-preview-brand") || "current");
+      setBrandPreviewMode(mode);
+      setStatus(`Brand style: ${previewState.brand === "ms" ? "MS Brand" : "Current"}`, "info");
+      setTimeout(() => setStatus(""), 1500);
+      syncPreviewButtons();
+    });
+  });
+
+  setBrandPreviewMode(previewState.brand);
+  setTypographyPreviewMode(previewState.typography);
+  renderApplicationsView(buildPreviewPayload(previewState.scenario));
+  syncPreviewButtons();
+  setStatus("Preview mode is enabled (local sample data).", "info");
 }
 
 
@@ -1402,7 +2024,7 @@ function classifyFromPortal(stageText, order, terminal) {
         pillClass: "status-pill-hired",
         pillText: "Hired",
         noteClass: "note note-success",
-        message: "Congratulations! Please check UKG Pro for onboarding details and next steps.",
+        message: "Congratulations! Please connect with your hiring manager or recruiter for next steps and system access.",
         showStage: true,   /* CHANGE 5: show stage bar for hired so pipeline renders */
         terminalType: "success"
       };
@@ -1615,11 +2237,12 @@ function renderApplicationsView(payload) {
 
     return `
       <button type="button" class="app-tab ${idx === 0 ? "active" : ""}" data-app-index="${idx}"
+        title="${pos} | Applied ${escapeHtml(applied)}"
         aria-selected="${idx === 0 ? "true" : "false"}">
         <div class="tab-content">
           <span class="tab-position">${pos}</span>
           <span class="tab-separator">•</span>
-          <span class="tab-date">${escapeHtml(applied).toUpperCase()}</span>
+          <span class="tab-date">${escapeHtml(applied)}</span>
         </div>
       </button>
     `;
@@ -1820,6 +2443,11 @@ async function checkStatus(event) {
 
 
   if (!token) {
+    if (isPreviewModeEnabled()) {
+      renderApplicationsView(buildPreviewPayload("interview"));
+      setStatus("Preview mode is enabled (no token required locally).", "info");
+      return;
+    }
     setStatus("Missing security token. Please use the personalized link sent by your recruiter.", "error");
     return;
   }
@@ -1976,7 +2604,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   if (!token) {
-    setStatus("No security token detected. Please use your personalized status link received via email.", "warning");
+    if (isPreviewModeEnabled()) {
+      renderPreviewTools();
+    } else {
+      setStatus("No security token detected. Please use your personalized status link received via email.", "warning");
+    }
   } else {
     session.token = String(token).trim();
     if (window.history && window.history.replaceState) {
