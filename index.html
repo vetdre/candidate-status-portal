@@ -1472,8 +1472,6 @@ body.brand-ms-preview .note-success {
           Return to Careers
         </a>
       </div>
-
-      <div id="preview-tools" class="preview-tools" hidden aria-live="polite"></div>
     </form>
 
 
@@ -1543,6 +1541,16 @@ function initElements() {
   el.result = document.getElementById("result");
   el.helper = document.getElementById("phone-helper");
   el.previewTools = document.getElementById("preview-tools");
+
+  // Create preview tools div dynamically only in preview mode
+  if (!el.previewTools && isPreviewModeEnabled()) {
+    const container = document.createElement("div");
+    container.id = "preview-tools";
+    container.className = "preview-tools";
+    container.setAttribute("aria-live", "polite");
+    document.body.appendChild(container);
+    el.previewTools = container;
+  }
 }
 
 
