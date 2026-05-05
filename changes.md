@@ -115,3 +115,12 @@
 - Updated docs/system-overview.md identity rules to document provisional `lever_candidate:*` keys and future merge requirement to canonical email/phone keys.
 - Executed one-time data repair to assign `lever_opportunity:*` person keys for residual null-identity rows and upsert corresponding people/applications rows.
 - Validation snapshot after repair: `shadow_null_person_key = 0`, `shadow_not_in_applications = 0`, `shadow_person_key_missing_in_people = 0`.
+
+## 2026-05-04 (agent dictionary)
+- Added docs/agent-dictionary.md as a portable, copy-paste context file for any AI agent to troubleshoot, explain, and safely update the Candidate Portal.
+- Documented canonical components, endpoint map, data semantics, invariants, troubleshooting matrix, SQL checks, reusable prompts, and change guardrails.
+- Added explicit handoff list of files to provide when an agent needs deeper repo context.
+
+## 2026-05-05 (webhook/cron hotfix)
+- Fixed missing export in api/webhooks/lever/_lib/supabase.js by adding upsertPersonNormalized to module.exports.
+- This resolves runtime failures in webhook handlers and cron where calls to upsertPersonNormalized threw "is not a function".

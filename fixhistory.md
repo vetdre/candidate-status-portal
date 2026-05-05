@@ -123,3 +123,13 @@
 - Repair: executed one-time null-identity remediation to assign provisional lever-opportunity keys and backfill people/applications parents.
 - Validation: all current normalized parity gaps closed (`shadow_null_person_key = 0`, `shadow_not_in_applications = 0`, `shadow_person_key_missing_in_people = 0`).
 - Follow-up requirement: when stronger identity factors (email/phone) arrive, provisional `lever_candidate:*` and `lever_opportunity:*` keys should be merge-mapped to canonical keys before final auth-source cutover.
+
+## 2026-05-04 (agent dictionary)
+- No defect; operational documentation improvement.
+- Added docs/agent-dictionary.md to provide a single portable context artifact that can be pasted into any agent for troubleshooting and low-risk change assistance.
+- Included guardrails to reduce unsafe broad rewrites and preserve production contracts.
+
+## 2026-05-05 (webhook/cron runtime regression)
+- Defect: webhook and cron paths failed at runtime with "upsertPersonNormalized is not a function" despite callsites importing it.
+- Root cause: api/webhooks/lever/_lib/supabase.js defined upsertPersonNormalized but omitted it from module.exports.
+- Fix: added upsertPersonNormalized to module.exports and verified export presence via local require() check.

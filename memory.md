@@ -98,3 +98,13 @@
 - Last-resort identity fallback: when candidate id is unavailable, use `person_key = lever_opportunity:<leverId>` to avoid null-identity rows.
 - Current production parity snapshot after remediation: `shadow_null_person_key = 0`, `shadow_not_in_applications = 0`, `shadow_person_key_missing_in_people = 0`.
 - Future cleanup requirement: merge provisional `lever_candidate:*` and `lever_opportunity:*` keys to canonical `email:*` / `phone:*` keys when reliable contact data appears.
+
+## 2026-05-04 (agent dictionary)
+- Added docs/agent-dictionary.md as a portable context artifact for external AI agents.
+- Dictionary includes architecture map, endpoint definitions, table semantics, invariants, troubleshooting lookups, SQL checks, and safe-change guardrails.
+- Intended workflow: paste docs/agent-dictionary.md first, then provide the specific task prompt and affected files.
+
+## 2026-05-05 (webhook/cron hotfix)
+- Production failures showing "upsertPersonNormalized is not a function" were caused by missing export in api/webhooks/lever/_lib/supabase.js.
+- Function existed but was not included in module.exports; all importing handlers resolved it as undefined at runtime.
+- Hotfix: export added and validated locally via require() type check.

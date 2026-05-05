@@ -309,6 +309,7 @@ module.exports = {
   getLegacyCandidateByLeverId,
   getShadowCandidateByLeverId,
   findMagicTokenByPersonKey,
+  upsertPersonNormalized,
   upsertApplicationNormalized,
   hasApplicationByLeverOpportunityId,
   replaceInterviewsForOpportunity,
