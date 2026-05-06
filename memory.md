@@ -108,3 +108,9 @@
 - Production failures showing "upsertPersonNormalized is not a function" were caused by missing export in api/webhooks/lever/_lib/supabase.js.
 - Function existed but was not included in module.exports; all importing handlers resolved it as undefined at runtime.
 - Hotfix: export added and validated locally via require() type check.
+
+## 2026-05-06 (refresh watchdog)
+- Vercel daily cron is insufficient for same-day freshness remediation; GitHub Actions is now the preferred mitigation path for supplemental refresh checks.
+- Added .github/workflows/portal-refresh-watchdog.yml to run every 4 hours, call the monitor endpoint, and trigger refresh only when cron or ingest checks fail.
+- Portal freshness is retained as a visibility signal only; stale recently viewed rows can be normal if a candidate viewed before a later stage change.
+- Required GitHub repo secrets: PORTAL_BASE_URL, PORTAL_MONITOR_SECRET or PORTAL_CRON_SECRET, and PORTAL_CRON_SECRET when refresh auth is enabled.

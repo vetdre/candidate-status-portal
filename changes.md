@@ -124,3 +124,9 @@
 ## 2026-05-05 (webhook/cron hotfix)
 - Fixed missing export in api/webhooks/lever/_lib/supabase.js by adding upsertPersonNormalized to module.exports.
 - This resolves runtime failures in webhook handlers and cron where calls to upsertPersonNormalized threw "is not a function".
+
+## 2026-05-06 (refresh watchdog)
+- Added .github/workflows/portal-refresh-watchdog.yml to run every 4 hours and on manual dispatch.
+- Workflow calls /api/admin/monitor, inspects cron/ingest/freshness checks, and triggers /api/cron/refresh-candidates only when cron health or ingest health is failing.
+- Portal freshness stale count is still reported for visibility, but it no longer forces a refresh by itself because stale views can be caused by normal post-view recruiter updates.
+- Workflow expects GitHub secrets PORTAL_BASE_URL plus PORTAL_MONITOR_SECRET or PORTAL_CRON_SECRET, and PORTAL_CRON_SECRET for protected refresh calls.

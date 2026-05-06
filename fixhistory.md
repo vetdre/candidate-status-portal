@@ -133,3 +133,8 @@
 - Defect: webhook and cron paths failed at runtime with "upsertPersonNormalized is not a function" despite callsites importing it.
 - Root cause: api/webhooks/lever/_lib/supabase.js defined upsertPersonNormalized but omitted it from module.exports.
 - Fix: added upsertPersonNormalized to module.exports and verified export presence via local require() check.
+
+## 2026-05-06 (portal freshness mitigation)
+- Operational gap: Vercel Hobby cron only runs daily, which is too coarse to mitigate stale recently viewed portal records within the same day.
+- Fix: added a GitHub Actions watchdog that runs every 4 hours, checks monitor freshness/cron status, and triggers the refresh endpoint only when needed.
+- Guardrail: refresh is not run blindly on every schedule tick; it is conditional on failing cron or ingest checks, while portal freshness remains informational because stale views can reflect a user viewing before a later recruiter update.

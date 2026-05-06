@@ -1,0 +1,99 @@
+name: Portal Refresh Watchdog
+
+on:
+  schedule:
+    - cron: '17 */4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: portal-refresh-watchdog
+  cancel-in-progress: false
+
+jobs:
+  monitor-and-refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PORTAL_BASE_URL: ${{ secrets.PORTAL_BASE_URL }}
+      MONITOR_SECRET: ${{ secrets.PORTAL_MONITOR_SECRET }}
+      CRON_SECRET: ${{ secrets.PORTAL_CRON_SECRET }}
+    steps:
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PORTAL_BASE_URL:-}" ]; then
+            echo "Missing GitHub secret: PORTAL_BASE_URL" >&2
+            exit 1
+          fi
+
+          if [ -z "${MONITOR_SECRET:-}" ] && [ -z "${CRON_SECRET:-}" ]; then
+            echo "Missing GitHub secret: set PORTAL_MONITOR_SECRET or PORTAL_CRON_SECRET" >&2
+            exit 1
+          fi
+
+      - name: Check portal monitor
+        id: monitor
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          AUTH_TOKEN="${MONITOR_SECRET:-$CRON_SECRET}"
+          AUTH_ARGS=()
+          if [ -n "${AUTH_TOKEN:-}" ]; then
+            AUTH_ARGS=(-H "Authorization: Bearer ${AUTH_TOKEN}")
+          fi
+
+          HTTP_CODE=$(curl -sS -o monitor.json -w "%{http_code}" "${AUTH_ARGS[@]}" "${PORTAL_BASE_URL}/api/admin/monitor")
+
+          if [ "${HTTP_CODE}" != "200" ] && [ "${HTTP_CODE}" != "503" ]; then
+            echo "Monitor call failed with HTTP ${HTTP_CODE}" >&2
+            cat monitor.json >&2 || true
+            exit 1
+          fi
+
+          STALE_COUNT=$(jq -r '.checks[] | select(.name=="portal_freshness") | .details.staleCount // 0' monitor.json)
+          CRON_OK=$(jq -r '.checks[] | select(.name=="cron_refresh") | .ok' monitor.json)
+          INGEST_OK=$(jq -r '.checks[] | select(.name=="ingest_failures") | .ok' monitor.json)
+          FRESHNESS_OK=$(jq -r '.checks[] | select(.name=="portal_freshness") | .ok' monitor.json)
+
+          echo "stale_count=${STALE_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "cron_ok=${CRON_OK}" >> "$GITHUB_OUTPUT"
+          echo "ingest_ok=${INGEST_OK}" >> "$GITHUB_OUTPUT"
+          echo "freshness_ok=${FRESHNESS_OK}" >> "$GITHUB_OUTPUT"
+
+          if [ "${CRON_OK}" = "false" ] || [ "${INGEST_OK}" = "false" ]; then
+            echo "should_refresh=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_refresh=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger refresh job
+        if: steps.monitor.outputs.should_refresh == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          AUTH_ARGS=()
+          if [ -n "${CRON_SECRET:-}" ]; then
+            AUTH_ARGS=(-H "Authorization: Bearer ${CRON_SECRET}")
+          fi
+
+          HTTP_CODE=$(curl -sS -o refresh.json -w "%{http_code}" -X POST "${AUTH_ARGS[@]}" "${PORTAL_BASE_URL}/api/cron/refresh-candidates?maxRuntimeMs=270000&maxRecords=500")
+
+          cat refresh.json || true
+
+          if [ "${HTTP_CODE}" != "200" ]; then
+            echo "Refresh trigger failed with HTTP ${HTTP_CODE}" >&2
+            exit 1
+          fi
+
+      - name: Summarize result
+        shell: bash
+        run: |
+          echo "Portal freshness ok: ${{ steps.monitor.outputs.freshness_ok }}"
+          echo "Cron health ok: ${{ steps.monitor.outputs.cron_ok }}"
+          echo "Ingest health ok: ${{ steps.monitor.outputs.ingest_ok }}"
+          echo "Stale viewed records: ${{ steps.monitor.outputs.stale_count }}"
+          echo "Triggered refresh: ${{ steps.monitor.outputs.should_refresh }}"
