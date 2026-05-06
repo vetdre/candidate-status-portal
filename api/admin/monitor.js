@@ -272,7 +272,10 @@ module.exports = async (req, res) => {
     ]);
 
     const checks = [cronCheck, ingestCheck, freshnessCheck];
-    const failingChecks = checks.filter((check) => !check.ok);
+    // portal_freshness is informational only — stale viewed records can be normal
+    // post-view recruiter updates, not an actionable system failure.
+    const alertableChecks = checks.filter((check) => check.name !== CHECK_NAMES.freshness);
+    const failingChecks = alertableChecks.filter((check) => !check.ok);
     const alertCfg = getMonitoringAlertConfig();
     const canSendAlerts = isMonitoringAlertReady(alertCfg);
     const checksNeedingAlert = failingChecks.filter((check) =>
@@ -335,6 +338,9 @@ module.exports = async (req, res) => {
         result: alertResult,
       },
       checks,
+      freshness_informational: !freshnessCheck.ok
+        ? { staleCount: freshnessCheck.details?.staleCount ?? 0, summary: freshnessCheck.summary }
+        : null,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
