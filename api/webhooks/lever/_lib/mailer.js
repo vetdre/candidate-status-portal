@@ -104,10 +104,11 @@ async function fetchGraphAccessToken(cfg) {
 
 function buildInviteEmailHtml({ candidateName, magicLink, positionApplied }) {
   const safeName = asNonEmptyString(candidateName) || "Candidate";
-  const safePosition = asNonEmptyString(positionApplied) || "position";
+  const safePosition = asNonEmptyString(positionApplied);
+  const rolePhrase = safePosition ? `${safePosition} role` : "role you applied for";
   return [
     `<p>Hi ${safeName},</p>`,
-    `<p>Thank you for your interest in the ${safePosition} role at ms Consultants.</p>`,
+    `<p>Thank you for your interest in the ${rolePhrase} at ms Consultants.</p>`,
     `<p>You can securely view your application status using your personal status link: <a href=\"${magicLink}\">Application Status Portal</a></p>`,
     "<p>You must use this specific link in order to access your application status details.</p>",
     "<p>When prompted, enter the last name and 10-digit phone number used on your application.</p>",
@@ -118,11 +119,12 @@ function buildInviteEmailHtml({ candidateName, magicLink, positionApplied }) {
 
 function buildInviteEmailText({ candidateName, magicLink, positionApplied }) {
   const safeName = asNonEmptyString(candidateName) || "Candidate";
-  const safePosition = asNonEmptyString(positionApplied) || "position";
+  const safePosition = asNonEmptyString(positionApplied);
+  const rolePhrase = safePosition ? `${safePosition} role` : "role you applied for";
   return [
     `Hi ${safeName},`,
     "",
-    `Thank you for your interest in the ${safePosition} role at ms Consultants.`,
+    `Thank you for your interest in the ${rolePhrase} at ms Consultants.`,
     "",
     `You can securely view your application status using your personal status link: ${magicLink}`,
     "You must use this specific link in order to access your application status details.",
@@ -137,7 +139,7 @@ function buildInviteEmailText({ candidateName, magicLink, positionApplied }) {
 
 function buildInviteSubject({ candidateName, positionApplied }) {
   const safeName = asNonEmptyString(candidateName) || "Candidate";
-  const safePosition = asNonEmptyString(positionApplied) || "Role";
+  const safePosition = asNonEmptyString(positionApplied) || "Applied Role";
   return `${safeName} Application Status Link - ${safePosition}`;
 }
 

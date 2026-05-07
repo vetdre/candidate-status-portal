@@ -109,7 +109,11 @@ module.exports = async (req, res) => {
         archived && opp?.archived?.reason ? String(opp.archived.reason) : null
       );
       const currentStage = resolveCurrentStageLabel(opp?.stage);
-      const position = resolvePositionLabel(opp?.position);
+      const position =
+        resolvePositionLabel(opp?.position) ||
+        resolvePositionLabel(opp?.posting) ||
+        resolvePositionLabel(opp?.job) ||
+        resolvePositionLabel(opp?.requisition);
       const stageFields = resolvePortalStageFields({
         currentStage,
         archived,
