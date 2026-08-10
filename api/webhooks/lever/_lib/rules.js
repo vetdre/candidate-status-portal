@@ -267,7 +267,7 @@ function resolvePortalStageFields(input) {
     };
   }
 
-  if (stage === "offer" || stage === "background check") {
+  if (stage === "offer" || stage === "background check" || stage === "asurint background screening") {
     return { portal_stage: "Offer Extended", portal_stage_order: 50, portal_stage_terminal: false };
   }
 

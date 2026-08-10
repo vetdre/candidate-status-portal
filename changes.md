@@ -130,3 +130,11 @@
 - Workflow calls /api/admin/monitor, inspects cron/ingest/freshness checks, and triggers /api/cron/refresh-candidates only when cron health or ingest health is failing.
 - Portal freshness stale count is still reported for visibility, but it no longer forces a refresh by itself because stale views can be caused by normal post-view recruiter updates.
 - Workflow expects GitHub secrets PORTAL_BASE_URL plus PORTAL_MONITOR_SECRET or PORTAL_CRON_SECRET, and PORTAL_CRON_SECRET for protected refresh calls.
+
+## 2026-08-10 (lead-stage invite gating fix)
+- Updated api/webhooks/lever/_lib/invite.js: rewrote isLeadStage to match normalized lead labels plus raw `lead-*` ids, added INVITE_ELIGIBLE_STAGE_TOKENS allowlist and isInviteEligibleStage, added `unrecognized_stage` block reason, and exported isDeclineStage/isInviteEligibleStage.
+- Updated api/webhooks/lever/candidate-stage-change.js: removed the isLeadTransition/previousStage inference and now evaluates invite eligibility on every stage change, gated by invite_sent_at and the stage allowlist.
+- Added backend/tests/invite.test.mjs covering lead suppression in raw and normalized form, applicant-stage eligibility, decline/archived blocking, unrecognized-stage fail-closed behavior, and the lead-to-applicant conversion path.
+- Reconciled invite gating against the authoritative Lever stage export: added `requisition` and `asurint background screening` to INVITE_ELIGIBLE_STAGE_TOKENS so Lever display-name payloads are not fail-closed.
+- Updated api/webhooks/lever/_lib/rules.js resolvePortalStageFields to treat `asurint background screening` as Offer Extended, matching the existing `background check` legacy label.
+- Expanded backend/tests/invite.test.mjs into a full stage matrix driving all 16 Lever stage ids and all 16 Lever display names through resolveCurrentStageLabel.

@@ -114,3 +114,17 @@
 - Added .github/workflows/portal-refresh-watchdog.yml to run every 4 hours, call the monitor endpoint, and trigger refresh only when cron or ingest checks fail.
 - Portal freshness is retained as a visibility signal only; stale recently viewed rows can be normal if a candidate viewed before a later stage change.
 - Required GitHub repo secrets: PORTAL_BASE_URL, PORTAL_MONITOR_SECRET or PORTAL_CRON_SECRET, and PORTAL_CRON_SECRET when refresh auth is enabled.
+
+## 2026-08-10 (lead-stage invite gating)
+- Locked business rule: NO Lever `lead-*` stage may ever trigger a portal invite; a lead that converts to a real applicant and moves into the applicant pipeline MUST receive exactly one invite.
+- Root cause of lead invites: rules.js normalizes `lead-new`/`lead-reached-out`/`lead-responded` to "New Lead"/"Reached Out"/"Responded", but invite.js isLeadStage tested startsWith("lead"), which no normalized label satisfies.
+- Invite gating is now allowlist-based: only known applicant-pipeline stages are invite-eligible. Lead, decline, and unmapped stages are blocked; unmapped stages report reason `unrecognized_stage`.
+- Stage vocabulary rule: any stage-based gate must match the NORMALIZED labels produced by resolveCurrentStageLabel, not the raw Lever stage ids.
+- candidate-stage-change no longer infers invites from a lead->non-lead transition; invite_sent_at is the sole single-send guard, so a missed invite self-heals on the next stage change.
+- Fail-closed tradeoff accepted: an applicant stage missing from the allowlist suppresses the invite instead of risking a lead email; gaps are visible via `unrecognized_stage` in ingest_events.
+- Open item resolved 2026-08-10: authoritative Lever stage list received; all 16 stage ids already existed in POWER_AUTOMATE_STAGE_MAP and all 10 current archive reason ids already existed in POWER_AUTOMATE_ARCHIVE_REASON_MAP.
+- Stage payload shape rule: resolveCurrentStageLabel reads stage.text before stage.id, so Lever display names can bypass the id-keyed map entirely. Any stage-based gate must recognize BOTH the mapped legacy label and the Lever display name.
+- Two stages differ between legacy label and Lever display name: `c320de36-...` is "In progress" in code but "Requisition" in Lever, and `7bac956b-...` is "Background Check" in code but "Asurint Background Screening" in Lever.
+- Stage normalization output is intentionally left on legacy Power Automate labels to preserve historical parity; compatibility is handled by accepting both vocabularies at the gates rather than changing normalization.
+- Archive reasons are not stages. "Hired" (065bdabc-...) is an archive reason, and archived candidates are blocked from invites by the `archived` condition.
+- Pending HR decision: which stage should actually trigger the invite send. INVITE_ELIGIBLE_STAGE_TOKENS currently covers the whole applicant+interview pipeline and is the single place to narrow once HR responds.

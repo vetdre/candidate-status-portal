@@ -19,7 +19,7 @@ const {
   resolveStageUpdatedAtUtc,
 } = require("./_lib/rules");
 const { buildIdentityFields, resolveMagicToken } = require("./_lib/identity");
-const { evaluateMagicInviteEligibility, isLeadStage } = require("./_lib/invite");
+const { evaluateMagicInviteEligibility } = require("./_lib/invite");
 const { sendMagicLinkInvite } = require("./_lib/mailer");
 const {
   json,
@@ -139,7 +139,6 @@ module.exports = async (req, res) => {
       });
 
       const existingShadow = await getShadowCandidateByLeverId(opportunityId, cfg).catch(() => null);
-      const previousStage = existingShadow?.current_stage ?? null;
 
       const magicToken = await resolveMagicToken(
         {
@@ -221,22 +220,19 @@ module.exports = async (req, res) => {
 
       await upsertCandidateShadow(row, cfg);
 
-      // Send invite when transitioning out of lead stage for the first time.
+      // invite_sent_at is the only single-send guard, so an invite missed earlier recovers on a later stage change.
       const recipientEmail = candidateEmail || legacy?.email || existingShadow?.email || null;
-      const isLeadTransition = (isLeadStage(previousStage) || previousStage === null) && !isLeadStage(currentStage);
-      const inviteEligibility = isLeadTransition
-        ? evaluateMagicInviteEligibility({
-            inviteAlreadySent: !!existingShadow?.invite_sent_at,
-            archived,
-            currentStage,
-            applicationPhone: identity.application_phone || legacy?.application_phone || null,
-            recipientEmail,
-          })
-        : null;
+      const inviteEligibility = evaluateMagicInviteEligibility({
+        inviteAlreadySent: !!existingShadow?.invite_sent_at,
+        archived,
+        currentStage,
+        applicationPhone: identity.application_phone || legacy?.application_phone || null,
+        recipientEmail,
+      });
 
       let inviteResult = null;
       let inviteError = null;
-      if (inviteEligibility?.shouldSend) {
+      if (inviteEligibility.shouldSend) {
         try {
           inviteResult = await sendMagicLinkInvite({
             recipientEmail,
@@ -253,7 +249,7 @@ module.exports = async (req, res) => {
       }
 
       const statusNotes = [];
-      if (inviteEligibility && !inviteEligibility.shouldSend) {
+      if (!inviteEligibility.shouldSend) {
         statusNotes.push(`Invite skipped: ${inviteEligibility.reasons.join(",")}`);
       } else if (inviteResult?.reason) {
         statusNotes.push(`Invite not sent: ${inviteResult.reason}`);

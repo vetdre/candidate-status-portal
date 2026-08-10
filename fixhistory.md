@@ -138,3 +138,21 @@
 - Operational gap: Vercel Hobby cron only runs daily, which is too coarse to mitigate stale recently viewed portal records within the same day.
 - Fix: added a GitHub Actions watchdog that runs every 4 hours, checks monitor freshness/cron status, and triggers the refresh endpoint only when needed.
 - Guardrail: refresh is not run blindly on every schedule tick; it is conditional on failing cron or ingest checks, while portal freshness remains informational because stale views can reflect a user viewing before a later recruiter update.
+
+## 2026-08-10 (lead-stage invite defect)
+- Defect: candidates added to Lever lead stages received candidate portal invite emails, reported from recruiter testing of additional Lever features.
+- Root cause: api/webhooks/lever/_lib/rules.js normalizes `lead-new`/`lead-reached-out`/`lead-responded` into "New Lead"/"Reached Out"/"Responded", but api/webhooks/lever/_lib/invite.js isLeadStage tested startsWith("lead"); no normalized label satisfies that test, so the `lead_stage` block reason never fired.
+- Contributing cause: candidate-stage-change.js treated previousStage === null (first event for a newly sourced lead, which has no prior Candidates_shadow row) as a transition out of lead, so the first webhook for a lead passed the transition test.
+- Reproduction: invoking the real rules/invite modules with lead payloads returned shouldSend=true with an empty blockReasons array for all three lead stages, in both raw-id and stage-object form.
+- Secondary defect: isLeadStage false-positived on any stage beginning with "lead" (for example "Leadership Role"), which would have wrongly suppressed legitimate invites.
+- Fix: replaced blocklist-style lead detection with normalized-label matching plus a `lead-` id prefix guard, and gated sends behind an explicit applicant-stage allowlist.
+- Fix: removed the lead-transition inference from candidate-stage-change.js so invites are evaluated on every stage change and de-duplicated solely by invite_sent_at, which also makes previously missed invites self-healing.
+- Trigger condition explaining intermittency: the send additionally required a valid 10-digit application phone, so leads sourced with email only were silently blocked while leads with email plus phone were emailed.
+- Verification: `node --test "tests/*.test.mjs"` passes 12/12 (5 pre-existing identity tests plus 7 new invite gating tests) with no regressions.
+- Verification: re-running the original reproduction now returns shouldSend=false with reason `lead_stage` for every lead input, while applicant stages (New applicant, Review, Interview, Offer) return shouldSend=true with no block reasons.
+- Not yet deployed at time of writing; requires push to origin (vetdre/candidate-status-portal, branch main) and post-deploy confirmation that a live lead add produces `Invite skipped: lead_stage` in ingest_events.
+- Follow-up defect found during stage reconciliation: `Requisition` and `Asurint Background Screening` are the real Lever display names for stages mapped in code as "In progress" and "Background Check". Because resolveCurrentStageLabel prefers stage.text over stage.id, expanded Lever payloads bypass the id-keyed map and would have been blocked as `unrecognized_stage`, silently suppressing legitimate invites.
+- Fix: added both display names to the invite allowlist so either payload shape is recognized.
+- Related display defect: `asurint background screening` was not matched by resolvePortalStageFields, so a candidate in background screening fell through to the default branch and displayed "Under Review" instead of "Offer Extended".
+- Fix: added `asurint background screening` to the Offer Extended branch alongside the existing `background check` label.
+- Verified no missing ids: all 16 stage ids and all 10 current archive reason ids from the authoritative export already existed in the rules.js maps. The map retains 4 archive reasons no longer listed in Lever (Assigned to different position, Salary expectations are out of range, Offer Rescinded, Archived - Other), which is harmless for historical rows.
